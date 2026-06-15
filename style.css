@@ -276,6 +276,12 @@ main {
   font-size: 12px;
 }
 
+.check-reason {
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
 .hidden {
   display: none;
 }

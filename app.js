@@ -7,7 +7,7 @@ const REQUIRED_COLUMNS = [
 ];
 const CONTENT_COLUMNS = [
   'subject', 'unit', 'type', 'question', 'answer', 'explanation',
-  'difficulty', 'source', 'check', 'questionImage', 'answerImage',
+  'difficulty', 'source', 'check', 'checkReason', 'questionImage', 'answerImage',
 ];
 
 let db;
@@ -33,6 +33,7 @@ const el = {
   unitTag: document.getElementById('unitTag'),
   difficultyTag: document.getElementById('difficultyTag'),
   checkBadge: document.getElementById('checkBadge'),
+  checkReasonText: document.getElementById('checkReasonText'),
   answerArea: document.getElementById('answerArea'),
   answerText: document.getElementById('answerText'),
   explanationText: document.getElementById('explanationText'),
@@ -74,6 +75,12 @@ function setCheckBadge(element, value) {
   element.classList.toggle('hidden', !text);
   element.classList.toggle('is-dual', text === '要確認・AI要チェック');
   element.textContent = text;
+}
+
+function setCheckReason(value) {
+  const text = (value || '').trim();
+  el.checkReasonText.classList.toggle('hidden', !text);
+  el.checkReasonText.textContent = text ? `理由：${text}` : '';
 }
 
 function updateStudyButtons() {
@@ -210,6 +217,7 @@ function csvRowsToCards(rows) {
       difficulty: row.difficulty,
       source: row.source,
       check: row.check,
+      checkReason: header.includes('checkReason') ? row.checkReason : '',
       questionImage: row.questionImage,
       answerImage: row.answerImage,
     }));
@@ -327,6 +335,7 @@ function renderStudyCard() {
     setTag(el.unitTag, '', '');
     setTag(el.difficultyTag, '', '');
     setCheckBadge(el.checkBadge, '');
+    setCheckReason('');
     el.sourceText.textContent = '';
     el.sourceText.classList.add('hidden');
     el.answerArea.classList.add('hidden');
@@ -342,6 +351,7 @@ function renderStudyCard() {
   setTag(el.unitTag, '単元', currentCard.unit);
   setTag(el.difficultyTag, '難しさ', currentCard.difficulty);
   setCheckBadge(el.checkBadge, currentCard.check);
+  setCheckReason(currentCard.checkReason);
   el.questionText.textContent = currentCard.question;
 
   if (currentCard.source) {

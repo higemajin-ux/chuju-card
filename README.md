@@ -18,7 +18,7 @@ https://higemajin-ux.github.io/chuju-card/
 ## CSV列
 
 ```csv
-cardId,subject,unit,type,question,answer,explanation,difficulty,source,check,questionImage,answerImage
+cardId,subject,unit,type,question,answer,explanation,difficulty,source,check,checkReason,questionImage,answerImage
 ```
 
 ## check欄
@@ -27,6 +27,12 @@ cardId,subject,unit,type,question,answer,explanation,difficulty,source,check,que
 - 要確認 = 画像が読みにくい・手書きが怪しい
 - AI要チェック = AIが文脈から補完したが、答えに自信が残る
 - 要確認・AI要チェック = 読み取りも答えも怪しい
+
+## checkReason欄
+
+- `check` は短い確認ラベルです。
+- `checkReason` は確認が必要な理由説明です。
+- `checkReason` がない旧CSVは空欄扱いで読み込みます。
 
 ## cardId 仕様
 
