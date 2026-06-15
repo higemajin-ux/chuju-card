@@ -2,6 +2,10 @@
 
 家庭学習向けの中学受験カードPWAです。GitHub Pages に置いて、CSV を読み込んで使う前提のシンプルな構成です。
 
+## GitHub Pages
+
+https://higemajin-ux.github.io/chuju-card/
+
 ## ファイル
 
 - `index.html`: 画面構成
