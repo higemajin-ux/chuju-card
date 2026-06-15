@@ -32,6 +32,7 @@ const el = {
   subjectTag: document.getElementById('subjectTag'),
   unitTag: document.getElementById('unitTag'),
   difficultyTag: document.getElementById('difficultyTag'),
+  checkBadge: document.getElementById('checkBadge'),
   answerArea: document.getElementById('answerArea'),
   answerText: document.getElementById('answerText'),
   explanationText: document.getElementById('explanationText'),
@@ -66,6 +67,13 @@ function setTag(element, label, value) {
     element.textContent = '';
     element.classList.add('hidden');
   }
+}
+
+function setCheckBadge(element, value) {
+  const text = (value || '').trim();
+  element.classList.toggle('hidden', !text);
+  element.classList.toggle('is-dual', text === '要確認・AI要チェック');
+  element.textContent = text;
 }
 
 function updateStudyButtons() {
@@ -318,6 +326,7 @@ function renderStudyCard() {
     setTag(el.subjectTag, '', '');
     setTag(el.unitTag, '', '');
     setTag(el.difficultyTag, '', '');
+    setCheckBadge(el.checkBadge, '');
     el.sourceText.textContent = '';
     el.sourceText.classList.add('hidden');
     el.answerArea.classList.add('hidden');
@@ -332,6 +341,7 @@ function renderStudyCard() {
   setTag(el.subjectTag, '科目', currentCard.subject);
   setTag(el.unitTag, '単元', currentCard.unit);
   setTag(el.difficultyTag, '難しさ', currentCard.difficulty);
+  setCheckBadge(el.checkBadge, currentCard.check);
   el.questionText.textContent = currentCard.question;
 
   if (currentCard.source) {
@@ -359,6 +369,7 @@ function renderList() {
     const item = el.itemTemplate.content.firstElementChild.cloneNode(true);
     item.querySelector('.list-title').textContent = card.question;
     item.querySelector('.list-sub').textContent = `${card.subject || '-'} / ${card.unit || '-'} / ${card.status === 'graduated' ? '合格' : '学習中'} / ○連続 ${card.goodStreak || 0} / 次回 ${card.nextReviewDate || '-'}`;
+    setCheckBadge(item.querySelector('.list-check'), card.check);
     item.addEventListener('click', () => {
       currentCard = card;
       answerVisible = false;

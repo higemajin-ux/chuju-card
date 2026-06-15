@@ -222,6 +222,23 @@ main {
   font-weight: 700;
 }
 
+.check-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: #ece7db;
+  color: #6f6758;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.check-badge.is-dual {
+  background: #e7dfd1;
+  color: #5f5648;
+}
+
 .question-text {
   font-size: 24px;
   font-weight: 800;
@@ -387,6 +404,10 @@ main {
   margin-top: 4px;
   color: var(--muted);
   font-size: 12px;
+}
+
+.list-check {
+  margin-top: 6px;
 }
 
 .data-panel .hint {

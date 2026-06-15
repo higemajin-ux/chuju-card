@@ -1,4 +1,4 @@
-const CACHE_NAME = 'chuju-card-v0.3-cardid';
+const CACHE_NAME = 'chuju-card-v0.3-check';
 const APP_SHELL = [
   './',
   './index.html',

@@ -21,6 +21,13 @@ https://higemajin-ux.github.io/chuju-card/
 cardId,subject,unit,type,question,answer,explanation,difficulty,source,check,questionImage,answerImage
 ```
 
+## check欄
+
+- 空欄 = 問題なし
+- 要確認 = 画像が読みにくい・手書きが怪しい
+- AI要チェック = AIが文脈から補完したが、答えに自信が残る
+- 要確認・AI要チェック = 読み取りも答えも怪しい
+
 ## cardId 仕様
 
 - `cardId` は固定IDです。
