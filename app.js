@@ -24,6 +24,9 @@ const el = {
   cardBox: document.getElementById('cardBox'),
   questionText: document.getElementById('questionText'),
   sourceText: document.getElementById('sourceText'),
+  subjectTag: document.getElementById('subjectTag'),
+  unitTag: document.getElementById('unitTag'),
+  difficultyTag: document.getElementById('difficultyTag'),
   answerArea: document.getElementById('answerArea'),
   answerText: document.getElementById('answerText'),
   explanationText: document.getElementById('explanationText'),
@@ -58,6 +61,16 @@ function createId(row) {
 
 function setStatus(message) {
   el.saveStatus.textContent = message;
+}
+
+function setTag(element, label, value) {
+  if (value) {
+    element.textContent = `${label} ${value}`;
+    element.classList.remove('hidden');
+  } else {
+    element.textContent = '';
+    element.classList.add('hidden');
+  }
 }
 
 function updateStudyButtons() {
@@ -224,6 +237,9 @@ function renderStudyCard() {
     el.cardBox.classList.add('empty');
     el.cardMeta.textContent = cards.length ? '出題できるカードがありません' : 'CSVを読み込んでください';
     el.questionText.textContent = cards.length ? '復習待ちのカードはありません。' : 'まだカードがありません。';
+    setTag(el.subjectTag, '', '');
+    setTag(el.unitTag, '', '');
+    setTag(el.difficultyTag, '', '');
     el.sourceText.textContent = '';
     el.sourceText.classList.add('hidden');
     el.answerArea.classList.add('hidden');
@@ -234,8 +250,12 @@ function renderStudyCard() {
   }
 
   el.cardBox.classList.remove('empty');
-  el.cardMeta.textContent = `${currentCard.subject || '科目未設定'} / ${currentCard.unit || '単元未設定'} / 次回 ${currentCard.nextReviewDate || todayString()}`;
+  el.cardMeta.textContent = `次回 ${currentCard.nextReviewDate || todayString()}`;
+  setTag(el.subjectTag, '科目', currentCard.subject);
+  setTag(el.unitTag, '単元', currentCard.unit);
+  setTag(el.difficultyTag, '難しさ', currentCard.difficulty);
   el.questionText.textContent = currentCard.question;
+
   if (currentCard.source) {
     el.sourceText.textContent = `${currentCard.source}から出題`;
     el.sourceText.classList.remove('hidden');
@@ -243,6 +263,7 @@ function renderStudyCard() {
     el.sourceText.textContent = '';
     el.sourceText.classList.add('hidden');
   }
+
   el.answerText.textContent = currentCard.answer;
   el.explanationText.textContent = currentCard.explanation || '';
   el.answerArea.classList.toggle('hidden', !answerVisible);
@@ -315,7 +336,7 @@ async function markCard(result) {
 function exportJson() {
   const payload = {
     app: 'chuju-card',
-    version: '0.1.1',
+    version: '0.2',
     exportedAt: new Date().toISOString(),
     cards,
   };

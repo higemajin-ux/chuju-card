@@ -10,34 +10,30 @@
 </head>
 <body>
   <header class="app-header">
-    <div>
+    <div class="header-copy">
+      <p class="eyebrow">毎日の復習</p>
       <h1>中受カード</h1>
-      <p>家庭学習向けの中学受験カードPWA</p>
+      <p class="subtitle">今日のカードを大きく見て、答え合わせまで迷わず進めます。</p>
     </div>
-    <span id="saveStatus" class="save-status">準備中</span>
+    <div class="header-status">
+      <div class="hero-stat">
+        <span class="hero-label">今日やる枚数</span>
+        <strong id="dueCount">0</strong>
+      </div>
+      <span id="saveStatus" class="save-status">準備中</span>
+    </div>
   </header>
 
   <main>
-    <section class="panel controls-panel" aria-label="データ操作">
-      <h2>教材を読み込む</h2>
-      <p class="hint">CSVはiPadの「ファイル」から読み込めます。必要な教材CSVだけをGitHub Pagesに置いて使います。</p>
-      <div class="button-grid">
-        <label class="big-button primary file-label">
-          CSVを読み込む
-          <input id="csvInput" type="file" accept=".csv,text/csv">
-        </label>
-        <button id="exportJsonBtn" class="big-button" type="button">JSONバックアップ</button>
-        <label class="big-button file-label">
-          JSON復元
-          <input id="jsonInput" type="file" accept="application/json,.json">
-        </label>
+    <section class="stats-strip" aria-label="学習状況">
+      <div class="mini-stat">
+        <span>全カード</span>
+        <strong id="totalCount">0</strong>
       </div>
-    </section>
-
-    <section class="stats-grid" aria-label="学習状況">
-      <div class="stat-card"><span>全カード</span><strong id="totalCount">0</strong></div>
-      <div class="stat-card"><span>今日の対象</span><strong id="dueCount">0</strong></div>
-      <div class="stat-card"><span>卒業</span><strong id="graduatedCount">0</strong></div>
+      <div class="mini-stat">
+        <span>卒業</span>
+        <strong id="graduatedCount">0</strong>
+      </div>
     </section>
 
     <section class="panel study-panel" aria-label="学習カード">
@@ -46,21 +42,29 @@
           <h2>学習カード</h2>
           <p id="cardMeta" class="meta">CSVを読み込んでください</p>
         </div>
-        <button id="nextCardBtn" class="small-button" type="button">次のカード</button>
+        <button id="nextCardBtn" class="small-button secondary-button" type="button">次のカード</button>
       </div>
 
       <article id="cardBox" class="card-box empty">
+        <div class="card-tags" aria-label="カード情報">
+          <span id="subjectTag" class="card-tag hidden"></span>
+          <span id="unitTag" class="card-tag hidden"></span>
+          <span id="difficultyTag" class="card-tag hidden"></span>
+        </div>
+
         <p id="questionText" class="question-text">まだカードがありません。</p>
+
         <div id="answerArea" class="answer-area hidden">
           <p class="answer-label">答え</p>
           <p id="answerText" class="answer-text"></p>
           <p id="explanationText" class="explanation-text"></p>
         </div>
+
         <p id="sourceText" class="source-text hidden"></p>
       </article>
 
       <div class="study-actions">
-        <button id="showAnswerBtn" class="big-button primary" type="button">答えを見る</button>
+        <button id="showAnswerBtn" class="big-button primary answer-button" type="button">答えを見る</button>
       </div>
 
       <div class="judge-actions" aria-label="理解度を記録">
@@ -72,11 +76,32 @@
 
     <section class="panel list-panel" aria-label="カード一覧">
       <div class="list-top">
-        <h2>カード一覧</h2>
-        <button id="clearAllBtn" class="quiet-button" type="button">全データ削除</button>
+        <div>
+          <h2>カード一覧</h2>
+          <p class="hint">下から選ぶと、そのカードに切り替わります。</p>
+        </div>
       </div>
       <div id="cardList" class="card-list"></div>
     </section>
+
+    <details class="panel data-panel">
+      <summary>データ管理</summary>
+      <p class="hint">CSV読み込みやバックアップは保護者向けの操作です。</p>
+      <div class="data-grid">
+        <label class="big-button primary file-label">
+          CSVを読み込む
+          <input id="csvInput" type="file" accept=".csv,text/csv">
+        </label>
+        <button id="exportJsonBtn" class="big-button secondary-button" type="button">JSONバックアップ</button>
+        <label class="big-button file-label">
+          JSON復元
+          <input id="jsonInput" type="file" accept="application/json,.json">
+        </label>
+      </div>
+      <div class="data-footer">
+        <button id="clearAllBtn" class="quiet-button" type="button">この端末の学習記録を削除</button>
+      </div>
+    </details>
   </main>
 
   <template id="cardListItemTemplate">
