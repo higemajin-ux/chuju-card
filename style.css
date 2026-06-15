@@ -120,6 +120,7 @@ main {
 
 .card-box.empty { color: var(--muted); }
 .question-text { font-size: 30px; font-weight: 800; line-height: 1.5; }
+.source-text { margin-top: 10px; color: var(--muted); font-size: 14px; }
 .answer-area { margin-top: 24px; padding-top: 20px; border-top: 1px dashed var(--line); }
 .answer-label { color: var(--muted); font-weight: 700; }
 .answer-text { font-size: 28px; font-weight: 800; }

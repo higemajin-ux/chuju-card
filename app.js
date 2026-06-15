@@ -23,6 +23,7 @@ const el = {
   cardMeta: document.getElementById('cardMeta'),
   cardBox: document.getElementById('cardBox'),
   questionText: document.getElementById('questionText'),
+  sourceText: document.getElementById('sourceText'),
   answerArea: document.getElementById('answerArea'),
   answerText: document.getElementById('answerText'),
   explanationText: document.getElementById('explanationText'),
@@ -223,6 +224,8 @@ function renderStudyCard() {
     el.cardBox.classList.add('empty');
     el.cardMeta.textContent = cards.length ? '出題できるカードがありません' : 'CSVを読み込んでください';
     el.questionText.textContent = cards.length ? '復習待ちのカードはありません。' : 'まだカードがありません。';
+    el.sourceText.textContent = '';
+    el.sourceText.classList.add('hidden');
     el.answerArea.classList.add('hidden');
     el.answerText.textContent = '';
     el.explanationText.textContent = '';
@@ -233,6 +236,13 @@ function renderStudyCard() {
   el.cardBox.classList.remove('empty');
   el.cardMeta.textContent = `${currentCard.subject || '科目未設定'} / ${currentCard.unit || '単元未設定'} / 次回 ${currentCard.nextReviewDate || todayString()}`;
   el.questionText.textContent = currentCard.question;
+  if (currentCard.source) {
+    el.sourceText.textContent = `もと：${currentCard.source}`;
+    el.sourceText.classList.remove('hidden');
+  } else {
+    el.sourceText.textContent = '';
+    el.sourceText.classList.add('hidden');
+  }
   el.answerText.textContent = currentCard.answer;
   el.explanationText.textContent = currentCard.explanation || '';
   el.answerArea.classList.toggle('hidden', !answerVisible);
