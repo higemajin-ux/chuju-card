@@ -1,0 +1,173 @@
+:root {
+  --bg: #f4f1e8;
+  --panel: #fffdf6;
+  --ink: #243126;
+  --muted: #667066;
+  --line: #d8d0be;
+  --primary: #38513a;
+  --primary-ink: #ffffff;
+  --good: #2f6b3f;
+  --maybe: #8a6d24;
+  --bad: #7d3b34;
+  --shadow: 0 8px 22px rgba(38, 35, 27, 0.12);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", sans-serif;
+  line-height: 1.6;
+}
+
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 18px max(18px, env(safe-area-inset-left)) 14px max(18px, env(safe-area-inset-right));
+  background: rgba(244, 241, 232, 0.94);
+  border-bottom: 1px solid var(--line);
+  backdrop-filter: blur(10px);
+}
+
+h1, h2, p { margin: 0; }
+h1 { font-size: 28px; letter-spacing: 0.04em; }
+h2 { font-size: 22px; margin-bottom: 8px; }
+.app-header p, .hint, .meta { color: var(--muted); }
+
+main {
+  width: min(980px, 100%);
+  margin: 0 auto;
+  padding: 18px 18px 40px;
+}
+
+.panel, .stat-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  box-shadow: var(--shadow);
+}
+
+.panel { padding: 20px; margin-bottom: 18px; }
+
+.save-status {
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: #e7e0cf;
+  color: var(--muted);
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.button-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.big-button, .judge-button, .small-button, .quiet-button {
+  border: 0;
+  border-radius: 18px;
+  min-height: 58px;
+  padding: 14px 18px;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ink);
+  background: #e8dfcc;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.big-button.primary { background: var(--primary); color: var(--primary-ink); }
+.file-label { display: grid; place-items: center; text-align: center; }
+.file-label input { display: none; }
+.small-button { min-height: 48px; font-size: 16px; }
+.quiet-button { min-height: 42px; font-size: 15px; background: #eee8da; color: var(--muted); }
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.stat-card { padding: 16px; }
+.stat-card span { display: block; color: var(--muted); font-size: 15px; }
+.stat-card strong { display: block; font-size: 32px; line-height: 1.1; }
+
+.study-top, .list-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: start;
+}
+
+.card-box {
+  margin-top: 18px;
+  padding: 28px;
+  min-height: 250px;
+  border-radius: 22px;
+  border: 2px solid #cfc4ac;
+  background: #fffaf0;
+}
+
+.card-box.empty { color: var(--muted); }
+.question-text { font-size: 30px; font-weight: 800; line-height: 1.5; }
+.answer-area { margin-top: 24px; padding-top: 20px; border-top: 1px dashed var(--line); }
+.answer-label { color: var(--muted); font-weight: 700; }
+.answer-text { font-size: 28px; font-weight: 800; }
+.explanation-text { margin-top: 10px; color: var(--muted); font-size: 18px; }
+.hidden { display: none; }
+
+.study-actions { margin-top: 16px; }
+.study-actions .big-button { width: 100%; }
+
+.judge-actions {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.judge-button { color: #fff; min-height: 72px; }
+.judge-button.good { background: var(--good); }
+.judge-button.maybe { background: var(--maybe); }
+.judge-button.bad { background: var(--bad); }
+
+.card-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.list-item {
+  width: 100%;
+  text-align: left;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: #fffaf0;
+  padding: 14px 16px;
+  cursor: pointer;
+}
+
+.list-title { display: block; font-weight: 800; font-size: 17px; }
+.list-sub { display: block; color: var(--muted); font-size: 14px; margin-top: 4px; }
+
+button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+@media (max-width: 720px) {
+  .button-grid, .judge-actions, .stats-grid { grid-template-columns: 1fr; }
+  .question-text { font-size: 24px; }
+  .answer-text { font-size: 23px; }
+  h1 { font-size: 24px; }
+}

@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#38513a">
+  <title>中受カード</title>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <header class="app-header">
+    <div>
+      <h1>中受カード</h1>
+      <p>理科・社会 一問一答</p>
+    </div>
+    <span id="saveStatus" class="save-status">準備中</span>
+  </header>
+
+  <main>
+    <section class="panel controls-panel" aria-label="教材データ操作">
+      <h2>教材を読み込む</h2>
+      <p class="hint">CSVはiPadの「ファイル」から選んで読み込みます。本番CSVや画像はGitHubに置かない運用です。</p>
+      <div class="button-grid">
+        <label class="big-button primary file-label">
+          CSVを読み込む
+          <input id="csvInput" type="file" accept=".csv,text/csv">
+        </label>
+        <button id="exportJsonBtn" class="big-button">JSONバックアップ</button>
+        <label class="big-button file-label">
+          JSON復元
+          <input id="jsonInput" type="file" accept="application/json,.json">
+        </label>
+      </div>
+    </section>
+
+    <section class="stats-grid" aria-label="学習状況">
+      <div class="stat-card"><span>全カード</span><strong id="totalCount">0</strong></div>
+      <div class="stat-card"><span>今日まで</span><strong id="dueCount">0</strong></div>
+      <div class="stat-card"><span>卒業</span><strong id="graduatedCount">0</strong></div>
+    </section>
+
+    <section class="panel study-panel" aria-label="問題カード">
+      <div class="study-top">
+        <div>
+          <h2>今日のカード</h2>
+          <p id="cardMeta" class="meta">CSVを読み込んでください</p>
+        </div>
+        <button id="nextCardBtn" class="small-button">次のカード</button>
+      </div>
+
+      <article id="cardBox" class="card-box empty">
+        <p id="questionText" class="question-text">まだカードがありません。</p>
+        <div id="answerArea" class="answer-area hidden">
+          <p class="answer-label">答え</p>
+          <p id="answerText" class="answer-text"></p>
+          <p id="explanationText" class="explanation-text"></p>
+        </div>
+      </article>
+
+      <div class="study-actions">
+        <button id="showAnswerBtn" class="big-button primary">答えを見る</button>
+      </div>
+
+      <div class="judge-actions" aria-label="正誤記録">
+        <button id="markGoodBtn" class="judge-button good">○ わかった</button>
+        <button id="markMaybeBtn" class="judge-button maybe">△ もう一回</button>
+        <button id="markBadBtn" class="judge-button bad">× わからない</button>
+      </div>
+    </section>
+
+    <section class="panel list-panel" aria-label="カード一覧">
+      <div class="list-top">
+        <h2>カード一覧</h2>
+        <button id="clearAllBtn" class="quiet-button">全データ削除</button>
+      </div>
+      <div id="cardList" class="card-list"></div>
+    </section>
+  </main>
+
+  <template id="cardListItemTemplate">
+    <button class="list-item" type="button">
+      <span class="list-title"></span>
+      <span class="list-sub"></span>
+    </button>
+  </template>
+
+  <script src="./app.js" defer></script>
+</body>
+</html>
