@@ -12,21 +12,21 @@
   <header class="app-header">
     <div>
       <h1>中受カード</h1>
-      <p>理科・社会 一問一答</p>
+      <p>家庭学習向けの中学受験カードPWA</p>
     </div>
     <span id="saveStatus" class="save-status">準備中</span>
   </header>
 
   <main>
-    <section class="panel controls-panel" aria-label="教材データ操作">
+    <section class="panel controls-panel" aria-label="データ操作">
       <h2>教材を読み込む</h2>
-      <p class="hint">CSVはiPadの「ファイル」から選んで読み込みます。本番CSVや画像はGitHubに置かない運用です。</p>
+      <p class="hint">CSVはiPadの「ファイル」から読み込めます。必要な教材CSVだけをGitHub Pagesに置いて使います。</p>
       <div class="button-grid">
         <label class="big-button primary file-label">
           CSVを読み込む
           <input id="csvInput" type="file" accept=".csv,text/csv">
         </label>
-        <button id="exportJsonBtn" class="big-button">JSONバックアップ</button>
+        <button id="exportJsonBtn" class="big-button" type="button">JSONバックアップ</button>
         <label class="big-button file-label">
           JSON復元
           <input id="jsonInput" type="file" accept="application/json,.json">
@@ -36,17 +36,17 @@
 
     <section class="stats-grid" aria-label="学習状況">
       <div class="stat-card"><span>全カード</span><strong id="totalCount">0</strong></div>
-      <div class="stat-card"><span>今日まで</span><strong id="dueCount">0</strong></div>
+      <div class="stat-card"><span>今日の対象</span><strong id="dueCount">0</strong></div>
       <div class="stat-card"><span>卒業</span><strong id="graduatedCount">0</strong></div>
     </section>
 
-    <section class="panel study-panel" aria-label="問題カード">
+    <section class="panel study-panel" aria-label="学習カード">
       <div class="study-top">
         <div>
-          <h2>今日のカード</h2>
+          <h2>学習カード</h2>
           <p id="cardMeta" class="meta">CSVを読み込んでください</p>
         </div>
-        <button id="nextCardBtn" class="small-button">次のカード</button>
+        <button id="nextCardBtn" class="small-button" type="button">次のカード</button>
       </div>
 
       <article id="cardBox" class="card-box empty">
@@ -59,20 +59,20 @@
       </article>
 
       <div class="study-actions">
-        <button id="showAnswerBtn" class="big-button primary">答えを見る</button>
+        <button id="showAnswerBtn" class="big-button primary" type="button">答えを見る</button>
       </div>
 
-      <div class="judge-actions" aria-label="正誤記録">
-        <button id="markGoodBtn" class="judge-button good">○ わかった</button>
-        <button id="markMaybeBtn" class="judge-button maybe">△ もう一回</button>
-        <button id="markBadBtn" class="judge-button bad">× わからない</button>
+      <div class="judge-actions" aria-label="理解度を記録">
+        <button id="markGoodBtn" class="judge-button good" type="button">○ わかった</button>
+        <button id="markMaybeBtn" class="judge-button maybe" type="button">△ もう一回</button>
+        <button id="markBadBtn" class="judge-button bad" type="button">× わからない</button>
       </div>
     </section>
 
     <section class="panel list-panel" aria-label="カード一覧">
       <div class="list-top">
         <h2>カード一覧</h2>
-        <button id="clearAllBtn" class="quiet-button">全データ削除</button>
+        <button id="clearAllBtn" class="quiet-button" type="button">全データ削除</button>
       </div>
       <div id="cardList" class="card-list"></div>
     </section>

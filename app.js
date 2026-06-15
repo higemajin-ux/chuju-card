@@ -3,7 +3,7 @@ const DB_VERSION = 1;
 const STORE_NAME = 'cards';
 const REQUIRED_COLUMNS = [
   'subject', 'unit', 'type', 'question', 'answer', 'explanation',
-  'difficulty', 'source', 'check', 'questionImage', 'answerImage'
+  'difficulty', 'source', 'check', 'questionImage', 'answerImage',
 ];
 
 let db;
@@ -57,6 +57,15 @@ function createId(row) {
 
 function setStatus(message) {
   el.saveStatus.textContent = message;
+}
+
+function updateStudyButtons() {
+  const hasCard = Boolean(currentCard);
+  el.showAnswerBtn.disabled = !hasCard || answerVisible;
+  el.nextCardBtn.disabled = cards.length === 0;
+  el.markGoodBtn.disabled = !hasCard || !answerVisible;
+  el.markMaybeBtn.disabled = !hasCard || !answerVisible;
+  el.markBadBtn.disabled = !hasCard || !answerVisible;
 }
 
 function openDb() {
@@ -142,28 +151,30 @@ function csvRowsToCards(rows) {
   const header = rows[0].map((name) => name.trim());
   const missing = REQUIRED_COLUMNS.filter((name) => !header.includes(name));
   if (missing.length) {
-    throw new Error(`CSV列が足りません: ${missing.join(', ')}`);
+    throw new Error(`CSVに必要な列がありません: ${missing.join(', ')}`);
   }
 
-  return rows.slice(1).map((values) => {
-    const row = {};
-    header.forEach((key, index) => {
-      row[key] = (values[index] || '').trim();
-    });
-    const now = new Date().toISOString();
-    return {
-      id: createId(row),
-      ...row,
-      status: 'active',
-      goodStreak: 0,
-      totalGood: 0,
-      totalMaybe: 0,
-      totalBad: 0,
-      nextReviewDate: todayString(),
-      createdAt: now,
-      updatedAt: now,
-    };
-  }).filter((card) => card.question && card.answer);
+  return rows.slice(1)
+    .map((values) => {
+      const row = {};
+      header.forEach((key, index) => {
+        row[key] = (values[index] || '').trim();
+      });
+      const now = new Date().toISOString();
+      return {
+        id: createId(row),
+        ...row,
+        status: 'active',
+        goodStreak: 0,
+        totalGood: 0,
+        totalMaybe: 0,
+        totalBad: 0,
+        nextReviewDate: todayString(),
+        createdAt: now,
+        updatedAt: now,
+      };
+    })
+    .filter((card) => card.question && card.answer);
 }
 
 async function reloadCards() {
@@ -177,10 +188,25 @@ function dueCards() {
   return cards.filter((card) => card.status !== 'graduated' && (!card.nextReviewDate || card.nextReviewDate <= today));
 }
 
+function studyQueueCards() {
+  return dueCards().length
+    ? dueCards()
+    : cards.filter((card) => card.status !== 'graduated');
+}
+
 function pickNextCard() {
-  const due = dueCards();
-  currentCard = due[0] || cards.find((card) => card.status !== 'graduated') || cards[0] || null;
+  const queue = studyQueueCards();
+  if (!queue.length) {
+    currentCard = cards[0] || null;
+  } else if (!currentCard || !queue.some((card) => card.id === currentCard.id)) {
+    currentCard = queue[0];
+  } else {
+    const index = queue.findIndex((card) => card.id === currentCard.id);
+    currentCard = queue[(index + 1) % queue.length];
+  }
+
   answerVisible = false;
+  setStatus(currentCard ? '次のカードを表示中' : '出題できるカードがありません');
   renderStudyCard();
 }
 
@@ -190,31 +216,27 @@ function render() {
   el.graduatedCount.textContent = String(cards.filter((card) => card.status === 'graduated').length);
   renderStudyCard();
   renderList();
-  const hasCard = Boolean(currentCard);
-  el.showAnswerBtn.disabled = !hasCard;
-  el.nextCardBtn.disabled = cards.length === 0;
-  el.markGoodBtn.disabled = !hasCard;
-  el.markMaybeBtn.disabled = !hasCard;
-  el.markBadBtn.disabled = !hasCard;
 }
 
 function renderStudyCard() {
   if (!currentCard) {
     el.cardBox.classList.add('empty');
-    el.cardMeta.textContent = cards.length ? '今日のカードはありません' : 'CSVを読み込んでください';
-    el.questionText.textContent = cards.length ? '今日の復習分は終わりです。' : 'まだカードがありません。';
+    el.cardMeta.textContent = cards.length ? '出題できるカードがありません' : 'CSVを読み込んでください';
+    el.questionText.textContent = cards.length ? '復習待ちのカードはありません。' : 'まだカードがありません。';
     el.answerArea.classList.add('hidden');
     el.answerText.textContent = '';
     el.explanationText.textContent = '';
+    updateStudyButtons();
     return;
   }
 
   el.cardBox.classList.remove('empty');
-  el.cardMeta.textContent = `${currentCard.subject || '科目未設定'} / ${currentCard.unit || '単元未設定'} / 次回: ${currentCard.nextReviewDate || todayString()}`;
+  el.cardMeta.textContent = `${currentCard.subject || '科目未設定'} / ${currentCard.unit || '単元未設定'} / 次回 ${currentCard.nextReviewDate || todayString()}`;
   el.questionText.textContent = currentCard.question;
   el.answerText.textContent = currentCard.answer;
   el.explanationText.textContent = currentCard.explanation || '';
   el.answerArea.classList.toggle('hidden', !answerVisible);
+  updateStudyButtons();
 }
 
 function renderList() {
@@ -231,6 +253,7 @@ function renderList() {
     item.addEventListener('click', () => {
       currentCard = card;
       answerVisible = false;
+      setStatus('カードを選びました');
       renderStudyCard();
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
@@ -243,13 +266,15 @@ async function handleCsvFile(file) {
   const rows = parseCsv(text.replace(/^\uFEFF/, ''));
   const imported = csvRowsToCards(rows);
   await putCards(imported);
-  setStatus(`${imported.length}枚保存`);
+  setStatus(`${imported.length}件を読み込みました`);
   await reloadCards();
+  currentCard = null;
   pickNextCard();
 }
 
 async function markCard(result) {
-  if (!currentCard) return;
+  if (!currentCard || !answerVisible) return;
+
   const nextDays = { good: 7, maybe: 3, bad: 1 }[result];
   const updated = { ...currentCard, updatedAt: new Date().toISOString() };
 
@@ -273,24 +298,25 @@ async function markCard(result) {
   await putCards([updated]);
   setStatus('記録しました');
   await reloadCards();
+  currentCard = updated;
   pickNextCard();
 }
 
 function exportJson() {
   const payload = {
     app: 'chuju-card',
-    version: '0.1',
+    version: '0.1.1',
     exportedAt: new Date().toISOString(),
     cards,
   };
   const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `chuju-card-backup-${todayString()}.json`;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `chuju-card-backup-${todayString()}.json`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
   URL.revokeObjectURL(url);
 }
 
@@ -298,22 +324,27 @@ async function importJson(file) {
   const text = await file.text();
   const payload = JSON.parse(text);
   const imported = Array.isArray(payload) ? payload : payload.cards;
-  if (!Array.isArray(imported)) throw new Error('JSON形式が違います。cards配列が必要です。');
+  if (!Array.isArray(imported)) {
+    throw new Error('JSON形式が正しくありません');
+  }
+
   await putCards(imported.filter((card) => card.id && card.question && card.answer));
-  setStatus(`${imported.length}枚復元`);
+  setStatus(`${imported.length}件を復元しました`);
   await reloadCards();
+  currentCard = null;
   pickNextCard();
 }
 
 async function init() {
   db = await openDb();
   await reloadCards();
+  currentCard = null;
   pickNextCard();
-  setStatus('保存OK');
+  setStatus('準備OK');
 
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(() => {
-      setStatus('SW登録失敗');
+      setStatus('SW登録に失敗しました');
     });
   }
 }
@@ -321,10 +352,11 @@ async function init() {
 el.csvInput.addEventListener('change', async (event) => {
   const file = event.target.files?.[0];
   if (!file) return;
+
   try {
     await handleCsvFile(file);
   } catch (error) {
-    alert(error.message || 'CSV読み込みに失敗しました。');
+    alert(error.message || 'CSV読み込みに失敗しました');
   } finally {
     event.target.value = '';
   }
@@ -333,32 +365,47 @@ el.csvInput.addEventListener('change', async (event) => {
 el.jsonInput.addEventListener('change', async (event) => {
   const file = event.target.files?.[0];
   if (!file) return;
+
   try {
     await importJson(file);
   } catch (error) {
-    alert(error.message || 'JSON読み込みに失敗しました。');
+    alert(error.message || 'JSON読み込みに失敗しました');
   } finally {
     event.target.value = '';
   }
 });
 
 el.exportJsonBtn.addEventListener('click', exportJson);
-el.showAnswerBtn.addEventListener('click', () => { answerVisible = true; renderStudyCard(); });
-el.nextCardBtn.addEventListener('click', pickNextCard);
-el.markGoodBtn.addEventListener('click', () => markCard('good'));
-el.markMaybeBtn.addEventListener('click', () => markCard('maybe'));
-el.markBadBtn.addEventListener('click', () => markCard('bad'));
+el.showAnswerBtn.addEventListener('click', () => {
+  if (!currentCard) return;
+  answerVisible = true;
+  setStatus('答え表示');
+  renderStudyCard();
+});
+el.nextCardBtn.addEventListener('click', () => {
+  pickNextCard();
+});
+el.markGoodBtn.addEventListener('click', () => {
+  markCard('good');
+});
+el.markMaybeBtn.addEventListener('click', () => {
+  markCard('maybe');
+});
+el.markBadBtn.addEventListener('click', () => {
+  markCard('bad');
+});
 el.clearAllBtn.addEventListener('click', async () => {
   const ok = confirm('読み込んだカードと学習記録をこの端末から削除します。JSONバックアップ済みですか？');
   if (!ok) return;
+
   await clearCards();
   currentCard = null;
-  setStatus('削除しました');
+  setStatus('全データを削除しました');
   await reloadCards();
 });
 
 init().catch((error) => {
   console.error(error);
-  setStatus('起動失敗');
-  alert('起動に失敗しました。Safariの設定や容量を確認してください。');
+  setStatus('起動に失敗しました');
+  alert('起動に失敗しました。Safariの設定や端末の空き容量を確認してください。');
 });

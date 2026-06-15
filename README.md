@@ -1,25 +1,15 @@
-# 中受カード PWA v0.1
+# 中受カード PWA
 
-家庭内利用向けの中学受験用一問一答カードPWAです。
-iPad Safariで使うことを想定しています。
-
-## 方針
-
-- GitHub Pagesに置くのはアプリ本体のみ
-- 教材PDF、教材CSV、本番画像、学習履歴はGitHubに置かない
-- CSVと画像はiPad側で手動読み込み
-- 外部ライブラリなし
-- v0.1では画像表示は未実装。CSV内の `questionImage` / `answerImage` は保存のみ
+家庭学習向けの中学受験カードPWAです。GitHub Pages に置いて、CSV を読み込んで使う前提のシンプルな構成です。
 
 ## ファイル
 
-- `index.html`：画面
-- `style.css`：見た目
-- `app.js`：アプリ処理、IndexedDB、CSV/JSON入出力
-- `manifest.webmanifest`：PWA設定
-- `sw.js`：Service Worker。本体ファイルをキャッシュ
-- `sample.csv`：動作確認用CSV
-- `README.md`：この説明
+- `index.html`: 画面構成
+- `style.css`: 見た目
+- `app.js`: CSV/JSON 読み込み、IndexedDB 保存、学習ロジック
+- `sw.js`: Service Worker のキャッシュ
+- `manifest.webmanifest`: PWA 設定
+- `sample.csv`: サンプルCSV
 
 ## CSV列
 
@@ -27,19 +17,15 @@ iPad Safariで使うことを想定しています。
 subject,unit,type,question,answer,explanation,difficulty,source,check,questionImage,answerImage
 ```
 
-## 復習ルール
+## 学習ルール
 
-- ○：7日後
-- △：3日後
-- ×：翌日
-- ○3回連続で `status` を `graduated` にする
+- `○ わかった`: 7日後に再出題、3回連続で `graduated`
+- `△ もう一回`: 3日後に再出題
+- `× わからない`: 翌日に再出題
 
-## GitHub Pagesへの公開
+## v0.1.1 メモ
 
-このリポジトリをGitHub Pagesで公開すれば、iPad Safariで開けます。
-教材データはアップロードせず、iPad側でCSVを読み込んでください。
-
-## 注意
-
-IndexedDB保存なので、Safariのサイトデータ削除、履歴削除、容量不足などで学習履歴が消える可能性があります。
-定期的にJSONバックアップを書き出してください。
+- 学習カードのボタンイベントを見直し、`答えを見る` と `次のカード` が確実に反応するよう修正
+- `答えを見る` 前は `○△×` を無効化し、表示後に有効化
+- 学習操作の状態を保存ステータスに表示
+- Service Worker のキャッシュ名を `chuju-card-v0.1.1` に更新
