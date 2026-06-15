@@ -2,6 +2,10 @@ const DB_NAME = 'chuju-card-db';
 const DB_VERSION = 1;
 const STORE_NAME = 'cards';
 const REQUIRED_COLUMNS = [
+  'cardId', 'subject', 'unit', 'type', 'question', 'answer', 'explanation',
+  'difficulty', 'source', 'check', 'questionImage', 'answerImage',
+];
+const CONTENT_COLUMNS = [
   'subject', 'unit', 'type', 'question', 'answer', 'explanation',
   'difficulty', 'source', 'check', 'questionImage', 'answerImage',
 ];
@@ -19,6 +23,7 @@ const el = {
   clearAllBtn: document.getElementById('clearAllBtn'),
   totalCount: document.getElementById('totalCount'),
   dueCount: document.getElementById('dueCount'),
+  dueCountInline: document.getElementById('dueCountInline'),
   graduatedCount: document.getElementById('graduatedCount'),
   cardMeta: document.getElementById('cardMeta'),
   cardBox: document.getElementById('cardBox'),
@@ -47,16 +52,6 @@ function addDays(days) {
   const date = new Date();
   date.setDate(date.getDate() + days);
   return date.toISOString().slice(0, 10);
-}
-
-function createId(row) {
-  const text = `${row.subject}|${row.unit}|${row.question}|${row.answer}`;
-  let hash = 0;
-  for (let i = 0; i < text.length; i += 1) {
-    hash = ((hash << 5) - hash) + text.charCodeAt(i);
-    hash |= 0;
-  }
-  return `card-${Math.abs(hash)}-${text.length}`;
 }
 
 function setStatus(message) {
@@ -118,6 +113,19 @@ function putCards(items) {
   });
 }
 
+function replaceCards(upserts, deleteKeys) {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_NAME, 'readwrite');
+    const store = tx.objectStore(STORE_NAME);
+
+    deleteKeys.forEach((key) => store.delete(key));
+    upserts.forEach((item) => store.put(item));
+
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+}
+
 function clearCards() {
   return new Promise((resolve, reject) => {
     const request = txStore('readwrite').clear();
@@ -162,7 +170,12 @@ function parseCsv(text) {
 
 function csvRowsToCards(rows) {
   if (rows.length < 2) return [];
+
   const header = rows[0].map((name) => name.trim());
+  if (!header.includes('cardId')) {
+    throw new Error('cardId列がありません。新CSV形式で読み込んでください。');
+  }
+
   const missing = REQUIRED_COLUMNS.filter((name) => !header.includes(name));
   if (missing.length) {
     throw new Error(`CSVに必要な列がありません: ${missing.join(', ')}`);
@@ -174,21 +187,84 @@ function csvRowsToCards(rows) {
       header.forEach((key, index) => {
         row[key] = (values[index] || '').trim();
       });
-      const now = new Date().toISOString();
-      return {
-        id: createId(row),
-        ...row,
-        status: 'active',
-        goodStreak: 0,
-        totalGood: 0,
-        totalMaybe: 0,
-        totalBad: 0,
-        nextReviewDate: todayString(),
-        createdAt: now,
+      return row;
+    })
+    .filter((row) => row.cardId && row.question && row.answer)
+    .map((row) => ({
+      id: row.cardId,
+      cardId: row.cardId,
+      subject: row.subject,
+      unit: row.unit,
+      type: row.type,
+      question: row.question,
+      answer: row.answer,
+      explanation: row.explanation,
+      difficulty: row.difficulty,
+      source: row.source,
+      check: row.check,
+      questionImage: row.questionImage,
+      answerImage: row.answerImage,
+    }));
+}
+
+async function syncCardsFromCsv(importedRows) {
+  const existingCards = await getAllCards();
+  const existingByCardId = new Map();
+
+  existingCards.forEach((card) => {
+    const key = card.cardId || card.id;
+    if (key) existingByCardId.set(key, card);
+  });
+
+  const importedIds = new Set();
+  const deleteKeys = new Set();
+  const upserts = importedRows.map((row) => {
+    const cardId = row.cardId;
+    const existing = existingByCardId.get(cardId);
+    const now = new Date().toISOString();
+
+    importedIds.add(cardId);
+
+    if (existing) {
+      if (existing.id !== cardId) deleteKeys.add(existing.id);
+
+      const updated = {
+        ...existing,
+        id: cardId,
+        cardId,
         updatedAt: now,
       };
-    })
-    .filter((card) => card.question && card.answer);
+
+      CONTENT_COLUMNS.forEach((column) => {
+        updated[column] = row[column] || '';
+      });
+
+      return updated;
+    }
+
+    return {
+      ...row,
+      id: cardId,
+      cardId,
+      status: 'active',
+      goodStreak: 0,
+      totalGood: 0,
+      totalMaybe: 0,
+      totalBad: 0,
+      nextReviewDate: todayString(),
+      createdAt: now,
+      updatedAt: now,
+    };
+  });
+
+  existingCards.forEach((card) => {
+    const key = card.cardId || card.id;
+    if (!importedIds.has(key)) {
+      deleteKeys.add(card.id);
+    }
+  });
+
+  await replaceCards(upserts, [...deleteKeys]);
 }
 
 async function reloadCards() {
@@ -225,8 +301,10 @@ function pickNextCard() {
 }
 
 function render() {
+  const due = dueCards().length;
   el.totalCount.textContent = String(cards.length);
-  el.dueCount.textContent = String(dueCards().length);
+  el.dueCount.textContent = String(due);
+  el.dueCountInline.textContent = String(due);
   el.graduatedCount.textContent = String(cards.filter((card) => card.status === 'graduated').length);
   renderStudyCard();
   renderList();
@@ -280,7 +358,7 @@ function renderList() {
   cards.forEach((card) => {
     const item = el.itemTemplate.content.firstElementChild.cloneNode(true);
     item.querySelector('.list-title').textContent = card.question;
-    item.querySelector('.list-sub').textContent = `${card.subject || '-'} / ${card.unit || '-'} / ${card.status} / ○連続 ${card.goodStreak || 0} / 次回 ${card.nextReviewDate || '-'}`;
+    item.querySelector('.list-sub').textContent = `${card.subject || '-'} / ${card.unit || '-'} / ${card.status === 'graduated' ? '合格' : '学習中'} / ○連続 ${card.goodStreak || 0} / 次回 ${card.nextReviewDate || '-'}`;
     item.addEventListener('click', () => {
       currentCard = card;
       answerVisible = false;
@@ -296,8 +374,8 @@ async function handleCsvFile(file) {
   const text = await file.text();
   const rows = parseCsv(text.replace(/^\uFEFF/, ''));
   const imported = csvRowsToCards(rows);
-  await putCards(imported);
-  setStatus(`${imported.length}件を読み込みました`);
+  await syncCardsFromCsv(imported);
+  setStatus(`${imported.length}件を教材セットとして更新しました`);
   await reloadCards();
   currentCard = null;
   pickNextCard();
@@ -336,7 +414,7 @@ async function markCard(result) {
 function exportJson() {
   const payload = {
     app: 'chuju-card',
-    version: '0.2',
+    version: '0.3-cardid',
     exportedAt: new Date().toISOString(),
     cards,
   };
@@ -359,7 +437,14 @@ async function importJson(file) {
     throw new Error('JSON形式が正しくありません');
   }
 
-  await putCards(imported.filter((card) => card.id && card.question && card.answer));
+  await putCards(imported.filter((card) => {
+    const key = card.cardId || card.id;
+    return key && card.question && card.answer;
+  }).map((card) => ({
+    ...card,
+    id: card.cardId || card.id,
+    cardId: card.cardId || card.id,
+  })));
   setStatus(`${imported.length}件を復元しました`);
   await reloadCards();
   currentCard = null;

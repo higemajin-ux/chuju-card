@@ -10,31 +10,31 @@
 </head>
 <body>
   <header class="app-header">
-    <div class="header-copy">
-      <p class="eyebrow">毎日の復習</p>
+    <div class="header-main">
       <h1>中受カード</h1>
-      <p class="subtitle">今日のカードを大きく見て、答え合わせまで迷わず進めます。</p>
+      <p class="today-line">今日 <strong id="dueCount">0</strong> 枚</p>
     </div>
-    <div class="header-status">
-      <div class="hero-stat">
-        <span class="hero-label">今日やる枚数</span>
-        <strong id="dueCount">0</strong>
-      </div>
-      <span id="saveStatus" class="save-status">準備中</span>
-    </div>
+    <span id="saveStatus" class="save-status">準備中</span>
   </header>
 
   <main>
-    <section class="stats-strip" aria-label="学習状況">
-      <div class="mini-stat">
-        <span>全カード</span>
-        <strong id="totalCount">0</strong>
-      </div>
-      <div class="mini-stat">
-        <span>卒業</span>
-        <strong id="graduatedCount">0</strong>
-      </div>
+    <section class="status-row" aria-label="学習状況">
+      <span class="status-item">全<span id="totalCount">0</span></span>
+      <span class="status-sep">|</span>
+      <span class="status-item">今日<span id="dueCountInline">0</span></span>
+      <span class="status-sep">|</span>
+      <span class="status-item">合格<span id="graduatedCount">0</span></span>
     </section>
+
+    <details class="rule-panel">
+      <summary>ルール</summary>
+      <div class="rule-body">
+        <p>○ わかった：7日後に復習</p>
+        <p>△ もう一回：3日後に復習</p>
+        <p>× わからない：明日復習</p>
+        <p>○が3回連続したら合格</p>
+      </div>
+    </details>
 
     <section class="panel study-panel" aria-label="学習カード">
       <div class="study-top">
@@ -51,15 +51,12 @@
           <span id="unitTag" class="card-tag hidden"></span>
           <span id="difficultyTag" class="card-tag hidden"></span>
         </div>
-
         <p id="questionText" class="question-text">まだカードがありません。</p>
-
         <div id="answerArea" class="answer-area hidden">
           <p class="answer-label">答え</p>
           <p id="answerText" class="answer-text"></p>
           <p id="explanationText" class="explanation-text"></p>
         </div>
-
         <p id="sourceText" class="source-text hidden"></p>
       </article>
 
@@ -78,7 +75,7 @@
       <div class="list-top">
         <div>
           <h2>カード一覧</h2>
-          <p class="hint">下から選ぶと、そのカードに切り替わります。</p>
+          <p class="hint">選ぶとそのカードへ切り替わります。</p>
         </div>
       </div>
       <div id="cardList" class="card-list"></div>
