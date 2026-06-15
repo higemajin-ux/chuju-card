@@ -237,7 +237,7 @@ function renderStudyCard() {
   el.cardMeta.textContent = `${currentCard.subject || '科目未設定'} / ${currentCard.unit || '単元未設定'} / 次回 ${currentCard.nextReviewDate || todayString()}`;
   el.questionText.textContent = currentCard.question;
   if (currentCard.source) {
-    el.sourceText.textContent = `もと：${currentCard.source}`;
+    el.sourceText.textContent = `${currentCard.source}から出題`;
     el.sourceText.classList.remove('hidden');
   } else {
     el.sourceText.textContent = '';
