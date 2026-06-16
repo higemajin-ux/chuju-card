@@ -561,10 +561,22 @@ main {
   margin-top: 6px;
 }
 
+.list-admin-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
 .edit-card-button {
-  justify-self: end;
   min-height: 36px;
   padding: 8px 14px;
+}
+
+.reset-card-button {
+  min-height: 36px;
+  padding: 8px 14px;
+  color: #8a4a54;
+  background: #f6d9df;
 }
 
 .edit-modal {

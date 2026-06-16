@@ -369,6 +369,30 @@ function normalizeChoicesText(value) {
     .join('|');
 }
 
+function resetCardProgressState(card) {
+  const updated = {
+    ...card,
+    recentResults: [],
+    nextReviewDate: '',
+    status: 'active',
+    updatedAt: new Date().toISOString(),
+  };
+
+  ['goodStreak', 'totalGood', 'totalMaybe', 'totalBad', 'correctCount', 'wrongCount', 'reviewCount', 'successCount', 'failCount']
+    .forEach((key) => {
+      if (key in updated) updated[key] = 0;
+    });
+
+  ['lastReviewedAt', 'lastAnsweredAt']
+    .forEach((key) => {
+      if (key in updated) updated[key] = '';
+    });
+
+  if ('graduated' in updated) updated.graduated = false;
+
+  return updated;
+}
+
 function isCardGraduated(card) {
   const recentResults = normalizeRecentResults(card);
   if (card.status === 'graduated') return true;
@@ -788,6 +812,9 @@ function renderList() {
     });
     row.appendChild(item);
     if (isEditMode) {
+      const actionWrap = document.createElement('div');
+      actionWrap.className = 'list-admin-actions';
+
       const editBtn = document.createElement('button');
       editBtn.type = 'button';
       editBtn.className = 'small-button edit-card-button';
@@ -796,7 +823,19 @@ function renderList() {
         event.stopPropagation();
         openEditModal(card.id);
       });
-      row.appendChild(editBtn);
+
+      const resetBtn = document.createElement('button');
+      resetBtn.type = 'button';
+      resetBtn.className = 'small-button reset-card-button';
+      resetBtn.textContent = '正誤リセット';
+      resetBtn.addEventListener('click', async (event) => {
+        event.stopPropagation();
+        await resetCardProgress(card.id);
+      });
+
+      actionWrap.appendChild(editBtn);
+      actionWrap.appendChild(resetBtn);
+      row.appendChild(actionWrap);
     }
     el.cardList.appendChild(row);
   });
@@ -878,6 +917,23 @@ async function toggleProblemFlag() {
   setStatus(updated.problemFlag ? '問題確認にしました' : '問題確認を解除しました');
   await reloadCards();
   currentCard = cards.find((card) => card.id === updated.id) || updated;
+  renderStudyCard();
+}
+
+async function resetCardProgress(cardId) {
+  const card = cards.find((item) => item.id === cardId);
+  if (!card || !isEditMode) return;
+
+  const confirmed = window.confirm('このカードの正誤履歴をリセットします。問題文や選択肢は残ります。よろしいですか？');
+  if (!confirmed) return;
+
+  const updated = resetCardProgressState(card);
+  await putCards([updated]);
+  setStatus('正誤履歴をリセットしました');
+  await reloadCards();
+  currentCard = currentCard?.id === updated.id
+    ? cards.find((item) => item.id === updated.id) || updated
+    : currentCard;
   renderStudyCard();
 }
 
