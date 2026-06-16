@@ -21,6 +21,7 @@ let listFilter = 'all';
 let isEditMode = false;
 let editingCardId = null;
 let activeMaterialName = '';
+let isStudyVisible = false;
 
 const el = {
   saveStatus: document.getElementById('saveStatus'),
@@ -57,9 +58,12 @@ const el = {
   markGoodBtn: document.getElementById('markGoodBtn'),
   markMaybeBtn: document.getElementById('markMaybeBtn'),
   markBadBtn: document.getElementById('markBadBtn'),
+  studyPanel: document.querySelector('.study-panel'),
+  listPanel: document.querySelector('.list-panel'),
   studyStartPanel: document.getElementById('studyStartPanel'),
   todayStudyBtn: document.getElementById('todayStudyBtn'),
   materialButtons: document.getElementById('materialButtons'),
+  studyBackBtn: document.getElementById('studyBackBtn'),
   listFilterSelect: document.getElementById('listFilterSelect'),
   listScopeHint: document.getElementById('listScopeHint'),
   editModal: document.getElementById('editModal'),
@@ -214,6 +218,37 @@ function ensureListScopeHintElement() {
   scopeHint.className = 'hint hidden';
   headingWrap.appendChild(scopeHint);
   el.listScopeHint = scopeHint;
+}
+
+function ensureStudyBackButton() {
+  if (el.studyBackBtn || !el.studyPanel) return;
+
+  const studyTop = el.studyPanel.querySelector('.study-top');
+  if (!studyTop) return;
+
+  const backBtn = document.createElement('button');
+  backBtn.id = 'studyBackBtn';
+  backBtn.type = 'button';
+  backBtn.className = 'quiet-button study-back-button hidden';
+  backBtn.textContent = '教材一覧へ戻る';
+  backBtn.addEventListener('click', () => {
+    isStudyVisible = false;
+    activeMaterialName = '';
+    currentCard = null;
+    answerVisible = false;
+    choiceFeedback = null;
+    render();
+  });
+
+  studyTop.insertBefore(backBtn, studyTop.firstChild);
+  el.studyBackBtn = backBtn;
+}
+
+function updateStudyVisibility() {
+  setElementVisible(el.studyStartPanel, !isStudyVisible);
+  setElementVisible(el.studyPanel, isStudyVisible);
+  setElementVisible(el.listPanel, isStudyVisible);
+  setElementVisible(el.studyBackBtn, isStudyVisible);
 }
 
 function ensureStudyStartElements() {
@@ -766,6 +801,8 @@ function pickNextCard() {
 
 function startStudyForMaterial(materialName) {
   activeMaterialName = materialName || '';
+  isStudyVisible = true;
+  updateStudyVisibility();
   renderMaterialButtons();
   renderList();
   const queue = studyQueueCards();
@@ -867,6 +904,7 @@ function render() {
   el.dueCount.textContent = String(due);
   el.dueCountInline.textContent = String(due);
   el.graduatedCount.textContent = String(cards.filter((card) => isCardGraduated(card)).length);
+  updateStudyVisibility();
   renderMaterialButtons();
   renderStudyCard();
   renderList();
@@ -1266,6 +1304,7 @@ async function init() {
   ensureProblemFlagElements();
   ensureListFilterElements();
   ensureListScopeHintElement();
+  ensureStudyBackButton();
   ensureEditModalElements();
   ensureEditModeButton();
   db = await openDb();
