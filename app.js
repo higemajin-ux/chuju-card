@@ -9,6 +9,7 @@ const REQUIRED_COLUMNS = [
 const CONTENT_COLUMNS = [
   'subject', 'unit', 'type', 'question', 'answer', 'choices', 'explanation',
   'difficulty', 'source', 'check', 'checkReason', 'questionImage', 'answerImage',
+  'sourceFileName', 'materialName',
 ];
 
 let db;
@@ -19,6 +20,7 @@ let choiceFeedback = null;
 let listFilter = 'all';
 let isEditMode = false;
 let editingCardId = null;
+let activeMaterialName = '';
 
 const el = {
   saveStatus: document.getElementById('saveStatus'),
@@ -55,6 +57,9 @@ const el = {
   markGoodBtn: document.getElementById('markGoodBtn'),
   markMaybeBtn: document.getElementById('markMaybeBtn'),
   markBadBtn: document.getElementById('markBadBtn'),
+  studyStartPanel: document.getElementById('studyStartPanel'),
+  todayStudyBtn: document.getElementById('todayStudyBtn'),
+  materialButtons: document.getElementById('materialButtons'),
   listFilterSelect: document.getElementById('listFilterSelect'),
   editModal: document.getElementById('editModal'),
   editQuestionInput: document.getElementById('editQuestionInput'),
@@ -186,6 +191,49 @@ function ensureListFilterElements() {
   el.listFilterSelect = filterSelect;
 }
 
+function ensureStudyStartElements() {
+  if (el.studyStartPanel && el.todayStudyBtn && el.materialButtons) return;
+
+  const main = document.querySelector('main');
+  const studyPanel = document.querySelector('.study-panel');
+  if (!main || !studyPanel) return;
+
+  const panel = document.createElement('section');
+  panel.id = 'studyStartPanel';
+  panel.className = 'panel start-panel';
+
+  const title = document.createElement('h2');
+  title.className = 'start-title';
+  title.textContent = '教材から選ぶ';
+
+  const hint = document.createElement('p');
+  hint.className = 'hint';
+  hint.textContent = '今日のカードか教材ごとのカードを選べます。';
+
+  const todayBtn = document.createElement('button');
+  todayBtn.id = 'todayStudyBtn';
+  todayBtn.type = 'button';
+  todayBtn.className = 'big-button secondary-button start-button';
+  todayBtn.textContent = '今日のカード';
+  todayBtn.addEventListener('click', () => {
+    startStudyForMaterial('');
+  });
+
+  const materialButtons = document.createElement('div');
+  materialButtons.id = 'materialButtons';
+  materialButtons.className = 'material-buttons';
+
+  panel.appendChild(title);
+  panel.appendChild(hint);
+  panel.appendChild(todayBtn);
+  panel.appendChild(materialButtons);
+  main.insertBefore(panel, studyPanel);
+
+  el.studyStartPanel = panel;
+  el.todayStudyBtn = todayBtn;
+  el.materialButtons = materialButtons;
+}
+
 function ensureEditModalElements() {
   if (el.editModal) return;
 
@@ -310,6 +358,26 @@ function addDays(days) {
 
 function normalizeCsvValue(value) {
   return (value || '').replace(/^\uFEFF/, '').trim();
+}
+
+function materialNameFromFileName(fileName) {
+  const normalized = (fileName || '').trim().replace(/\.csv$/i, '');
+  if (!normalized) return '';
+  const separatorIndex = normalized.indexOf('_');
+  return separatorIndex >= 0 ? normalized.slice(0, separatorIndex).trim() : normalized;
+}
+
+function materialNameFromSource(source) {
+  const normalized = (source || '').trim();
+  if (!normalized) return '';
+  const match = normalized.match(/^(.*?)\s+p\d+/i);
+  return (match?.[1] || normalized).trim();
+}
+
+function getCardMaterialName(card) {
+  return (card?.materialName || '').trim()
+    || materialNameFromFileName(card?.sourceFileName || '')
+    || materialNameFromSource(card?.source || '');
 }
 
 function setStatus(message) {
@@ -529,7 +597,7 @@ function parseCsv(text) {
   return rows;
 }
 
-function csvRowsToCards(rows) {
+function csvRowsToCards(rows, fileName = '') {
   if (rows.length < 2) return [];
 
   const header = rows[0].map((name) => normalizeCsvValue(name));
@@ -567,6 +635,8 @@ function csvRowsToCards(rows) {
       checkReason: header.includes('checkReason') ? row.checkReason : '',
       questionImage: row.questionImage,
       answerImage: row.answerImage,
+      sourceFileName: fileName || '',
+      materialName: materialNameFromFileName(fileName) || materialNameFromSource(row.source),
     }));
 }
 
@@ -579,14 +649,11 @@ async function syncCardsFromCsv(importedRows) {
     if (key) existingByCardId.set(key, card);
   });
 
-  const importedIds = new Set();
   const deleteKeys = new Set();
   const upserts = importedRows.map((row) => {
     const cardId = row.cardId;
     const existing = existingByCardId.get(cardId);
     const now = new Date().toISOString();
-
-    importedIds.add(cardId);
 
     if (existing) {
       if (existing.id !== cardId) deleteKeys.add(existing.id);
@@ -621,13 +688,6 @@ async function syncCardsFromCsv(importedRows) {
     };
   });
 
-  existingCards.forEach((card) => {
-    const key = card.cardId || card.id;
-    if (!importedIds.has(key)) {
-      deleteKeys.add(card.id);
-    }
-  });
-
   await replaceCards(upserts, [...deleteKeys]);
 }
 
@@ -639,19 +699,27 @@ async function reloadCards() {
 
 function dueCards() {
   const today = todayString();
-  return cards.filter((card) => card.status !== 'graduated' && (!card.nextReviewDate || card.nextReviewDate <= today));
+  return cards.filter((card) => {
+    const matchesMaterial = !activeMaterialName || getCardMaterialName(card) === activeMaterialName;
+    return matchesMaterial && card.status !== 'graduated' && (!card.nextReviewDate || card.nextReviewDate <= today);
+  });
 }
 
 function studyQueueCards() {
+  const allTargetCards = cards.filter((card) => {
+    const matchesMaterial = !activeMaterialName || getCardMaterialName(card) === activeMaterialName;
+    return matchesMaterial && card.status !== 'graduated';
+  });
+
   return dueCards().length
     ? dueCards()
-    : cards.filter((card) => card.status !== 'graduated');
+    : allTargetCards;
 }
 
 function pickNextCard() {
   const queue = studyQueueCards();
   if (!queue.length) {
-    currentCard = cards[0] || null;
+    currentCard = activeMaterialName ? null : (cards[0] || null);
   } else if (!currentCard || !queue.some((card) => card.id === currentCard.id)) {
     currentCard = queue[0];
   } else {
@@ -665,12 +733,54 @@ function pickNextCard() {
   renderStudyCard();
 }
 
+function startStudyForMaterial(materialName) {
+  activeMaterialName = materialName || '';
+  const queue = studyQueueCards();
+  if (!queue.length) {
+    setStatus(activeMaterialName ? 'この教材の出題対象カードはありません' : '出題できるカードがありません');
+    return;
+  }
+
+  currentCard = null;
+  pickNextCard();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function renderMaterialButtons() {
+  if (!el.materialButtons || !el.todayStudyBtn) return;
+
+  const materialNames = [...new Set(
+    cards.map((card) => getCardMaterialName(card)).filter(Boolean)
+  )].sort((a, b) => a.localeCompare(b, 'ja'));
+
+  el.todayStudyBtn.classList.toggle('is-active', !activeMaterialName);
+  el.materialButtons.innerHTML = '';
+
+  if (!materialNames.length) {
+    el.materialButtons.innerHTML = '<p class="hint">教材ボタンはCSV読み込み後に表示されます。</p>';
+    return;
+  }
+
+  materialNames.forEach((materialName) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'big-button secondary-button material-button';
+    button.textContent = materialName;
+    button.classList.toggle('is-active', activeMaterialName === materialName);
+    button.addEventListener('click', () => {
+      startStudyForMaterial(materialName);
+    });
+    el.materialButtons.appendChild(button);
+  });
+}
+
 function render() {
   const due = dueCards().length;
   el.totalCount.textContent = String(cards.length);
   el.dueCount.textContent = String(due);
   el.dueCountInline.textContent = String(due);
   el.graduatedCount.textContent = String(cards.filter((card) => isCardGraduated(card)).length);
+  renderMaterialButtons();
   renderStudyCard();
   renderList();
 }
@@ -844,7 +954,7 @@ function renderList() {
 async function handleCsvFile(file) {
   const text = await file.text();
   const rows = parseCsv(text.replace(/^\uFEFF/, ''));
-  const imported = csvRowsToCards(rows);
+  const imported = csvRowsToCards(rows, file.name);
   const blankChoicesCount = imported.filter((card) => !(card.choices || '').trim()).length;
   await syncCardsFromCsv(imported);
   setStatus(`読み込み完了: ${imported.length}件（choices空欄 ${blankChoicesCount}件）`);
@@ -1043,6 +1153,7 @@ async function importJson(file) {
 }
 
 async function init() {
+  ensureStudyStartElements();
   ensureChoiceElements();
   ensureProblemFlagElements();
   ensureListFilterElements();

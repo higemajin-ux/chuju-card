@@ -163,6 +163,34 @@ main {
   font-size: 14px;
 }
 
+.start-panel {
+  max-width: 860px;
+  margin: 0 auto 12px;
+  padding: 16px;
+}
+
+.start-title {
+  font-size: 18px;
+  margin-bottom: 6px;
+}
+
+.start-button {
+  margin-top: 12px;
+}
+
+.material-buttons {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.material-button.is-active,
+.start-button.is-active {
+  background: linear-gradient(180deg, #eb96b3 0%, #df82a1 100%);
+  color: var(--primary-ink);
+}
+
 .study-panel {
   max-width: 860px;
   margin: 0 auto 14px;
