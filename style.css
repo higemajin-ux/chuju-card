@@ -395,8 +395,35 @@ main {
   border: 1px solid var(--line);
   border-radius: 14px;
   background: #fffaf0;
-  padding: 12px 14px;
+  padding: 0 14px 12px;
   cursor: pointer;
+  overflow: hidden;
+}
+
+.list-history {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 4px;
+  height: 8px;
+  margin: 0 -14px 10px;
+  padding: 0 14px;
+}
+
+.history-segment {
+  border-radius: 999px;
+  background: #e7dfd1;
+}
+
+.history-segment.is-correct {
+  background: #cfe2c8;
+}
+
+.history-segment.is-wrong {
+  background: #e7c9c3;
+}
+
+.history-segment.is-empty {
+  background: #e7dfd1;
 }
 
 .list-title {

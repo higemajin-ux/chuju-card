@@ -32,7 +32,7 @@
         <p>○ わかった：7日後に復習</p>
         <p>△ もう一回：3日後に復習</p>
         <p>× わからない：明日復習</p>
-        <p>○が3回連続したら合格</p>
+        <p>直近5回中4回以上正解で合格</p>
       </div>
     </details>
 
@@ -105,6 +105,7 @@
 
   <template id="cardListItemTemplate">
     <button class="list-item" type="button">
+      <span class="list-history" aria-hidden="true"></span>
       <span class="list-title"></span>
       <span class="list-sub"></span>
       <span class="list-check check-badge hidden"></span>

@@ -90,3 +90,8 @@ cardId,subject,unit,type,question,answer,explanation,difficulty,source,check,che
 - 同じ `cardId` の再読み込みでは学習履歴を保持しつつ教材内容だけ更新
 - CSVから消えた `cardId` は現在の教材セットに含まれないものとして削除
 - 旧形式CSVは `cardId列がありません。新CSV形式で読み込んでください。` と表示して読み込み中止
+## 正誤履歴
+
+- カード一覧には直近5回の正誤履歴を5分割バーで表示します。
+- 緑は正解、赤は不正解、薄色は未回答です。
+- 直近5回中4回以上正解すると合格扱いになります。

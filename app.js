@@ -1,6 +1,7 @@
 const DB_NAME = 'chuju-card-db';
 const DB_VERSION = 1;
 const STORE_NAME = 'cards';
+const RECENT_RESULTS_LIMIT = 5;
 const REQUIRED_COLUMNS = [
   'cardId', 'subject', 'unit', 'type', 'question', 'answer', 'explanation',
   'difficulty', 'source', 'check', 'questionImage', 'answerImage',
@@ -81,6 +82,40 @@ function setCheckReason(value) {
   const text = (value || '').trim();
   el.checkReasonText.classList.toggle('hidden', !text);
   el.checkReasonText.textContent = text ? `理由：${text}` : '';
+}
+
+function normalizeRecentResults(card) {
+  if (!Array.isArray(card?.recentResults)) return [];
+  return card.recentResults
+    .filter((result) => result === 'correct' || result === 'wrong')
+    .slice(-RECENT_RESULTS_LIMIT);
+}
+
+function appendRecentResult(card, result) {
+  return [...normalizeRecentResults(card), result].slice(-RECENT_RESULTS_LIMIT);
+}
+
+function isCardGraduated(card) {
+  const recentResults = normalizeRecentResults(card);
+  if (card.status === 'graduated') return true;
+  if (recentResults.length < RECENT_RESULTS_LIMIT) return false;
+  return recentResults.filter((result) => result === 'correct').length >= 4;
+}
+
+function buildRecentResultsBar(container, card) {
+  const recentResults = normalizeRecentResults(card);
+  const paddedResults = [
+    ...Array(Math.max(RECENT_RESULTS_LIMIT - recentResults.length, 0)).fill('empty'),
+    ...recentResults,
+  ];
+
+  container.innerHTML = '';
+  paddedResults.forEach((result) => {
+    const segment = document.createElement('span');
+    segment.className = `history-segment is-${result}`;
+    segment.setAttribute('aria-hidden', 'true');
+    container.appendChild(segment);
+  });
 }
 
 function updateStudyButtons() {
@@ -263,6 +298,7 @@ async function syncCardsFromCsv(importedRows) {
       id: cardId,
       cardId,
       status: 'active',
+      recentResults: [],
       goodStreak: 0,
       totalGood: 0,
       totalMaybe: 0,
@@ -321,7 +357,7 @@ function render() {
   el.totalCount.textContent = String(cards.length);
   el.dueCount.textContent = String(due);
   el.dueCountInline.textContent = String(due);
-  el.graduatedCount.textContent = String(cards.filter((card) => card.status === 'graduated').length);
+  el.graduatedCount.textContent = String(cards.filter((card) => isCardGraduated(card)).length);
   renderStudyCard();
   renderList();
 }
@@ -377,8 +413,11 @@ function renderList() {
 
   cards.forEach((card) => {
     const item = el.itemTemplate.content.firstElementChild.cloneNode(true);
+    const recentResults = normalizeRecentResults(card);
+    const correctCount = recentResults.filter((result) => result === 'correct').length;
+    buildRecentResultsBar(item.querySelector('.list-history'), card);
     item.querySelector('.list-title').textContent = card.question;
-    item.querySelector('.list-sub').textContent = `${card.subject || '-'} / ${card.unit || '-'} / ${card.status === 'graduated' ? '合格' : '学習中'} / ○連続 ${card.goodStreak || 0} / 次回 ${card.nextReviewDate || '-'}`;
+    item.querySelector('.list-sub').textContent = `${card.subject || '-'} / ${card.unit || '-'} / ${isCardGraduated(card) ? '合格' : '学習中'} / 直近 ${correctCount}/${RECENT_RESULTS_LIMIT} / 次回 ${card.nextReviewDate || '-'}`;
     setCheckBadge(item.querySelector('.list-check'), card.check);
     item.addEventListener('click', () => {
       currentCard = card;
@@ -407,22 +446,24 @@ async function markCard(result) {
 
   const nextDays = { good: 7, maybe: 3, bad: 1 }[result];
   const updated = { ...currentCard, updatedAt: new Date().toISOString() };
+  updated.recentResults = appendRecentResult(updated, result === 'good' ? 'correct' : 'wrong');
 
   if (result === 'good') {
     updated.totalGood = (updated.totalGood || 0) + 1;
     updated.goodStreak = (updated.goodStreak || 0) + 1;
     updated.nextReviewDate = addDays(nextDays);
-    if (updated.goodStreak >= 3) updated.status = 'graduated';
   } else if (result === 'maybe') {
     updated.totalMaybe = (updated.totalMaybe || 0) + 1;
     updated.goodStreak = 0;
-    updated.status = 'active';
     updated.nextReviewDate = addDays(nextDays);
   } else {
     updated.totalBad = (updated.totalBad || 0) + 1;
     updated.goodStreak = 0;
-    updated.status = 'active';
     updated.nextReviewDate = addDays(nextDays);
+  }
+
+  if (updated.status !== 'graduated') {
+    updated.status = isCardGraduated(updated) ? 'graduated' : 'active';
   }
 
   await putCards([updated]);
@@ -435,7 +476,7 @@ async function markCard(result) {
 function exportJson() {
   const payload = {
     app: 'chuju-card',
-    version: '0.3-cardid',
+    version: '0.4-history-bar',
     exportedAt: new Date().toISOString(),
     cards,
   };
@@ -465,6 +506,7 @@ async function importJson(file) {
     ...card,
     id: card.cardId || card.id,
     cardId: card.cardId || card.id,
+    recentResults: normalizeRecentResults(card),
   })));
   setStatus(`${imported.length}件を復元しました`);
   await reloadCards();
