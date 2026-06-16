@@ -208,7 +208,11 @@ function ensureStudyStartElements() {
 
   const hint = document.createElement('p');
   hint.className = 'hint';
-  hint.textContent = '今日のカードか教材ごとのカードを選べます。';
+  hint.textContent = '教材を選ぶと、その教材の問題だけを解けます。';
+
+  const materialHeading = document.createElement('p');
+  materialHeading.className = 'start-subtitle';
+  materialHeading.textContent = '教材';
 
   const todayBtn = document.createElement('button');
   todayBtn.id = 'todayStudyBtn';
@@ -226,6 +230,7 @@ function ensureStudyStartElements() {
   panel.appendChild(title);
   panel.appendChild(hint);
   panel.appendChild(todayBtn);
+  panel.appendChild(materialHeading);
   panel.appendChild(materialButtons);
   main.insertBefore(panel, studyPanel);
 
@@ -788,7 +793,8 @@ function render() {
 function renderStudyCard() {
   if (!currentCard) {
     el.cardBox.classList.add('empty');
-    el.cardMeta.textContent = cards.length ? '出題できるカードがありません' : 'CSVを読み込んでください';
+    const modeLabel = activeMaterialName ? `教材: ${activeMaterialName}` : '今日のカード';
+    el.cardMeta.textContent = cards.length ? `${modeLabel} / 出題できるカードがありません` : 'CSVを読み込んでください';
     el.questionText.textContent = cards.length ? '復習待ちのカードはありません。' : 'まだカードがありません。';
     setTag(el.subjectTag, '', '');
     setTag(el.unitTag, '', '');
@@ -814,7 +820,8 @@ function renderStudyCard() {
   }
 
   el.cardBox.classList.remove('empty');
-  el.cardMeta.textContent = `次回 ${currentCard.nextReviewDate || todayString()}`;
+  const modeLabel = activeMaterialName ? `教材: ${activeMaterialName}` : '今日のカード';
+  el.cardMeta.textContent = `${modeLabel} / 次回 ${currentCard.nextReviewDate || todayString()}`;
   setTag(el.subjectTag, '科目', currentCard.subject);
   setTag(el.unitTag, '単元', currentCard.unit);
   setTag(el.difficultyTag, '難しさ', currentCard.difficulty);
