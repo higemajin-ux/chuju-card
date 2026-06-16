@@ -61,6 +61,7 @@ const el = {
   todayStudyBtn: document.getElementById('todayStudyBtn'),
   materialButtons: document.getElementById('materialButtons'),
   listFilterSelect: document.getElementById('listFilterSelect'),
+  listScopeHint: document.getElementById('listScopeHint'),
   editModal: document.getElementById('editModal'),
   editQuestionInput: document.getElementById('editQuestionInput'),
   editChoicesInput: document.getElementById('editChoicesInput'),
@@ -199,6 +200,20 @@ function ensureListFilterElements() {
   filterWrap.appendChild(filterSelect);
   listTop.appendChild(filterWrap);
   el.listFilterSelect = filterSelect;
+}
+
+function ensureListScopeHintElement() {
+  if (el.listScopeHint) return;
+
+  const listTop = document.querySelector('.list-top');
+  const headingWrap = listTop?.querySelector('div');
+  if (!headingWrap) return;
+
+  const scopeHint = document.createElement('p');
+  scopeHint.id = 'listScopeHint';
+  scopeHint.className = 'hint hidden';
+  headingWrap.appendChild(scopeHint);
+  el.listScopeHint = scopeHint;
 }
 
 function ensureStudyStartElements() {
@@ -751,6 +766,8 @@ function pickNextCard() {
 
 function startStudyForMaterial(materialName) {
   activeMaterialName = materialName || '';
+  renderMaterialButtons();
+  renderList();
   const queue = studyQueueCards();
   if (!queue.length) {
     setStatus(activeMaterialName ? 'この教材の出題対象カードはありません' : '出題できるカードがありません');
@@ -958,13 +975,29 @@ function renderChoiceButtons(choices, answer) {
 function renderList() {
   el.cardList.innerHTML = '';
   const filteredCards = cards.filter((card) => {
+    const matchesMaterial = !activeMaterialName || getCardMaterialName(card) === activeMaterialName;
+    if (!matchesMaterial) return false;
     if (listFilter === 'problem') return isProblemFlagged(card);
     if (listFilter === 'notGraduated') return card?.graduated !== true;
     if (listFilter === 'graduated') return card?.graduated === true;
     return true;
   });
+  if (el.listScopeHint) {
+    if (activeMaterialName) {
+      el.listScopeHint.textContent = `表示中: ${activeMaterialName}`;
+      el.listScopeHint.classList.remove('hidden');
+    } else {
+      el.listScopeHint.textContent = '';
+      el.listScopeHint.classList.add('hidden');
+    }
+  }
   if (!cards.length) {
     el.cardList.innerHTML = '<p class="hint">カード一覧はまだ空です。</p>';
+    return;
+  }
+
+  if (!filteredCards.length && activeMaterialName) {
+    el.cardList.innerHTML = '<p class="hint">この教材の条件に合うカードはありません</p>';
     return;
   }
 
@@ -1232,6 +1265,7 @@ async function init() {
   ensureChoiceElements();
   ensureProblemFlagElements();
   ensureListFilterElements();
+  ensureListScopeHintElement();
   ensureEditModalElements();
   ensureEditModeButton();
   db = await openDb();
