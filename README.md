@@ -18,8 +18,16 @@ https://higemajin-ux.github.io/chuju-card/
 ## CSV列
 
 ```csv
-cardId,subject,unit,type,question,answer,explanation,difficulty,source,check,checkReason,questionImage,answerImage
+cardId,subject,unit,type,question,answer,choices,explanation,difficulty,source,check,checkReason,questionImage,answerImage
 ```
+
+## choices 列
+
+- `choices` は `|` 区切りで複数選択肢を入れます。
+- 基本は4択で、用語問題・紛らわしい問題・選択肢が自然に作れる問題では8択も使えます。
+- `answer` と完全一致する正解選択肢を `choices` の中に必ず1つ入れます。
+- アプリ側は `choices` の数だけボタンを表示する想定です。4個固定や8個固定にはしません。
+- `choices` が空欄のカードは、従来の自己申告式カードとして扱います。
 
 ## check欄
 

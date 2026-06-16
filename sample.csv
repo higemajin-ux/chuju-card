@@ -1,4 +1,4 @@
-cardId,subject,unit,type,question,answer,explanation,difficulty,source,check,checkReason,questionImage,answerImage
-sya-hw12-1-1-1,社会,歴史,一問一答,参議院の任期は何年？,6年,衆議院より長く、解散もありません。,ふつう,社会プリント p2,,,,
-sya-hw12-2-3-1,社会,地理,一問一答,日本でいちばん広い都道府県は？,北海道,面積が最も広い都道府県です。,やさしい,社会プリント p3,要確認,画像が読みにくく一部の文字を確認したいです。,,
-rika-hw05-3-2-1,理科,植物,一問一答,植物が日光を使って養分をつくるはたらきは？,光合成,二酸化炭素と水を使って養分をつくります。,ふつう,理科宿題プリント5 p1,AI要チェック,表の手書き回答が薄く印刷文と一般知識から補完したため確認してください。,,
+cardId,subject,unit,type,question,answer,choices,explanation,difficulty,source,check,checkReason,questionImage,answerImage
+sya-hw12-1-1-1,社会,歴史,choice,鎌倉幕府を開いた人物は？,源頼朝,平清盛|源頼朝|足利尊氏|徳川家康,基本は4択。answer と完全一致する選択肢を1つ入れる,sample,テスト,,,
+sya-hw12-2-3-1,社会,地理,choice,日本でいちばん面積が広い都道府県は？,北海道,青森県|岩手県|秋田県|宮城県|新潟県|長野県|北海道|福島県,用語問題や紛らわしい問題では8択も可,sample,テスト,,,
+rika-hw05-3-2-1,理科,生物,flash,植物が光を受けて養分をつくるはたらきを何という？,光合成,,choices が空欄の旧式カードでは従来どおり自己申告式を使う,sample,テスト,,,

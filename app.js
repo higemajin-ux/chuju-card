@@ -7,7 +7,7 @@ const REQUIRED_COLUMNS = [
   'difficulty', 'source', 'check', 'questionImage', 'answerImage',
 ];
 const CONTENT_COLUMNS = [
-  'subject', 'unit', 'type', 'question', 'answer', 'explanation',
+  'subject', 'unit', 'type', 'question', 'answer', 'choices', 'explanation',
   'difficulty', 'source', 'check', 'checkReason', 'questionImage', 'answerImage',
 ];
 
@@ -248,6 +248,7 @@ function csvRowsToCards(rows) {
       type: row.type,
       question: row.question,
       answer: row.answer,
+      choices: header.includes('choices') ? row.choices : '',
       explanation: row.explanation,
       difficulty: row.difficulty,
       source: row.source,
