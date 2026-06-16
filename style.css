@@ -292,6 +292,11 @@ main {
   color: #ffffff;
 }
 
+.choice-button.is-selected-wrong:disabled,
+.choice-button.is-correct:disabled {
+  opacity: 1;
+}
+
 .choice-result {
   margin-bottom: 10px;
   font-size: 15px;
