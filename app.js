@@ -3,8 +3,8 @@ const DB_VERSION = 1;
 const STORE_NAME = 'cards';
 const RECENT_RESULTS_LIMIT = 5;
 const REQUIRED_COLUMNS = [
-  'cardId', 'subject', 'unit', 'type', 'question', 'answer', 'explanation',
-  'difficulty', 'source', 'check', 'questionImage', 'answerImage',
+  'cardId', 'subject', 'unit', 'type', 'question', 'choices', 'answer', 'explanation',
+  'difficulty', 'source', 'check', 'checkReason', 'questionImage', 'answerImage',
 ];
 const CONTENT_COLUMNS = [
   'subject', 'unit', 'type', 'question', 'answer', 'choices', 'explanation',
@@ -298,7 +298,7 @@ function csvRowsToCards(rows) {
       type: row.type,
       question: row.question,
       answer: row.answer,
-      choices: header.includes('choices') ? row.choices : '',
+      choices: header.includes('choices') ? (row.choices || '') : '',
       explanation: row.explanation,
       difficulty: row.difficulty,
       source: row.source,
@@ -536,8 +536,9 @@ async function handleCsvFile(file) {
   const text = await file.text();
   const rows = parseCsv(text.replace(/^\uFEFF/, ''));
   const imported = csvRowsToCards(rows);
+  const blankChoicesCount = imported.filter((card) => !(card.choices || '').trim()).length;
   await syncCardsFromCsv(imported);
-  setStatus(`${imported.length}件を教材セットとして更新しました`);
+  setStatus(`読み込み完了: ${imported.length}件（choices空欄 ${blankChoicesCount}件）`);
   await reloadCards();
   currentCard = null;
   pickNextCard();
@@ -656,7 +657,9 @@ el.csvInput.addEventListener('change', async (event) => {
   try {
     await handleCsvFile(file);
   } catch (error) {
-    alert(error.message || 'CSV読み込みに失敗しました');
+    const message = error?.message || 'CSV読み込みに失敗しました';
+    setStatus(`CSV読み込みエラー: ${message}`);
+    alert(message);
   } finally {
     event.target.value = '';
   }

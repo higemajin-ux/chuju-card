@@ -1,4 +1,3 @@
-cardId,subject,unit,type,question,answer,choices,explanation,difficulty,source,check,checkReason,questionImage,answerImage
-sya-hw12-1-1-1,社会,歴史,choice,鎌倉幕府を開いた人物は？,源頼朝,平清盛|源頼朝|足利尊氏|徳川家康,基本は4択。answer と完全一致する選択肢を1つ入れる,sample,テスト,,,
-sya-hw12-2-3-1,社会,地理,choice,日本でいちばん面積が広い都道府県は？,北海道,青森県|岩手県|秋田県|宮城県|新潟県|長野県|北海道|福島県,用語問題や紛らわしい問題では8択も可,sample,テスト,,,
-rika-hw05-3-2-1,理科,生物,flash,植物が光を受けて養分をつくるはたらきを何という？,光合成,,choices が空欄の旧式カードでは従来どおり自己申告式を使う,sample,テスト,,,
+﻿cardId,subject,unit,type,question,choices,answer,explanation,difficulty,source,check,checkReason,questionImage,answerImage
+sya-hw12-1-1-1,社会,歴史,choice,鎌倉幕府を開いた人物は？,平清盛|源頼朝|足利尊氏|徳川家康,源頼朝,4択の選択式サンプルです。,sample,テスト,,,,
+sya-hw12-2-3-1,社会,地理,choice,日本でいちばん面積が広い都道府県は？,青森県|岩手県|秋田県|宮城県|新潟県|長野県|北海道|福島県,北海道,8択の選択式サンプルです。,sample,テスト,,,,
