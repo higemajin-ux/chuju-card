@@ -252,6 +252,51 @@ main {
   border-top: 1px dashed var(--line);
 }
 
+.choice-area {
+  margin-top: 16px;
+}
+
+.choice-buttons {
+  display: grid;
+  gap: 8px;
+}
+
+.choice-button {
+  width: 100%;
+  min-height: 56px;
+  text-align: left;
+  border: 1px solid #d7cebc;
+  border-radius: 14px;
+  background: #f7f1e5;
+  color: var(--ink);
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.choice-button.is-selected-wrong {
+  background: #f1d8d4;
+  border-color: #c9958d;
+}
+
+.choice-button.is-correct {
+  background: #dbead5;
+  border-color: #9ebb95;
+}
+
+.choice-result {
+  margin-bottom: 10px;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.choice-result.is-correct {
+  color: var(--good);
+}
+
+.choice-result.is-wrong {
+  color: var(--bad);
+}
+
 .answer-label {
   color: var(--muted);
   font-size: 13px;

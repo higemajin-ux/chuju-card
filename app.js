@@ -15,6 +15,7 @@ let db;
 let cards = [];
 let currentCard = null;
 let answerVisible = false;
+let choiceFeedback = null;
 
 const el = {
   saveStatus: document.getElementById('saveStatus'),
@@ -35,10 +36,15 @@ const el = {
   difficultyTag: document.getElementById('difficultyTag'),
   checkBadge: document.getElementById('checkBadge'),
   checkReasonText: document.getElementById('checkReasonText'),
+  choiceArea: document.getElementById('choiceArea'),
+  choiceButtons: document.getElementById('choiceButtons'),
+  choiceResultText: document.getElementById('choiceResultText'),
   answerArea: document.getElementById('answerArea'),
   answerText: document.getElementById('answerText'),
   explanationText: document.getElementById('explanationText'),
+  studyActions: document.getElementById('studyActions') || document.querySelector('.study-actions'),
   showAnswerBtn: document.getElementById('showAnswerBtn'),
+  judgeActions: document.getElementById('judgeActions') || document.querySelector('.judge-actions'),
   nextCardBtn: document.getElementById('nextCardBtn'),
   markGoodBtn: document.getElementById('markGoodBtn'),
   markMaybeBtn: document.getElementById('markMaybeBtn'),
@@ -46,6 +52,37 @@ const el = {
   cardList: document.getElementById('cardList'),
   itemTemplate: document.getElementById('cardListItemTemplate'),
 };
+
+function ensureChoiceElements() {
+  if (el.choiceArea && el.choiceButtons && el.choiceResultText) return;
+
+  const choiceArea = el.choiceArea || document.createElement('div');
+  choiceArea.id = choiceArea.id || 'choiceArea';
+  choiceArea.className = choiceArea.className || 'choice-area hidden';
+
+  const choiceResultText = el.choiceResultText || document.createElement('p');
+  choiceResultText.id = choiceResultText.id || 'choiceResultText';
+  choiceResultText.className = choiceResultText.className || 'choice-result hidden';
+
+  const choiceButtons = el.choiceButtons || document.createElement('div');
+  choiceButtons.id = choiceButtons.id || 'choiceButtons';
+  choiceButtons.className = choiceButtons.className || 'choice-buttons';
+
+  if (!choiceResultText.parentElement) choiceArea.appendChild(choiceResultText);
+  if (!choiceButtons.parentElement) choiceArea.appendChild(choiceButtons);
+
+  if (!choiceArea.parentElement) {
+    if (el.answerArea?.parentElement) {
+      el.answerArea.parentElement.insertBefore(choiceArea, el.answerArea);
+    } else if (el.cardBox) {
+      el.cardBox.appendChild(choiceArea);
+    }
+  }
+
+  el.choiceArea = choiceArea;
+  el.choiceButtons = choiceButtons;
+  el.choiceResultText = choiceResultText;
+}
 
 function todayString() {
   return new Date().toISOString().slice(0, 10);
@@ -118,13 +155,26 @@ function buildRecentResultsBar(container, card) {
   });
 }
 
+function parseChoices(card) {
+  if (!card?.choices) return [];
+  return card.choices
+    .split('|')
+    .map((choice) => choice.trim())
+    .filter(Boolean);
+}
+
+function isChoiceCard(card) {
+  return parseChoices(card).length > 0;
+}
+
 function updateStudyButtons() {
   const hasCard = Boolean(currentCard);
-  el.showAnswerBtn.disabled = !hasCard || answerVisible;
+  const choiceCard = isChoiceCard(currentCard);
+  el.showAnswerBtn.disabled = !hasCard || answerVisible || choiceCard;
   el.nextCardBtn.disabled = cards.length === 0;
-  el.markGoodBtn.disabled = !hasCard || !answerVisible;
-  el.markMaybeBtn.disabled = !hasCard || !answerVisible;
-  el.markBadBtn.disabled = !hasCard || !answerVisible;
+  el.markGoodBtn.disabled = !hasCard || !answerVisible || choiceCard;
+  el.markMaybeBtn.disabled = !hasCard || !answerVisible || choiceCard;
+  el.markBadBtn.disabled = !hasCard || !answerVisible || choiceCard;
 }
 
 function openDb() {
@@ -349,6 +399,7 @@ function pickNextCard() {
   }
 
   answerVisible = false;
+  choiceFeedback = null;
   setStatus(currentCard ? '次のカードを表示中' : '出題できるカードがありません');
   renderStudyCard();
 }
@@ -375,6 +426,12 @@ function renderStudyCard() {
     setCheckReason('');
     el.sourceText.textContent = '';
     el.sourceText.classList.add('hidden');
+    el.choiceArea.classList.add('hidden');
+    el.choiceButtons.innerHTML = '';
+    el.choiceResultText.textContent = '';
+    el.choiceResultText.className = 'choice-result hidden';
+    el.studyActions.classList.remove('hidden');
+    el.judgeActions.classList.remove('hidden');
     el.answerArea.classList.add('hidden');
     el.answerText.textContent = '';
     el.explanationText.textContent = '';
@@ -390,6 +447,9 @@ function renderStudyCard() {
   setCheckBadge(el.checkBadge, currentCard.check);
   setCheckReason(currentCard.checkReason);
   el.questionText.textContent = currentCard.question;
+  el.choiceArea.classList.toggle('hidden', !isChoiceCard(currentCard));
+  el.studyActions.classList.toggle('hidden', isChoiceCard(currentCard));
+  el.judgeActions.classList.toggle('hidden', isChoiceCard(currentCard));
 
   if (currentCard.source) {
     el.sourceText.textContent = `${currentCard.source}から出題`;
@@ -401,8 +461,48 @@ function renderStudyCard() {
 
   el.answerText.textContent = currentCard.answer;
   el.explanationText.textContent = currentCard.explanation || '';
+  renderChoiceButtons(parseChoices(currentCard), currentCard.answer);
   el.answerArea.classList.toggle('hidden', !answerVisible);
   updateStudyButtons();
+}
+
+function renderChoiceButtons(choices, answer) {
+  el.choiceButtons.innerHTML = '';
+
+  if (!choices.length) {
+    el.choiceResultText.textContent = '';
+    el.choiceResultText.className = 'choice-result hidden';
+    return;
+  }
+
+  if (choiceFeedback) {
+    el.choiceResultText.textContent = choiceFeedback.isCorrect ? '正解' : `不正解 正解: ${answer}`;
+    el.choiceResultText.className = `choice-result ${choiceFeedback.isCorrect ? 'is-correct' : 'is-wrong'}`;
+  } else {
+    el.choiceResultText.textContent = '';
+    el.choiceResultText.className = 'choice-result hidden';
+  }
+
+  choices.forEach((choice) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'big-button choice-button';
+    button.textContent = choice;
+    button.disabled = Boolean(choiceFeedback);
+
+    if (choiceFeedback) {
+      if (choice === answer) {
+        button.classList.add('is-correct');
+      } else if (!choiceFeedback.isCorrect && choice === choiceFeedback.selectedChoice) {
+        button.classList.add('is-selected-wrong');
+      }
+    }
+
+    button.addEventListener('click', () => {
+      handleChoiceAnswer(choice);
+    });
+    el.choiceButtons.appendChild(button);
+  });
 }
 
 function renderList() {
@@ -423,6 +523,7 @@ function renderList() {
     item.addEventListener('click', () => {
       currentCard = card;
       answerVisible = false;
+      choiceFeedback = null;
       setStatus('カードを選びました');
       renderStudyCard();
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -442,9 +543,11 @@ async function handleCsvFile(file) {
   pickNextCard();
 }
 
-async function markCard(result) {
+async function markCard(result, options = {}) {
   if (!currentCard || !answerVisible) return;
 
+  const { advance = true } = options;
+  const currentCardId = currentCard.id;
   const nextDays = { good: 7, maybe: 3, bad: 1 }[result];
   const updated = { ...currentCard, updatedAt: new Date().toISOString() };
   updated.recentResults = appendRecentResult(updated, result === 'good' ? 'correct' : 'wrong');
@@ -470,8 +573,24 @@ async function markCard(result) {
   await putCards([updated]);
   setStatus('記録しました');
   await reloadCards();
-  currentCard = updated;
-  pickNextCard();
+  currentCard = cards.find((card) => card.id === currentCardId) || updated;
+  if (advance) {
+    pickNextCard();
+  } else {
+    renderStudyCard();
+  }
+}
+
+async function handleChoiceAnswer(selectedChoice) {
+  if (!currentCard || !isChoiceCard(currentCard) || answerVisible) return;
+
+  choiceFeedback = {
+    selectedChoice,
+    isCorrect: selectedChoice === currentCard.answer,
+  };
+  answerVisible = true;
+  renderStudyCard();
+  await markCard(choiceFeedback.isCorrect ? 'good' : 'bad', { advance: false });
 }
 
 function exportJson() {
@@ -516,6 +635,7 @@ async function importJson(file) {
 }
 
 async function init() {
+  ensureChoiceElements();
   db = await openDb();
   await reloadCards();
   currentCard = null;

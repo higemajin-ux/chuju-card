@@ -1,4 +1,4 @@
-const CACHE_NAME = 'chuju-card-v0.4-history-bar';
+const CACHE_NAME = 'chuju-card-v0.5-choice-buttons';
 const APP_SHELL = [
   './',
   './index.html',
