@@ -265,6 +265,7 @@ function ensureEditModalElements() {
   el.editModal = modal;
   el.editSaveBtn = saveBtn;
   el.editCancelBtn = cancelBtn;
+  closeEditModal();
 }
 
 function ensureEditModeButton() {
@@ -872,7 +873,6 @@ async function toggleProblemFlag() {
     updatedAt: new Date().toISOString(),
   };
 
-  closeEditModal();
   await putCards([updated]);
   currentCard = updated;
   setStatus(updated.problemFlag ? '問題確認にしました' : '問題確認を解除しました');
@@ -883,7 +883,7 @@ async function toggleProblemFlag() {
 
 function openEditModal(cardId) {
   const card = cards.find((item) => item.id === cardId);
-  if (!card || !el.editModal) return;
+  if (!card || !el.editModal || !isEditMode) return;
 
   editingCardId = cardId;
   el.editQuestionInput.value = card.question || '';
@@ -935,6 +935,7 @@ async function saveCardEdit() {
     updatedAt: new Date().toISOString(),
   };
 
+  closeEditModal();
   await putCards([updated]);
   setStatus('問題を更新しました');
   await reloadCards();
