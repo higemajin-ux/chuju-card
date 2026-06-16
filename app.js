@@ -17,6 +17,7 @@ let currentCard = null;
 let answerVisible = false;
 let choiceFeedback = null;
 let listFilter = 'all';
+let editingCardId = null;
 
 const el = {
   saveStatus: document.getElementById('saveStatus'),
@@ -54,6 +55,14 @@ const el = {
   markMaybeBtn: document.getElementById('markMaybeBtn'),
   markBadBtn: document.getElementById('markBadBtn'),
   listFilterSelect: document.getElementById('listFilterSelect'),
+  editModal: document.getElementById('editModal'),
+  editQuestionInput: document.getElementById('editQuestionInput'),
+  editChoicesInput: document.getElementById('editChoicesInput'),
+  editAnswerInput: document.getElementById('editAnswerInput'),
+  editExplanationInput: document.getElementById('editExplanationInput'),
+  editCheckReasonInput: document.getElementById('editCheckReasonInput'),
+  editSaveBtn: document.getElementById('editSaveBtn'),
+  editCancelBtn: document.getElementById('editCancelBtn'),
   cardList: document.getElementById('cardList'),
   itemTemplate: document.getElementById('cardListItemTemplate'),
 };
@@ -175,6 +184,87 @@ function ensureListFilterElements() {
   el.listFilterSelect = filterSelect;
 }
 
+function ensureEditModalElements() {
+  if (el.editModal) return;
+
+  const modal = document.createElement('div');
+  modal.id = 'editModal';
+  modal.className = 'edit-modal hidden';
+
+  const dialog = document.createElement('div');
+  dialog.className = 'edit-dialog';
+  dialog.addEventListener('click', (event) => {
+    event.stopPropagation();
+  });
+
+  const title = document.createElement('h3');
+  title.className = 'edit-title';
+  title.textContent = 'カード編集';
+  dialog.appendChild(title);
+
+  const fields = [
+    ['問題文', 'editQuestionInput'],
+    ['選択肢', 'editChoicesInput'],
+    ['正解', 'editAnswerInput'],
+    ['解説', 'editExplanationInput'],
+    ['確認理由', 'editCheckReasonInput'],
+  ];
+
+  fields.forEach(([labelText, id]) => {
+    const label = document.createElement('label');
+    label.className = 'edit-field';
+    label.textContent = labelText;
+
+    const input = document.createElement(id === 'editAnswerInput' ? 'input' : 'textarea');
+    input.id = id;
+    input.className = 'edit-input';
+    if (id === 'editAnswerInput') {
+      input.type = 'text';
+    } else {
+      input.rows = id === 'editQuestionInput' ? 3 : 4;
+    }
+
+    label.appendChild(input);
+    dialog.appendChild(label);
+    el[id] = input;
+  });
+
+  const actions = document.createElement('div');
+  actions.className = 'edit-actions';
+
+  const cancelBtn = document.createElement('button');
+  cancelBtn.id = 'editCancelBtn';
+  cancelBtn.type = 'button';
+  cancelBtn.className = 'quiet-button';
+  cancelBtn.textContent = 'キャンセル';
+  cancelBtn.addEventListener('click', () => {
+    closeEditModal();
+  });
+
+  const saveBtn = document.createElement('button');
+  saveBtn.id = 'editSaveBtn';
+  saveBtn.type = 'button';
+  saveBtn.className = 'small-button primary';
+  saveBtn.textContent = '保存';
+  saveBtn.addEventListener('click', async () => {
+    await saveCardEdit();
+  });
+
+  actions.appendChild(cancelBtn);
+  actions.appendChild(saveBtn);
+  dialog.appendChild(actions);
+
+  modal.appendChild(dialog);
+  modal.addEventListener('click', () => {
+    closeEditModal();
+  });
+  document.body.appendChild(modal);
+
+  el.editModal = modal;
+  el.editSaveBtn = saveBtn;
+  el.editCancelBtn = cancelBtn;
+}
+
 function todayString() {
   return new Date().toISOString().slice(0, 10);
 }
@@ -236,6 +326,14 @@ function appendRecentResult(card, result) {
 
 function isProblemFlagged(card) {
   return Boolean(card?.problemFlag);
+}
+
+function normalizeChoicesText(value) {
+  return (value || '')
+    .split(/\r?\n|\|/)
+    .map((choice) => choice.trim())
+    .filter(Boolean)
+    .join('|');
 }
 
 function isCardGraduated(card) {
@@ -634,6 +732,8 @@ function renderList() {
   }
 
   filteredCards.forEach((card) => {
+    const row = document.createElement('div');
+    row.className = 'list-row';
     const item = el.itemTemplate.content.firstElementChild.cloneNode(true);
     const recentResults = normalizeRecentResults(card);
     const correctCount = recentResults.filter((result) => result === 'correct').length;
@@ -653,7 +753,17 @@ function renderList() {
       renderStudyCard();
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
-    el.cardList.appendChild(item);
+    const editBtn = document.createElement('button');
+    editBtn.type = 'button';
+    editBtn.className = 'small-button edit-card-button';
+    editBtn.textContent = '編集';
+    editBtn.addEventListener('click', (event) => {
+      event.stopPropagation();
+      openEditModal(card.id);
+    });
+    row.appendChild(item);
+    row.appendChild(editBtn);
+    el.cardList.appendChild(row);
   });
 }
 
@@ -736,6 +846,65 @@ async function toggleProblemFlag() {
   renderStudyCard();
 }
 
+function openEditModal(cardId) {
+  const card = cards.find((item) => item.id === cardId);
+  if (!card || !el.editModal) return;
+
+  editingCardId = cardId;
+  el.editQuestionInput.value = card.question || '';
+  el.editChoicesInput.value = parseChoices(card).join('\n');
+  el.editAnswerInput.value = card.answer || '';
+  el.editExplanationInput.value = card.explanation || '';
+  el.editCheckReasonInput.value = card.checkReason || '';
+  setElementVisible(el.editModal, true);
+}
+
+function closeEditModal() {
+  editingCardId = null;
+  setElementVisible(el.editModal, false);
+}
+
+async function saveCardEdit() {
+  if (!editingCardId) return;
+
+  const card = cards.find((item) => item.id === editingCardId);
+  if (!card) {
+    closeEditModal();
+    return;
+  }
+
+  const question = (el.editQuestionInput.value || '').trim();
+  const choices = normalizeChoicesText(el.editChoicesInput.value);
+  const answer = (el.editAnswerInput.value || '').trim();
+  const explanation = (el.editExplanationInput.value || '').trim();
+  const checkReason = (el.editCheckReasonInput.value || '').trim();
+  const choiceList = choices ? choices.split('|').map((choice) => choice.trim()).filter(Boolean) : [];
+
+  if (choiceList.length && answer && !choiceList.includes(answer)) {
+    const shouldSave = window.confirm('正解が選択肢に含まれていません。保存しますか？');
+    if (!shouldSave) return;
+  }
+
+  const updated = {
+    ...card,
+    question,
+    choices,
+    answer,
+    explanation,
+    checkReason,
+    updatedAt: new Date().toISOString(),
+  };
+
+  await putCards([updated]);
+  setStatus('問題を更新しました');
+  await reloadCards();
+  currentCard = currentCard?.id === updated.id
+    ? cards.find((item) => item.id === updated.id) || updated
+    : currentCard;
+  closeEditModal();
+  renderStudyCard();
+}
+
 function exportJson() {
   const payload = {
     app: 'chuju-card',
@@ -781,6 +950,7 @@ async function init() {
   ensureChoiceElements();
   ensureProblemFlagElements();
   ensureListFilterElements();
+  ensureEditModalElements();
   db = await openDb();
   await reloadCards();
   currentCard = null;
