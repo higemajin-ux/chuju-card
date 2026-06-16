@@ -337,6 +337,7 @@ function ensureEditModeButton() {
       closeEditModal();
     }
     updateEditModeButton();
+    renderMaterialButtons();
     renderList();
   });
 
@@ -751,6 +752,42 @@ function startStudyForMaterial(materialName) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+async function deleteCardsByMaterial(materialName) {
+  const normalizedMaterialName = (materialName || '').trim();
+  if (!normalizedMaterialName) return;
+
+  const confirmed = window.confirm(`教材「${normalizedMaterialName}」のカードをすべて削除します。学習履歴も消えます。よろしいですか？`);
+  if (!confirmed) return;
+
+  const targetCards = cards.filter((card) => getCardMaterialName(card) === normalizedMaterialName);
+  if (!targetCards.length) {
+    setStatus(`教材「${normalizedMaterialName}」のカードは見つかりませんでした`);
+    return;
+  }
+
+  const deleteKeys = targetCards.map((card) => card.id).filter(Boolean);
+  const shouldResetActiveMaterial = activeMaterialName === normalizedMaterialName;
+  const shouldClearCurrentCard = deleteKeys.includes(currentCard?.id);
+  const shouldCloseEdit = deleteKeys.includes(editingCardId);
+
+  await replaceCards([], deleteKeys);
+
+  if (shouldResetActiveMaterial) {
+    activeMaterialName = '';
+  }
+  if (shouldClearCurrentCard) {
+    currentCard = null;
+    answerVisible = false;
+    choiceFeedback = null;
+  }
+  if (shouldCloseEdit) {
+    closeEditModal();
+  }
+
+  await reloadCards();
+  setStatus(`教材「${normalizedMaterialName}」を削除しました`);
+}
+
 function renderMaterialButtons() {
   if (!el.materialButtons || !el.todayStudyBtn) return;
 
@@ -767,6 +804,9 @@ function renderMaterialButtons() {
   }
 
   materialNames.forEach((materialName) => {
+    const item = document.createElement('div');
+    item.className = 'material-button-item';
+
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'big-button secondary-button material-button';
@@ -775,7 +815,22 @@ function renderMaterialButtons() {
     button.addEventListener('click', () => {
       startStudyForMaterial(materialName);
     });
-    el.materialButtons.appendChild(button);
+
+    const deleteButton = document.createElement('button');
+    deleteButton.type = 'button';
+    deleteButton.className = 'quiet-button material-delete-button';
+    deleteButton.textContent = '削除';
+    deleteButton.setAttribute('aria-label', `教材「${materialName}」を削除`);
+    deleteButton.addEventListener('click', async (event) => {
+      event.stopPropagation();
+      await deleteCardsByMaterial(materialName);
+    });
+
+    item.appendChild(button);
+    if (isEditMode) {
+      item.appendChild(deleteButton);
+    }
+    el.materialButtons.appendChild(item);
   });
 }
 

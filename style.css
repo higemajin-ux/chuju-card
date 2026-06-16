@@ -192,6 +192,40 @@ main {
   margin-top: 10px;
 }
 
+.material-button-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.material-button-item .material-button {
+  flex: 1;
+  min-width: 0;
+}
+
+.material-delete-button {
+  flex: 0 0 auto;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border-color: #e2b6bc;
+  background: #fff7f6;
+  color: #b4606d;
+  font-size: 12px;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.material-delete-button:hover {
+  background: #fff0ef;
+  border-color: #d9919d;
+}
+
+.material-delete-button:focus-visible {
+  outline: 2px solid #e7a8bb;
+  outline-offset: 2px;
+}
+
 .material-button.is-active,
 .start-button.is-active {
   background: linear-gradient(180deg, #eb96b3 0%, #df82a1 100%);
