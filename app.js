@@ -39,6 +39,7 @@ const el = {
   choiceArea: document.getElementById('choiceArea'),
   choiceButtons: document.getElementById('choiceButtons'),
   choiceResultText: document.getElementById('choiceResultText'),
+  choiceNextBtn: document.getElementById('choiceNextBtn'),
   answerArea: document.getElementById('answerArea'),
   answerText: document.getElementById('answerText'),
   explanationText: document.getElementById('explanationText'),
@@ -54,34 +55,55 @@ const el = {
 };
 
 function ensureChoiceElements() {
-  if (el.choiceArea && el.choiceButtons && el.choiceResultText) return;
+  const hasChoiceElements = el.choiceArea && el.choiceButtons && el.choiceResultText;
 
-  const choiceArea = el.choiceArea || document.createElement('div');
-  choiceArea.id = choiceArea.id || 'choiceArea';
-  choiceArea.className = choiceArea.className || 'choice-area hidden';
+  if (!hasChoiceElements) {
+    const choiceArea = el.choiceArea || document.createElement('div');
+    choiceArea.id = choiceArea.id || 'choiceArea';
+    choiceArea.className = choiceArea.className || 'choice-area hidden';
 
-  const choiceResultText = el.choiceResultText || document.createElement('p');
-  choiceResultText.id = choiceResultText.id || 'choiceResultText';
-  choiceResultText.className = choiceResultText.className || 'choice-result hidden';
+    const choiceResultText = el.choiceResultText || document.createElement('p');
+    choiceResultText.id = choiceResultText.id || 'choiceResultText';
+    choiceResultText.className = choiceResultText.className || 'choice-result hidden';
 
-  const choiceButtons = el.choiceButtons || document.createElement('div');
-  choiceButtons.id = choiceButtons.id || 'choiceButtons';
-  choiceButtons.className = choiceButtons.className || 'choice-buttons';
+    const choiceButtons = el.choiceButtons || document.createElement('div');
+    choiceButtons.id = choiceButtons.id || 'choiceButtons';
+    choiceButtons.className = choiceButtons.className || 'choice-buttons';
 
-  if (!choiceResultText.parentElement) choiceArea.appendChild(choiceResultText);
-  if (!choiceButtons.parentElement) choiceArea.appendChild(choiceButtons);
+    if (!choiceResultText.parentElement) choiceArea.appendChild(choiceResultText);
+    if (!choiceButtons.parentElement) choiceArea.appendChild(choiceButtons);
 
-  if (!choiceArea.parentElement) {
-    if (el.answerArea?.parentElement) {
-      el.answerArea.parentElement.insertBefore(choiceArea, el.answerArea);
-    } else if (el.cardBox) {
-      el.cardBox.appendChild(choiceArea);
+    if (!choiceArea.parentElement) {
+      if (el.answerArea?.parentElement) {
+        el.answerArea.parentElement.insertBefore(choiceArea, el.answerArea);
+      } else if (el.cardBox) {
+        el.cardBox.appendChild(choiceArea);
+      }
     }
+
+    el.choiceArea = choiceArea;
+    el.choiceButtons = choiceButtons;
+    el.choiceResultText = choiceResultText;
   }
 
-  el.choiceArea = choiceArea;
-  el.choiceButtons = choiceButtons;
-  el.choiceResultText = choiceResultText;
+  if (!el.choiceNextBtn) {
+    const choiceNextBtn = document.createElement('button');
+    choiceNextBtn.id = 'choiceNextBtn';
+    choiceNextBtn.type = 'button';
+    choiceNextBtn.className = 'big-button primary answer-button choice-next-button hidden';
+    choiceNextBtn.textContent = '次のカード';
+    choiceNextBtn.addEventListener('click', () => {
+      pickNextCard();
+    });
+
+    if (el.answerArea?.parentElement) {
+      el.answerArea.parentElement.appendChild(choiceNextBtn);
+    } else if (el.cardBox) {
+      el.cardBox.appendChild(choiceNextBtn);
+    }
+
+    el.choiceNextBtn = choiceNextBtn;
+  }
 }
 
 function todayString() {
@@ -444,6 +466,7 @@ function renderStudyCard() {
     setElementVisible(el.studyActions, false);
     setElementVisible(el.judgeActions, false);
     setElementVisible(el.answerArea, false);
+    setElementVisible(el.choiceNextBtn, false);
     el.answerText.textContent = '';
     el.explanationText.textContent = '';
     updateStudyButtons();
@@ -474,6 +497,7 @@ function renderStudyCard() {
   el.explanationText.textContent = currentCard.explanation || '';
   renderChoiceButtons(parseChoices(currentCard), currentCard.answer);
   setElementVisible(el.answerArea, answerVisible);
+  setElementVisible(el.choiceNextBtn, isChoiceCard(currentCard) && Boolean(choiceFeedback));
   updateStudyButtons();
 }
 

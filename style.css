@@ -298,6 +298,10 @@ main {
   color: var(--bad);
 }
 
+.choice-next-button {
+  margin-top: 12px;
+}
+
 .answer-label {
   color: var(--muted);
   font-size: 13px;
