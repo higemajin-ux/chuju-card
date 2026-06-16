@@ -619,6 +619,15 @@ main {
   margin-top: 16px;
 }
 
+.edit-mode-button {
+  margin-top: 10px;
+}
+
+.edit-mode-button.is-active {
+  background: #f3df8f;
+  color: #6f5a1d;
+}
+
 .data-panel .hint {
   margin-top: 8px;
 }

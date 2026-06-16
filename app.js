@@ -17,6 +17,7 @@ let currentCard = null;
 let answerVisible = false;
 let choiceFeedback = null;
 let listFilter = 'all';
+let isEditMode = false;
 let editingCardId = null;
 
 const el = {
@@ -63,6 +64,7 @@ const el = {
   editCheckReasonInput: document.getElementById('editCheckReasonInput'),
   editSaveBtn: document.getElementById('editSaveBtn'),
   editCancelBtn: document.getElementById('editCancelBtn'),
+  editModeBtn: document.getElementById('editModeBtn'),
   cardList: document.getElementById('cardList'),
   itemTemplate: document.getElementById('cardListItemTemplate'),
 };
@@ -263,6 +265,36 @@ function ensureEditModalElements() {
   el.editModal = modal;
   el.editSaveBtn = saveBtn;
   el.editCancelBtn = cancelBtn;
+}
+
+function ensureEditModeButton() {
+  if (el.editModeBtn) return;
+
+  const dataFooter = document.querySelector('.data-footer');
+  if (!dataFooter) return;
+
+  const editModeBtn = document.createElement('button');
+  editModeBtn.id = 'editModeBtn';
+  editModeBtn.type = 'button';
+  editModeBtn.className = 'quiet-button edit-mode-button';
+  editModeBtn.addEventListener('click', () => {
+    isEditMode = !isEditMode;
+    if (!isEditMode) {
+      closeEditModal();
+    }
+    updateEditModeButton();
+    renderList();
+  });
+
+  dataFooter.appendChild(editModeBtn);
+  el.editModeBtn = editModeBtn;
+  updateEditModeButton();
+}
+
+function updateEditModeButton() {
+  if (!el.editModeBtn) return;
+  el.editModeBtn.textContent = isEditMode ? '編集モード終了' : '編集モード';
+  el.editModeBtn.classList.toggle('is-active', isEditMode);
 }
 
 function todayString() {
@@ -753,16 +785,18 @@ function renderList() {
       renderStudyCard();
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
-    const editBtn = document.createElement('button');
-    editBtn.type = 'button';
-    editBtn.className = 'small-button edit-card-button';
-    editBtn.textContent = '編集';
-    editBtn.addEventListener('click', (event) => {
-      event.stopPropagation();
-      openEditModal(card.id);
-    });
     row.appendChild(item);
-    row.appendChild(editBtn);
+    if (isEditMode) {
+      const editBtn = document.createElement('button');
+      editBtn.type = 'button';
+      editBtn.className = 'small-button edit-card-button';
+      editBtn.textContent = '編集';
+      editBtn.addEventListener('click', (event) => {
+        event.stopPropagation();
+        openEditModal(card.id);
+      });
+      row.appendChild(editBtn);
+    }
     el.cardList.appendChild(row);
   });
 }
@@ -838,6 +872,7 @@ async function toggleProblemFlag() {
     updatedAt: new Date().toISOString(),
   };
 
+  closeEditModal();
   await putCards([updated]);
   currentCard = updated;
   setStatus(updated.problemFlag ? '問題確認にしました' : '問題確認を解除しました');
@@ -861,6 +896,11 @@ function openEditModal(cardId) {
 
 function closeEditModal() {
   editingCardId = null;
+  if (el.editQuestionInput) el.editQuestionInput.value = '';
+  if (el.editChoicesInput) el.editChoicesInput.value = '';
+  if (el.editAnswerInput) el.editAnswerInput.value = '';
+  if (el.editExplanationInput) el.editExplanationInput.value = '';
+  if (el.editCheckReasonInput) el.editCheckReasonInput.value = '';
   setElementVisible(el.editModal, false);
 }
 
@@ -901,7 +941,6 @@ async function saveCardEdit() {
   currentCard = currentCard?.id === updated.id
     ? cards.find((item) => item.id === updated.id) || updated
     : currentCard;
-  closeEditModal();
   renderStudyCard();
 }
 
@@ -951,6 +990,7 @@ async function init() {
   ensureProblemFlagElements();
   ensureListFilterElements();
   ensureEditModalElements();
+  ensureEditModeButton();
   db = await openDb();
   await reloadCards();
   currentCard = null;
