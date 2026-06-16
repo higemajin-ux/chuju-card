@@ -280,7 +280,7 @@ function ensureStudyStartElements() {
   todayBtn.id = 'todayStudyBtn';
   todayBtn.type = 'button';
   todayBtn.className = 'big-button secondary-button start-button';
-  todayBtn.textContent = '今日のカード';
+  todayBtn.textContent = 'まちがえたカード';
   todayBtn.addEventListener('click', () => {
     startTodayStudy();
   });
@@ -953,7 +953,7 @@ function render() {
 function renderStudyCard() {
   if (!currentCard) {
     el.cardBox.classList.add('empty');
-    const modeLabel = activeMaterialName ? `教材: ${activeMaterialName}` : '今日のカード';
+    const modeLabel = activeMaterialName ? `教材: ${activeMaterialName}` : 'まちがえたカード';
     el.cardMeta.textContent = cards.length ? `${modeLabel} / 出題できるカードがありません` : 'CSVを読み込んでください';
     el.questionText.textContent = cards.length ? '復習待ちのカードはありません。' : 'まだカードがありません。';
     setTag(el.subjectTag, '', '');
@@ -980,7 +980,7 @@ function renderStudyCard() {
   }
 
   el.cardBox.classList.remove('empty');
-  const modeLabel = activeMaterialName ? `教材: ${activeMaterialName}` : '今日のカード';
+  const modeLabel = activeMaterialName ? `教材: ${activeMaterialName}` : 'まちがえたカード';
   el.cardMeta.textContent = `${modeLabel} / 次回 ${currentCard.nextReviewDate || todayString()}`;
   setTag(el.subjectTag, '科目', currentCard.subject);
   setTag(el.unitTag, '単元', currentCard.unit);
