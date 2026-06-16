@@ -276,19 +276,19 @@ main {
 
 .choice-button.is-selected-wrong {
   background: #dc6b8b;
-  border: 2px solid #e58aa7;
+  border: 1px solid transparent;
   box-shadow:
-    0 0 0 3px #fff,
-    0 0 0 5px #e58aa7;
+    inset 0 0 0 2px rgba(255, 255, 255, 0.85),
+    inset 0 0 0 4px rgba(220, 107, 139, 0.95);
   color: #ffffff;
 }
 
 .choice-button.is-correct {
   background: #48ab7c;
-  border: 2px solid #e58aa7;
+  border: 1px solid transparent;
   box-shadow:
-    0 0 0 3px #fff,
-    0 0 0 5px #e58aa7;
+    inset 0 0 0 2px rgba(255, 255, 255, 0.85),
+    inset 0 0 0 4px rgba(72, 171, 124, 0.95);
   color: #ffffff;
 }
 
