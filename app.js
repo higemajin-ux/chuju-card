@@ -180,6 +180,16 @@ function ensureListFilterElements() {
     filterSelect.appendChild(option);
   });
 
+  [
+    { value: 'notGraduated', label: '未合格' },
+    { value: 'graduated', label: '合格済み' },
+  ].forEach((optionData) => {
+    const option = document.createElement('option');
+    option.value = optionData.value;
+    option.textContent = optionData.label;
+    filterSelect.appendChild(option);
+  });
+
   filterSelect.value = listFilter;
   filterSelect.addEventListener('change', (event) => {
     listFilter = event.target.value;
@@ -947,9 +957,12 @@ function renderChoiceButtons(choices, answer) {
 
 function renderList() {
   el.cardList.innerHTML = '';
-  const filteredCards = listFilter === 'problem'
-    ? cards.filter((card) => isProblemFlagged(card))
-    : cards;
+  const filteredCards = cards.filter((card) => {
+    if (listFilter === 'problem') return isProblemFlagged(card);
+    if (listFilter === 'notGraduated') return card?.graduated !== true;
+    if (listFilter === 'graduated') return card?.graduated === true;
+    return true;
+  });
   if (!cards.length) {
     el.cardList.innerHTML = '<p class="hint">カード一覧はまだ空です。</p>';
     return;
