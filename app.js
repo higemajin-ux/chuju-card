@@ -22,6 +22,7 @@ let isEditMode = false;
 let editingCardId = null;
 let activeMaterialName = '';
 let isStudyVisible = false;
+let isTodayWrongMode = false;
 
 const el = {
   saveStatus: document.getElementById('saveStatus'),
@@ -233,6 +234,7 @@ function ensureStudyBackButton() {
   backBtn.textContent = '教材一覧へ戻る';
   backBtn.addEventListener('click', () => {
     isStudyVisible = false;
+    isTodayWrongMode = false;
     activeMaterialName = '';
     currentCard = null;
     answerVisible = false;
@@ -280,7 +282,7 @@ function ensureStudyStartElements() {
   todayBtn.className = 'big-button secondary-button start-button';
   todayBtn.textContent = '今日のカード';
   todayBtn.addEventListener('click', () => {
-    startStudyForMaterial('');
+    startTodayStudy();
   });
 
   const materialButtons = document.createElement('div');
@@ -489,6 +491,13 @@ function normalizeRecentResults(card) {
 
 function appendRecentResult(card, result) {
   return [...normalizeRecentResults(card), result].slice(-RECENT_RESULTS_LIMIT);
+}
+
+function isTodayStudyTarget(card) {
+  const recentResults = normalizeRecentResults(card);
+  if (!recentResults.length) return false;
+  if (card?.graduated === true || card?.status === 'graduated') return false;
+  return recentResults[recentResults.length - 1] === 'wrong';
 }
 
 function isProblemFlagged(card) {
@@ -772,6 +781,10 @@ function dueCards() {
 }
 
 function studyQueueCards() {
+  if (isTodayWrongMode) {
+    return cards.filter((card) => isTodayStudyTarget(card));
+  }
+
   const allTargetCards = cards.filter((card) => {
     const matchesMaterial = !activeMaterialName || getCardMaterialName(card) === activeMaterialName;
     return matchesMaterial && card.status !== 'graduated';
@@ -785,7 +798,7 @@ function studyQueueCards() {
 function pickNextCard() {
   const queue = studyQueueCards();
   if (!queue.length) {
-    currentCard = activeMaterialName ? null : (cards[0] || null);
+    currentCard = activeMaterialName || isTodayWrongMode ? null : (cards[0] || null);
   } else if (!currentCard || !queue.some((card) => card.id === currentCard.id)) {
     currentCard = queue[0];
   } else {
@@ -801,6 +814,7 @@ function pickNextCard() {
 
 function startStudyForMaterial(materialName) {
   activeMaterialName = materialName || '';
+  isTodayWrongMode = false;
   isStudyVisible = true;
   updateStudyVisibility();
   renderMaterialButtons();
@@ -811,6 +825,32 @@ function startStudyForMaterial(materialName) {
     return;
   }
 
+  currentCard = null;
+  pickNextCard();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function startTodayStudy() {
+  activeMaterialName = '';
+  isTodayWrongMode = true;
+  const queue = studyQueueCards();
+  if (!queue.length) {
+    isStudyVisible = false;
+    currentCard = null;
+    answerVisible = false;
+    choiceFeedback = null;
+    updateStudyVisibility();
+    renderMaterialButtons();
+    renderList();
+    renderStudyCard();
+    setStatus('出題できるカードがありません');
+    return;
+  }
+
+  isStudyVisible = true;
+  updateStudyVisibility();
+  renderMaterialButtons();
+  renderList();
   currentCard = null;
   pickNextCard();
   window.scrollTo({ top: 0, behavior: 'smooth' });
