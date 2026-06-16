@@ -1053,7 +1053,9 @@ function renderChoiceButtons(choices, answer) {
 function renderList() {
   el.cardList.innerHTML = '';
   const filteredCards = cards.filter((card) => {
-    const matchesMaterial = !activeMaterialName || getCardMaterialName(card) === activeMaterialName;
+    const matchesMaterial = isTodayWrongMode
+      ? isTodayStudyTarget(card)
+      : (!activeMaterialName || getCardMaterialName(card) === activeMaterialName);
     if (!matchesMaterial) return false;
     if (listFilter === 'problem') return isProblemFlagged(card);
     if (listFilter === 'notGraduated') return card?.graduated !== true;
