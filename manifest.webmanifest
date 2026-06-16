@@ -1,6 +1,6 @@
 {
-  "name": "中受カード",
-  "short_name": "中受カード",
+  "name": "まいにち復習カード",
+  "short_name": "まいにち復習カード",
   "description": "家庭内向けの中学受験一問一答カードPWA",
   "start_url": "./index.html",
   "scope": "./",
