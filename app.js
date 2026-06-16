@@ -16,6 +16,7 @@ let cards = [];
 let currentCard = null;
 let answerVisible = false;
 let choiceFeedback = null;
+let listFilter = 'all';
 
 const el = {
   saveStatus: document.getElementById('saveStatus'),
@@ -52,6 +53,7 @@ const el = {
   markGoodBtn: document.getElementById('markGoodBtn'),
   markMaybeBtn: document.getElementById('markMaybeBtn'),
   markBadBtn: document.getElementById('markBadBtn'),
+  listFilterSelect: document.getElementById('listFilterSelect'),
   cardList: document.getElementById('cardList'),
   itemTemplate: document.getElementById('cardListItemTemplate'),
 };
@@ -136,6 +138,41 @@ function ensureProblemFlagElements() {
 
     el.problemFlagBtn = problemFlagBtn;
   }
+}
+
+function ensureListFilterElements() {
+  if (el.listFilterSelect) return;
+
+  const listTop = document.querySelector('.list-top');
+  if (!listTop) return;
+
+  const filterWrap = document.createElement('label');
+  filterWrap.className = 'list-filter';
+  filterWrap.textContent = '表示';
+
+  const filterSelect = document.createElement('select');
+  filterSelect.id = 'listFilterSelect';
+  filterSelect.className = 'list-filter-select';
+
+  [
+    { value: 'all', label: 'すべて' },
+    { value: 'problem', label: '問題確認あり' },
+  ].forEach((optionData) => {
+    const option = document.createElement('option');
+    option.value = optionData.value;
+    option.textContent = optionData.label;
+    filterSelect.appendChild(option);
+  });
+
+  filterSelect.value = listFilter;
+  filterSelect.addEventListener('change', (event) => {
+    listFilter = event.target.value;
+    renderList();
+  });
+
+  filterWrap.appendChild(filterSelect);
+  listTop.appendChild(filterWrap);
+  el.listFilterSelect = filterSelect;
 }
 
 function todayString() {
@@ -583,12 +620,20 @@ function renderChoiceButtons(choices, answer) {
 
 function renderList() {
   el.cardList.innerHTML = '';
+  const filteredCards = listFilter === 'problem'
+    ? cards.filter((card) => isProblemFlagged(card))
+    : cards;
   if (!cards.length) {
     el.cardList.innerHTML = '<p class="hint">カード一覧はまだ空です。</p>';
     return;
   }
 
-  cards.forEach((card) => {
+  if (!filteredCards.length) {
+    el.cardList.innerHTML = '<p class="hint">問題確認中のカードはありません</p>';
+    return;
+  }
+
+  filteredCards.forEach((card) => {
     const item = el.itemTemplate.content.firstElementChild.cloneNode(true);
     const recentResults = normalizeRecentResults(card);
     const correctCount = recentResults.filter((result) => result === 'correct').length;
@@ -735,6 +780,7 @@ async function importJson(file) {
 async function init() {
   ensureChoiceElements();
   ensureProblemFlagElements();
+  ensureListFilterElements();
   db = await openDb();
   await reloadCards();
   currentCard = null;
