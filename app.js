@@ -434,8 +434,8 @@ function renderStudyCard() {
     el.choiceButtons.innerHTML = '';
     el.choiceResultText.textContent = '';
     el.choiceResultText.className = 'choice-result hidden';
-    el.studyActions.classList.remove('hidden');
-    el.judgeActions.classList.remove('hidden');
+    el.studyActions.classList.add('hidden');
+    el.judgeActions.classList.add('hidden');
     el.answerArea.classList.add('hidden');
     el.answerText.textContent = '';
     el.explanationText.textContent = '';
