@@ -35,6 +35,7 @@ const el = {
   unitTag: document.getElementById('unitTag'),
   difficultyTag: document.getElementById('difficultyTag'),
   checkBadge: document.getElementById('checkBadge'),
+  problemBadge: document.getElementById('problemBadge'),
   checkReasonText: document.getElementById('checkReasonText'),
   choiceArea: document.getElementById('choiceArea'),
   choiceButtons: document.getElementById('choiceButtons'),
@@ -46,6 +47,7 @@ const el = {
   studyActions: document.getElementById('studyActions') || document.querySelector('.study-actions'),
   showAnswerBtn: document.getElementById('showAnswerBtn'),
   judgeActions: document.getElementById('judgeActions') || document.querySelector('.judge-actions'),
+  problemFlagBtn: document.getElementById('problemFlagBtn'),
   nextCardBtn: document.getElementById('nextCardBtn'),
   markGoodBtn: document.getElementById('markGoodBtn'),
   markMaybeBtn: document.getElementById('markMaybeBtn'),
@@ -106,6 +108,36 @@ function ensureChoiceElements() {
   }
 }
 
+function ensureProblemFlagElements() {
+  if (!el.problemBadge && el.checkBadge?.parentElement) {
+    const problemBadge = document.createElement('span');
+    problemBadge.id = 'problemBadge';
+    problemBadge.className = 'problem-badge hidden';
+    problemBadge.textContent = '⚠ 問題確認';
+    el.checkBadge.parentElement.appendChild(problemBadge);
+    el.problemBadge = problemBadge;
+  }
+
+  if (!el.problemFlagBtn) {
+    const problemFlagBtn = document.createElement('button');
+    problemFlagBtn.id = 'problemFlagBtn';
+    problemFlagBtn.type = 'button';
+    problemFlagBtn.className = 'quiet-button problem-flag-button hidden';
+    problemFlagBtn.textContent = '⚠ 問題がおかしい';
+    problemFlagBtn.addEventListener('click', () => {
+      toggleProblemFlag();
+    });
+
+    if (el.sourceText?.parentElement) {
+      el.sourceText.parentElement.appendChild(problemFlagBtn);
+    } else if (el.cardBox) {
+      el.cardBox.appendChild(problemFlagBtn);
+    }
+
+    el.problemFlagBtn = problemFlagBtn;
+  }
+}
+
 function todayString() {
   return new Date().toISOString().slice(0, 10);
 }
@@ -163,6 +195,10 @@ function normalizeRecentResults(card) {
 
 function appendRecentResult(card, result) {
   return [...normalizeRecentResults(card), result].slice(-RECENT_RESULTS_LIMIT);
+}
+
+function isProblemFlagged(card) {
+  return Boolean(card?.problemFlag);
 }
 
 function isCardGraduated(card) {
@@ -456,6 +492,7 @@ function renderStudyCard() {
     setTag(el.unitTag, '', '');
     setTag(el.difficultyTag, '', '');
     setCheckBadge(el.checkBadge, '');
+    setElementVisible(el.problemBadge, false);
     setCheckReason('');
     el.sourceText.textContent = '';
     el.sourceText.classList.add('hidden');
@@ -467,6 +504,7 @@ function renderStudyCard() {
     setElementVisible(el.judgeActions, false);
     setElementVisible(el.answerArea, false);
     setElementVisible(el.choiceNextBtn, false);
+    setElementVisible(el.problemFlagBtn, false);
     el.answerText.textContent = '';
     el.explanationText.textContent = '';
     updateStudyButtons();
@@ -479,6 +517,7 @@ function renderStudyCard() {
   setTag(el.unitTag, '単元', currentCard.unit);
   setTag(el.difficultyTag, '難しさ', currentCard.difficulty);
   setCheckBadge(el.checkBadge, currentCard.check);
+  setElementVisible(el.problemBadge, isProblemFlagged(currentCard));
   setCheckReason(currentCard.checkReason);
   el.questionText.textContent = currentCard.question;
   setElementVisible(el.choiceArea, isChoiceCard(currentCard));
@@ -498,6 +537,8 @@ function renderStudyCard() {
   renderChoiceButtons(parseChoices(currentCard), currentCard.answer);
   setElementVisible(el.answerArea, answerVisible);
   setElementVisible(el.choiceNextBtn, isChoiceCard(currentCard) && Boolean(choiceFeedback));
+  setElementVisible(el.problemFlagBtn, true);
+  el.problemFlagBtn.classList.toggle('is-active', isProblemFlagged(currentCard));
   updateStudyButtons();
 }
 
@@ -555,6 +596,10 @@ function renderList() {
     item.querySelector('.list-title').textContent = card.question;
     item.querySelector('.list-sub').textContent = `${card.subject || '-'} / ${card.unit || '-'} / ${isCardGraduated(card) ? '合格' : '学習中'} / 直近 ${correctCount}/${RECENT_RESULTS_LIMIT} / 次回 ${card.nextReviewDate || '-'}`;
     setCheckBadge(item.querySelector('.list-check'), card.check);
+    const listProblemBadge = document.createElement('span');
+    listProblemBadge.className = `list-problem problem-badge${isProblemFlagged(card) ? '' : ' hidden'}`;
+    listProblemBadge.textContent = '⚠ 問題確認';
+    item.appendChild(listProblemBadge);
     item.addEventListener('click', () => {
       currentCard = card;
       answerVisible = false;
@@ -629,6 +674,23 @@ async function handleChoiceAnswer(selectedChoice) {
   await markCard(choiceFeedback.isCorrect ? 'good' : 'bad', { advance: false });
 }
 
+async function toggleProblemFlag() {
+  if (!currentCard) return;
+
+  const updated = {
+    ...currentCard,
+    problemFlag: !isProblemFlagged(currentCard),
+    updatedAt: new Date().toISOString(),
+  };
+
+  await putCards([updated]);
+  currentCard = updated;
+  setStatus(updated.problemFlag ? '問題確認にしました' : '問題確認を解除しました');
+  await reloadCards();
+  currentCard = cards.find((card) => card.id === updated.id) || updated;
+  renderStudyCard();
+}
+
 function exportJson() {
   const payload = {
     app: 'chuju-card',
@@ -672,6 +734,7 @@ async function importJson(file) {
 
 async function init() {
   ensureChoiceElements();
+  ensureProblemFlagElements();
   db = await openDb();
   await reloadCards();
   currentCard = null;
