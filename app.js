@@ -94,6 +94,10 @@ function addDays(days) {
   return date.toISOString().slice(0, 10);
 }
 
+function normalizeCsvValue(value) {
+  return (value || '').replace(/^\uFEFF/, '').trim();
+}
+
 function setStatus(message) {
   el.saveStatus.textContent = message;
 }
@@ -271,7 +275,7 @@ function parseCsv(text) {
 function csvRowsToCards(rows) {
   if (rows.length < 2) return [];
 
-  const header = rows[0].map((name) => name.trim());
+  const header = rows[0].map((name) => normalizeCsvValue(name));
   if (!header.includes('cardId')) {
     throw new Error('cardId列がありません。新CSV形式で読み込んでください。');
   }
@@ -285,7 +289,7 @@ function csvRowsToCards(rows) {
     .map((values) => {
       const row = {};
       header.forEach((key, index) => {
-        row[key] = (values[index] || '').trim();
+        row[key] = normalizeCsvValue(values[index]);
       });
       return row;
     })
