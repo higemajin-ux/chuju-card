@@ -102,6 +102,13 @@ function setStatus(message) {
   el.saveStatus.textContent = message;
 }
 
+function setElementVisible(element, visible) {
+  if (!element) return;
+  element.hidden = !visible;
+  element.style.display = visible ? '' : 'none';
+  element.classList.toggle('hidden', !visible);
+}
+
 function setTag(element, label, value) {
   if (value) {
     element.textContent = `${label} ${value}`;
@@ -430,13 +437,13 @@ function renderStudyCard() {
     setCheckReason('');
     el.sourceText.textContent = '';
     el.sourceText.classList.add('hidden');
-    el.choiceArea.classList.add('hidden');
+    setElementVisible(el.choiceArea, false);
     el.choiceButtons.innerHTML = '';
     el.choiceResultText.textContent = '';
     el.choiceResultText.className = 'choice-result hidden';
-    el.studyActions.classList.add('hidden');
-    el.judgeActions.classList.add('hidden');
-    el.answerArea.classList.add('hidden');
+    setElementVisible(el.studyActions, false);
+    setElementVisible(el.judgeActions, false);
+    setElementVisible(el.answerArea, false);
     el.answerText.textContent = '';
     el.explanationText.textContent = '';
     updateStudyButtons();
@@ -451,9 +458,9 @@ function renderStudyCard() {
   setCheckBadge(el.checkBadge, currentCard.check);
   setCheckReason(currentCard.checkReason);
   el.questionText.textContent = currentCard.question;
-  el.choiceArea.classList.toggle('hidden', !isChoiceCard(currentCard));
-  el.studyActions.classList.toggle('hidden', isChoiceCard(currentCard));
-  el.judgeActions.classList.toggle('hidden', isChoiceCard(currentCard));
+  setElementVisible(el.choiceArea, isChoiceCard(currentCard));
+  setElementVisible(el.studyActions, !isChoiceCard(currentCard));
+  setElementVisible(el.judgeActions, !isChoiceCard(currentCard));
 
   if (currentCard.source) {
     el.sourceText.textContent = `${currentCard.source}から出題`;
@@ -466,7 +473,7 @@ function renderStudyCard() {
   el.answerText.textContent = currentCard.answer;
   el.explanationText.textContent = currentCard.explanation || '';
   renderChoiceButtons(parseChoices(currentCard), currentCard.answer);
-  el.answerArea.classList.toggle('hidden', !answerVisible);
+  setElementVisible(el.answerArea, answerVisible);
   updateStudyButtons();
 }
 

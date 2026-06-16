@@ -331,6 +331,10 @@ main {
   display: none;
 }
 
+[hidden] {
+  display: none !important;
+}
+
 .study-actions {
   margin-top: 12px;
 }
