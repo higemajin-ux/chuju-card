@@ -1,4 +1,4 @@
-const CACHE_NAME = 'chuju-card-v0.6-choice-csv';
+const CACHE_NAME = 'chuju-card-v0.9-edit-modal-fix';
 const APP_SHELL = [
   './',
   './index.html',
