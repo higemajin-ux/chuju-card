@@ -18,6 +18,7 @@ let currentCard = null;
 let answerVisible = false;
 let choiceFeedback = null;
 let shuffledChoices = [];
+let isChoiceCoverVisible = false;
 let listFilter = 'all';
 let isEditMode = false;
 let editingCardId = null;
@@ -48,6 +49,8 @@ const el = {
   choiceArea: document.getElementById('choiceArea'),
   choiceButtons: document.getElementById('choiceButtons'),
   choiceResultText: document.getElementById('choiceResultText'),
+  choiceCover: document.getElementById('choiceCover'),
+  choiceRevealBtn: document.getElementById('choiceRevealBtn'),
   choiceNextBtn: document.getElementById('choiceNextBtn'),
   answerArea: document.getElementById('answerArea'),
   answerText: document.getElementById('answerText'),
@@ -130,6 +133,30 @@ function ensureChoiceElements() {
     }
 
     el.choiceNextBtn = choiceNextBtn;
+  }
+
+  if (!el.choiceCover) {
+    const choiceCover = document.createElement('div');
+    choiceCover.id = 'choiceCover';
+    choiceCover.className = 'choice-cover hidden';
+    choiceCover.addEventListener('click', () => {
+      revealChoiceCover();
+    });
+
+    const choiceRevealBtn = document.createElement('button');
+    choiceRevealBtn.id = 'choiceRevealBtn';
+    choiceRevealBtn.type = 'button';
+    choiceRevealBtn.className = 'big-button choice-reveal-button';
+    choiceRevealBtn.textContent = '選択肢を見る';
+    choiceRevealBtn.addEventListener('click', (event) => {
+      event.stopPropagation();
+      revealChoiceCover();
+    });
+
+    choiceCover.appendChild(choiceRevealBtn);
+    el.choiceArea.appendChild(choiceCover);
+    el.choiceCover = choiceCover;
+    el.choiceRevealBtn = choiceRevealBtn;
   }
 }
 
@@ -240,6 +267,7 @@ function ensureStudyBackButton() {
     currentCard = null;
     answerVisible = false;
     choiceFeedback = null;
+    resetChoiceCover(null);
     render();
   });
 
@@ -597,6 +625,16 @@ function setDisplayedChoices(card) {
   shuffledChoices = isChoiceCard(card) ? shuffleArray(parseChoices(card)) : [];
 }
 
+function resetChoiceCover(card) {
+  isChoiceCoverVisible = isChoiceCard(card);
+}
+
+function revealChoiceCover() {
+  if (!currentCard || !isChoiceCard(currentCard)) return;
+  isChoiceCoverVisible = false;
+  renderStudyCard();
+}
+
 function isChoiceCard(card) {
   return parseChoices(card).length > 0;
 }
@@ -838,6 +876,7 @@ function pickNextCard() {
 
   answerVisible = false;
   choiceFeedback = null;
+  resetChoiceCover(currentCard);
   setDisplayedChoices(currentCard);
   setStatus(currentCard ? '次のカードを表示中' : '出題できるカードがありません');
   renderStudyCard();
@@ -984,6 +1023,7 @@ function render() {
 function renderStudyCard() {
   if (!currentCard) {
     el.cardBox.classList.add('empty');
+    resetChoiceCover(null);
     const modeLabel = activeMaterialName ? `教材: ${activeMaterialName}` : 'まちがえた問題';
     el.cardMeta.textContent = cards.length ? `${modeLabel} / 出題できるカードがありません` : 'CSVを読み込んでください';
     el.questionText.textContent = cards.length ? '復習待ちのカードはありません。' : 'まだカードがありません。';
@@ -996,6 +1036,7 @@ function renderStudyCard() {
     el.sourceText.textContent = '';
     el.sourceText.classList.add('hidden');
     setElementVisible(el.choiceArea, false);
+    el.choiceArea.classList.remove('is-covered');
     el.choiceButtons.innerHTML = '';
     el.choiceResultText.textContent = '';
     el.choiceResultText.className = 'choice-result hidden';
@@ -1003,6 +1044,7 @@ function renderStudyCard() {
     setElementVisible(el.judgeActions, false);
     setElementVisible(el.answerArea, false);
     setElementVisible(el.choiceNextBtn, false);
+    setElementVisible(el.choiceCover, false);
     setElementVisible(el.problemFlagBtn, false);
     el.answerText.textContent = '';
     el.explanationText.textContent = '';
@@ -1027,6 +1069,8 @@ function renderStudyCard() {
   setElementVisible(el.choiceArea, isChoiceCard(currentCard));
   setElementVisible(el.studyActions, !isChoiceCard(currentCard));
   setElementVisible(el.judgeActions, !isChoiceCard(currentCard));
+  setElementVisible(el.choiceCover, isChoiceCard(currentCard) && isChoiceCoverVisible);
+  el.choiceArea.classList.toggle('is-covered', isChoiceCard(currentCard) && isChoiceCoverVisible);
 
   if (currentCard.source) {
     el.sourceText.textContent = `${currentCard.source}から出題`;
@@ -1141,6 +1185,7 @@ function renderList() {
       currentCard = card;
       answerVisible = false;
       choiceFeedback = null;
+      resetChoiceCover(currentCard);
       setDisplayedChoices(currentCard);
       setStatus('カードを選びました');
       renderStudyCard();
@@ -1228,7 +1273,7 @@ async function markCard(result, options = {}) {
 }
 
 async function handleChoiceAnswer(selectedChoice) {
-  if (!currentCard || !isChoiceCard(currentCard) || answerVisible) return;
+  if (!currentCard || !isChoiceCard(currentCard) || isChoiceCoverVisible || answerVisible) return;
 
   choiceFeedback = {
     selectedChoice,
