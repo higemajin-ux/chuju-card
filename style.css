@@ -246,6 +246,90 @@ main {
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.99), rgba(255, 246, 244, 0.99));
 }
 
+.study-body {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(82px, 1fr);
+  gap: 10px;
+  align-items: start;
+}
+
+.study-main {
+  min-width: 0;
+}
+
+.study-sidebar {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  margin-top: 8px;
+  padding: 8px 7px;
+  border: 1px solid rgba(228, 207, 207, 0.95);
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(255, 251, 247, 0.98), rgba(255, 245, 241, 0.98));
+  align-self: flex-start;
+  height: fit-content;
+}
+
+.sidebar-history,
+.sidebar-legend {
+  display: grid;
+  gap: 6px;
+}
+
+.sidebar-section-title {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.sidebar-history-row,
+.sidebar-legend-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  font-size: 11px;
+  line-height: 1.15;
+}
+
+.sidebar-history-number {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.sidebar-history-mark,
+.sidebar-legend-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  min-height: 24px;
+  border-radius: 8px;
+  background: #f6efe9;
+  font-weight: 800;
+}
+
+.sidebar-history-mark.is-correct,
+.sidebar-legend-mark.is-correct {
+  color: var(--good);
+}
+
+.sidebar-history-mark.is-wrong,
+.sidebar-legend-mark.is-wrong {
+  color: var(--bad);
+}
+
+.sidebar-history-mark.is-manual,
+.sidebar-legend-mark.is-manual {
+  color: var(--maybe);
+}
+
+.sidebar-history-mark.is-empty,
+.sidebar-legend-mark.is-empty {
+  color: var(--muted);
+}
+
 .study-top,
 .list-top {
   display: flex;
@@ -685,6 +769,10 @@ main {
   background: #e4a9b8;
 }
 
+.history-segment.is-manual {
+  background: #ead5a1;
+}
+
 .history-segment.is-empty {
   background: #e9dfd8;
 }
@@ -834,7 +922,6 @@ button:disabled {
     padding: 12px 12px 28px;
   }
 
-  .study-top,
   .list-top {
     flex-direction: column;
     align-items: flex-start;
@@ -853,6 +940,16 @@ button:disabled {
   .list-panel,
   .data-panel {
     padding: 14px;
+  }
+
+  .study-body {
+    grid-template-columns: minmax(0, 3fr) minmax(72px, 1fr);
+    gap: 6px;
+  }
+
+  .study-sidebar {
+    margin-top: 8px;
+    padding: 7px 5px;
   }
 
   .card-box {

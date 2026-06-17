@@ -52,6 +52,11 @@ const el = {
   choiceCover: document.getElementById('choiceCover'),
   choiceRevealBtn: document.getElementById('choiceRevealBtn'),
   choiceNextBtn: document.getElementById('choiceNextBtn'),
+  studyBody: document.getElementById('studyBody'),
+  studyMain: document.getElementById('studyMain'),
+  studySidebar: document.getElementById('studySidebar'),
+  sidebarHistory: document.getElementById('sidebarHistory'),
+  sidebarLegend: document.getElementById('sidebarLegend'),
   answerArea: document.getElementById('answerArea'),
   answerText: document.getElementById('answerText'),
   explanationText: document.getElementById('explanationText'),
@@ -158,6 +163,50 @@ function ensureChoiceElements() {
     el.choiceCover = choiceCover;
     el.choiceRevealBtn = choiceRevealBtn;
   }
+}
+
+function ensureStudySidebarElements() {
+  if (el.studyBody && el.studyMain && el.studySidebar) return;
+  if (!el.studyPanel || !el.cardBox) return;
+
+  const studyTop = el.studyPanel.querySelector('.study-top');
+  if (!studyTop) return;
+
+  const studyBody = document.createElement('div');
+  studyBody.id = 'studyBody';
+  studyBody.className = 'study-body';
+
+  const studyMain = document.createElement('div');
+  studyMain.id = 'studyMain';
+  studyMain.className = 'study-main';
+
+  [el.cardBox, el.studyActions, el.judgeActions]
+    .filter(Boolean)
+    .forEach((node) => studyMain.appendChild(node));
+
+  const studySidebar = document.createElement('aside');
+  studySidebar.id = 'studySidebar';
+  studySidebar.className = 'study-sidebar';
+
+  const sidebarHistory = document.createElement('div');
+  sidebarHistory.id = 'sidebarHistory';
+  sidebarHistory.className = 'sidebar-history';
+
+  const sidebarLegend = document.createElement('div');
+  sidebarLegend.id = 'sidebarLegend';
+  sidebarLegend.className = 'sidebar-legend';
+
+  studySidebar.appendChild(sidebarHistory);
+  studySidebar.appendChild(sidebarLegend);
+  studyBody.appendChild(studyMain);
+  studyBody.appendChild(studySidebar);
+  studyTop.insertAdjacentElement('afterend', studyBody);
+
+  el.studyBody = studyBody;
+  el.studyMain = studyMain;
+  el.studySidebar = studySidebar;
+  el.sidebarHistory = sidebarHistory;
+  el.sidebarLegend = sidebarLegend;
 }
 
 function ensureProblemFlagElements() {
@@ -530,7 +579,7 @@ function setCheckReason(value) {
 function normalizeRecentResults(card) {
   if (!Array.isArray(card?.recentResults)) return [];
   return card.recentResults
-    .filter((result) => result === 'correct' || result === 'wrong')
+    .filter((result) => result === 'correct' || result === 'wrong' || result === 'manual')
     .slice(-RECENT_RESULTS_LIMIT);
 }
 
@@ -633,6 +682,80 @@ function revealChoiceCover() {
   if (!currentCard || !isChoiceCard(currentCard)) return;
   isChoiceCoverVisible = false;
   renderStudyCard();
+}
+
+function renderSidebarHistory() {
+  if (!el.sidebarHistory) return;
+
+  const recentResults = normalizeRecentResults(currentCard);
+  const paddedResults = [
+    ...Array(Math.max(RECENT_RESULTS_LIMIT - recentResults.length, 0)).fill('empty'),
+    ...recentResults,
+  ];
+
+  el.sidebarHistory.innerHTML = '';
+
+  const title = document.createElement('p');
+  title.className = 'sidebar-section-title';
+  title.textContent = '最近の成績';
+  el.sidebarHistory.appendChild(title);
+
+  paddedResults.forEach((result, index) => {
+    const row = document.createElement('div');
+    row.className = 'sidebar-history-row';
+
+    const number = document.createElement('span');
+    number.className = 'sidebar-history-number';
+    number.textContent = String(RECENT_RESULTS_LIMIT - index);
+
+    const mark = document.createElement('span');
+    mark.className = `sidebar-history-mark is-${result}`;
+    mark.textContent = ({
+      correct: '○',
+      wrong: '×',
+      manual: '△',
+      empty: '－',
+    })[result] || '－';
+
+    row.appendChild(number);
+    row.appendChild(mark);
+    el.sidebarHistory.appendChild(row);
+  });
+}
+
+function renderSidebarLegend() {
+  if (!el.sidebarLegend) return;
+
+  el.sidebarLegend.innerHTML = '';
+
+  [
+    { key: 'correct', label: '正解' },
+    { key: 'wrong', label: '不正解' },
+    { key: 'manual', label: 'わからなかった' },
+    { key: 'empty', label: '未回答' },
+  ].forEach((item) => {
+    const row = document.createElement('div');
+    row.className = 'sidebar-legend-row';
+
+    const mark = document.createElement('span');
+    mark.className = `sidebar-legend-mark is-${item.key}`;
+    mark.textContent = ({ correct: '○', wrong: '×', manual: '△', empty: '－' })[item.key] || '－';
+
+    const text = document.createElement('span');
+    text.textContent = item.label;
+
+    row.appendChild(mark);
+    row.appendChild(text);
+    el.sidebarLegend.appendChild(row);
+  });
+}
+
+function renderStudySidebar() {
+  if (!el.studySidebar) return;
+
+  setElementVisible(el.studySidebar, Boolean(currentCard));
+  renderSidebarHistory();
+  renderSidebarLegend();
 }
 
 function isChoiceCard(card) {
@@ -1049,6 +1172,7 @@ function renderStudyCard() {
     el.answerText.textContent = '';
     el.explanationText.textContent = '';
     updateStudyButtons();
+    renderStudySidebar();
     return;
   }
 
@@ -1090,6 +1214,7 @@ function renderStudyCard() {
   setElementVisible(el.problemFlagBtn, true);
   el.problemFlagBtn.classList.toggle('is-active', isProblemFlagged(currentCard));
   updateStudyButtons();
+  renderStudySidebar();
 }
 
 function renderChoiceButtons(choices, answer) {
@@ -1427,6 +1552,7 @@ async function importJson(file) {
 
 async function init() {
   ensureStudyStartElements();
+  ensureStudySidebarElements();
   ensureChoiceElements();
   ensureProblemFlagElements();
   ensureListFilterElements();
