@@ -614,6 +614,23 @@ main {
   margin-top: 12px;
 }
 
+.choice-manual-button {
+  width: 100%;
+  margin-top: 12px;
+  color: #6f5a1d;
+  background: linear-gradient(180deg, #f8edc7 0%, #f0de9a 100%);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.72);
+}
+
+.choice-manual-button:hover:not(:disabled) {
+  background: linear-gradient(180deg, #f7e8b7 0%, #ecd684 100%);
+}
+
+.choice-manual-button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
 .answer-label {
   color: var(--muted);
   font-size: 13px;

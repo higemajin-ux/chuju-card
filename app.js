@@ -52,6 +52,7 @@ const el = {
   choiceCover: document.getElementById('choiceCover'),
   choiceRevealBtn: document.getElementById('choiceRevealBtn'),
   choiceNextBtn: document.getElementById('choiceNextBtn'),
+  choiceManualBtn: document.getElementById('choiceManualBtn'),
   studyBody: document.getElementById('studyBody'),
   studyMain: document.getElementById('studyMain'),
   studySidebar: document.getElementById('studySidebar'),
@@ -138,6 +139,25 @@ function ensureChoiceElements() {
     }
 
     el.choiceNextBtn = choiceNextBtn;
+  }
+
+  if (!el.choiceManualBtn) {
+    const choiceManualBtn = document.createElement('button');
+    choiceManualBtn.id = 'choiceManualBtn';
+    choiceManualBtn.type = 'button';
+    choiceManualBtn.className = 'small-button choice-manual-button hidden';
+    choiceManualBtn.textContent = '\u308f\u304b\u3089\u306a\u304b\u3063\u305f';
+    choiceManualBtn.addEventListener('click', () => {
+      markChoiceAnswerManual();
+    });
+
+    if (el.answerArea) {
+      el.answerArea.appendChild(choiceManualBtn);
+    } else if (el.cardBox) {
+      el.cardBox.appendChild(choiceManualBtn);
+    }
+
+    el.choiceManualBtn = choiceManualBtn;
   }
 
   if (!el.choiceCover) {
@@ -684,6 +704,12 @@ function revealChoiceCover() {
   renderStudyCard();
 }
 
+function canMarkChoiceAnswerManual(card = currentCard) {
+  if (!card || !isChoiceCard(card) || !choiceFeedback?.isCorrect || !answerVisible) return false;
+  const recentResults = normalizeRecentResults(card);
+  return recentResults[recentResults.length - 1] === 'correct';
+}
+
 function renderSidebarHistory() {
   if (!el.sidebarHistory) return;
 
@@ -1167,6 +1193,7 @@ function renderStudyCard() {
     setElementVisible(el.judgeActions, false);
     setElementVisible(el.answerArea, false);
     setElementVisible(el.choiceNextBtn, false);
+    setElementVisible(el.choiceManualBtn, false);
     setElementVisible(el.choiceCover, false);
     setElementVisible(el.problemFlagBtn, false);
     el.answerText.textContent = '';
@@ -1211,6 +1238,7 @@ function renderStudyCard() {
   renderChoiceButtons(shuffledChoices, currentCard.answer);
   setElementVisible(el.answerArea, answerVisible);
   setElementVisible(el.choiceNextBtn, isChoiceCard(currentCard) && Boolean(choiceFeedback));
+  setElementVisible(el.choiceManualBtn, canMarkChoiceAnswerManual(currentCard));
   setElementVisible(el.problemFlagBtn, true);
   el.problemFlagBtn.classList.toggle('is-active', isProblemFlagged(currentCard));
   updateStudyButtons();
@@ -1395,6 +1423,30 @@ async function markCard(result, options = {}) {
   } else {
     renderStudyCard();
   }
+}
+
+async function markChoiceAnswerManual() {
+  if (!currentCard || !canMarkChoiceAnswerManual(currentCard)) return;
+
+  const currentCardId = currentCard.id;
+  const recentResults = normalizeRecentResults(currentCard);
+  const updated = { ...currentCard, updatedAt: new Date().toISOString() };
+  updated.recentResults = [...recentResults.slice(0, -1), 'manual'];
+
+  if (typeof updated.totalGood === 'number' && updated.totalGood > 0) {
+    updated.totalGood -= 1;
+  }
+  updated.totalMaybe = (updated.totalMaybe || 0) + 1;
+  updated.goodStreak = 0;
+  updated.nextReviewDate = addDays(3);
+  updated.status = isCardGraduated(updated) ? 'graduated' : 'active';
+  if ('graduated' in updated) updated.graduated = updated.status === 'graduated';
+
+  await putCards([updated]);
+  setStatus('\u308f\u304b\u3089\u306a\u304b\u3063\u305f\u3068\u3057\u3066\u8a18\u9332\u3057\u307e\u3057\u305f');
+  await reloadCards();
+  currentCard = cards.find((card) => card.id === currentCardId) || updated;
+  renderStudyCard();
 }
 
 async function handleChoiceAnswer(selectedChoice) {
