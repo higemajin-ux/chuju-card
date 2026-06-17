@@ -17,6 +17,7 @@ let cards = [];
 let currentCard = null;
 let answerVisible = false;
 let choiceFeedback = null;
+let shuffledChoices = [];
 let listFilter = 'all';
 let isEditMode = false;
 let editingCardId = null;
@@ -583,6 +584,19 @@ function parseChoices(card) {
     .filter(Boolean);
 }
 
+function shuffleArray(items) {
+  const shuffled = [...items];
+  for (let index = shuffled.length - 1; index > 0; index -= 1) {
+    const randomIndex = Math.floor(Math.random() * (index + 1));
+    [shuffled[index], shuffled[randomIndex]] = [shuffled[randomIndex], shuffled[index]];
+  }
+  return shuffled;
+}
+
+function setDisplayedChoices(card) {
+  shuffledChoices = isChoiceCard(card) ? shuffleArray(parseChoices(card)) : [];
+}
+
 function isChoiceCard(card) {
   return parseChoices(card).length > 0;
 }
@@ -824,6 +838,7 @@ function pickNextCard() {
 
   answerVisible = false;
   choiceFeedback = null;
+  setDisplayedChoices(currentCard);
   setStatus(currentCard ? '次のカードを表示中' : '出題できるカードがありません');
   renderStudyCard();
 }
@@ -1025,7 +1040,7 @@ function renderStudyCard() {
   el.sourceText.classList.add('hidden');
   el.answerText.textContent = currentCard.answer;
   el.explanationText.textContent = currentCard.explanation || '';
-  renderChoiceButtons(parseChoices(currentCard), currentCard.answer);
+  renderChoiceButtons(shuffledChoices, currentCard.answer);
   setElementVisible(el.answerArea, answerVisible);
   setElementVisible(el.choiceNextBtn, isChoiceCard(currentCard) && Boolean(choiceFeedback));
   setElementVisible(el.problemFlagBtn, true);
@@ -1126,6 +1141,7 @@ function renderList() {
       currentCard = card;
       answerVisible = false;
       choiceFeedback = null;
+      setDisplayedChoices(currentCard);
       setStatus('カードを選びました');
       renderStudyCard();
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1254,6 +1270,7 @@ async function resetCardProgress(cardId) {
   currentCard = currentCard?.id === updated.id
     ? cards.find((item) => item.id === updated.id) || updated
     : currentCard;
+  setDisplayedChoices(currentCard);
   renderStudyCard();
 }
 
@@ -1318,6 +1335,7 @@ async function saveCardEdit() {
   currentCard = currentCard?.id === updated.id
     ? cards.find((item) => item.id === updated.id) || updated
     : currentCard;
+  setDisplayedChoices(currentCard);
   renderStudyCard();
 }
 
