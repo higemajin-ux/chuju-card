@@ -335,13 +335,13 @@ function ensureListScopeHintElement() {
 function ensureStudyBackButton() {
   if (el.studyBackBtn || !el.studyPanel) return;
 
-  const studyTop = el.studyPanel.querySelector('.study-top');
-  if (!studyTop) return;
+  const appHeader = document.querySelector('.app-header');
+  if (!appHeader) return;
 
   const backBtn = document.createElement('button');
   backBtn.id = 'studyBackBtn';
   backBtn.type = 'button';
-  backBtn.className = 'quiet-button study-back-button hidden';
+  backBtn.className = 'quiet-button header-back-button hidden';
   backBtn.textContent = '教材一覧へ戻る';
   backBtn.addEventListener('click', () => {
     isStudyVisible = false;
@@ -354,7 +354,7 @@ function ensureStudyBackButton() {
     render();
   });
 
-  studyTop.insertBefore(backBtn, studyTop.firstChild);
+  appHeader.appendChild(backBtn);
   el.studyBackBtn = backBtn;
 }
 
@@ -363,6 +363,7 @@ function updateStudyVisibility() {
   setElementVisible(el.studyPanel, isStudyVisible);
   setElementVisible(el.listPanel, isStudyVisible);
   setElementVisible(el.studyBackBtn, isStudyVisible);
+  setElementVisible(el.saveStatus, false);
 }
 
 function ensureStudyStartElements() {
@@ -562,7 +563,12 @@ function getCardMaterialName(card) {
 
 function getStudyCardLabel(card) {
   if (!card) return '';
-  return [card.subject, getCardMaterialName(card)]
+  const subject = (card.subject || '').trim();
+  const materialName = getCardMaterialName(card);
+  const normalizedMaterialName = materialName.startsWith(subject)
+    ? materialName.slice(subject.length).trimStart()
+    : materialName;
+  return [subject, normalizedMaterialName]
     .map((value) => (value || '').trim())
     .filter(Boolean)
     .join('\u3000');
@@ -1044,7 +1050,7 @@ function pickNextCard() {
   choiceFeedback = null;
   resetChoiceCover(currentCard);
   setDisplayedChoices(currentCard);
-  setStatus(currentCard ? '次のカードを表示中' : '出題できるカードがありません');
+  setStatus(currentCard ? '' : '出題できるカードがありません');
   renderStudyCard();
 }
 
@@ -1433,7 +1439,7 @@ async function markCard(result, options = {}) {
   }
 
   await putCards([updated]);
-  setStatus('記録しました');
+  setStatus('');
   await reloadCards();
   currentCard = cards.find((card) => card.id === currentCardId) || updated;
   if (advance) {

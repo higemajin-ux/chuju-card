@@ -82,6 +82,16 @@ h1 {
   color: var(--muted);
   font-size: 13px;
   white-space: nowrap;
+  display: none;
+}
+
+.header-back-button {
+  flex-shrink: 0;
+  min-height: 38px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  white-space: nowrap;
 }
 
 main {
@@ -394,6 +404,8 @@ main {
 .study-top {
   align-items: center;
   gap: 8px;
+  justify-content: center;
+  min-height: 32px;
 }
 
 .study-top h2,
@@ -407,15 +419,16 @@ main {
 }
 
 .study-top .meta {
-  font-size: 12px;
-  font-weight: 700;
+  font-size: 17px;
+  font-weight: 800;
+  line-height: 1.4;
+  text-align: center;
+  overflow-wrap: anywhere;
 }
 
 .study-back-button,
 .study-top .small-button {
-  padding: 6px 10px;
-  border-radius: 999px;
-  font-size: 12px;
+  display: none;
 }
 
 .list-filter {
@@ -994,6 +1007,7 @@ button:disabled {
 
   .header-main {
     gap: 8px;
+    min-width: 0;
   }
 
   h1 {
@@ -1002,6 +1016,11 @@ button:disabled {
 
   .today-line {
     font-size: 13px;
+  }
+
+  .header-back-button {
+    padding: 8px 10px;
+    font-size: 11px;
   }
 
   main {
