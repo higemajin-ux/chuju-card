@@ -835,23 +835,23 @@ main {
 
 .history-segment {
   border-radius: 999px;
-  background: #e9dfd8;
+  background: #ded2ca;
 }
 
 .history-segment.is-correct {
-  background: #a8dcc6;
+  background: #90cdb1;
 }
 
 .history-segment.is-wrong {
-  background: #e4a9b8;
+  background: #dc91a4;
 }
 
 .history-segment.is-manual {
-  background: #ead5a1;
+  background: #e2c878;
 }
 
 .history-segment.is-empty {
-  background: #e9dfd8;
+  background: #ded2ca;
 }
 
 .list-title {
