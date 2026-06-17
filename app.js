@@ -738,6 +738,7 @@ function renderSidebarHistory() {
     ...Array(Math.max(RECENT_RESULTS_LIMIT - recentResults.length, 0)).fill('empty'),
     ...recentResults,
   ];
+  const historyLabels = ['5回前', '4回前', '3回前', '前回', '今回'];
 
   el.sidebarHistory.innerHTML = '';
 
@@ -750,9 +751,9 @@ function renderSidebarHistory() {
     const row = document.createElement('div');
     row.className = 'sidebar-history-row';
 
-    const number = document.createElement('span');
-    number.className = 'sidebar-history-number';
-    number.textContent = String(RECENT_RESULTS_LIMIT - index);
+    const label = document.createElement('span');
+    label.className = 'sidebar-history-label';
+    label.textContent = historyLabels[index] || '';
 
     const mark = document.createElement('span');
     mark.className = `sidebar-history-mark is-${result}`;
@@ -763,7 +764,7 @@ function renderSidebarHistory() {
       empty: '－',
     })[result] || '－';
 
-    row.appendChild(number);
+    row.appendChild(label);
     row.appendChild(mark);
     el.sidebarHistory.appendChild(row);
   });
