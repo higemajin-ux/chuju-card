@@ -616,10 +616,17 @@ main {
 
 .choice-manual-button {
   width: 100%;
-  margin-top: 12px;
+  margin-top: 2px;
+  padding: 8px 4px;
+  min-height: 0;
+  border-radius: 12px;
   color: #6f5a1d;
   background: linear-gradient(180deg, #f8edc7 0%, #f0de9a 100%);
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.72);
+  font-size: 11px;
+  line-height: 1.2;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .choice-manual-button:hover:not(:disabled) {

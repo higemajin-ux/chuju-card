@@ -151,7 +151,9 @@ function ensureChoiceElements() {
       markChoiceAnswerManual();
     });
 
-    if (el.answerArea) {
+    if (el.studySidebar) {
+      el.studySidebar.insertBefore(choiceManualBtn, el.sidebarLegend || null);
+    } else if (el.answerArea) {
       el.answerArea.appendChild(choiceManualBtn);
     } else if (el.cardBox) {
       el.cardBox.appendChild(choiceManualBtn);
@@ -780,6 +782,9 @@ function renderStudySidebar() {
   if (!el.studySidebar) return;
 
   setElementVisible(el.studySidebar, Boolean(currentCard));
+  if (el.choiceManualBtn?.parentElement !== el.studySidebar) {
+    el.studySidebar.insertBefore(el.choiceManualBtn, el.sidebarLegend || null);
+  }
   renderSidebarHistory();
   renderSidebarLegend();
 }
