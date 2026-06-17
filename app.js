@@ -90,6 +90,18 @@ const el = {
   itemTemplate: document.getElementById('cardListItemTemplate'),
 };
 
+const WRONG_LABEL = '間違えた問題';
+const WRONG_SHORT_LABEL = '間違い';
+
+function renderWrongCountLabels() {
+  if (el.dueCount?.parentElement) {
+    el.dueCount.parentElement.replaceChildren(WRONG_LABEL, ' ', el.dueCount, ' 枚');
+  }
+  if (el.dueCountInline?.parentElement) {
+    el.dueCountInline.parentElement.replaceChildren(WRONG_SHORT_LABEL, el.dueCountInline);
+  }
+}
+
 function ensureChoiceElements() {
   const hasChoiceElements = el.choiceArea && el.choiceButtons && el.choiceResultText;
 
@@ -380,7 +392,7 @@ function ensureStudyStartElements() {
   todayBtn.id = 'todayStudyBtn';
   todayBtn.type = 'button';
   todayBtn.className = 'big-button secondary-button start-button';
-  todayBtn.textContent = 'まちがえた問題';
+  todayBtn.textContent = WRONG_LABEL;
   todayBtn.addEventListener('click', () => {
     startTodayStudy();
   });
@@ -1165,6 +1177,7 @@ function renderMaterialButtons() {
 function render() {
   const due = dueCards().length;
   el.totalCount.textContent = String(cards.length);
+  renderWrongCountLabels();
   el.dueCount.textContent = String(due);
   el.dueCountInline.textContent = String(due);
   el.graduatedCount.textContent = String(cards.filter((card) => isCardGraduated(card)).length);
@@ -1178,7 +1191,7 @@ function renderStudyCard() {
   if (!currentCard) {
     el.cardBox.classList.add('empty');
     resetChoiceCover(null);
-    const modeLabel = activeMaterialName ? `教材: ${activeMaterialName}` : 'まちがえた問題';
+    const modeLabel = activeMaterialName ? `教材: ${activeMaterialName}` : WRONG_LABEL;
     el.cardMeta.textContent = cards.length ? `${modeLabel} / 出題できるカードがありません` : 'CSVを読み込んでください';
     el.questionText.textContent = cards.length ? '復習待ちのカードはありません。' : 'まだカードがありません。';
     setTag(el.subjectTag, '', '');
@@ -1209,7 +1222,7 @@ function renderStudyCard() {
   }
 
   el.cardBox.classList.remove('empty');
-  const modeLabel = activeMaterialName ? `教材: ${activeMaterialName}` : 'まちがえた問題';
+  const modeLabel = activeMaterialName ? `教材: ${activeMaterialName}` : WRONG_LABEL;
   el.cardMeta.textContent = `${modeLabel} / 次回 ${currentCard.nextReviewDate || todayString()}`;
   setTag(el.subjectTag, '科目', currentCard.subject);
   setTag(el.unitTag, '単元', currentCard.unit);
