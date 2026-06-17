@@ -276,26 +276,44 @@ main {
   gap: 6px;
 }
 
+.sidebar-history {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  justify-items: center;
+  gap: 4px;
+}
+
 .sidebar-section-title {
   color: var(--muted);
   font-size: 12px;
   font-weight: 800;
   line-height: 1.2;
+  grid-column: 1 / -1;
+  font-size: 0;
+  text-align: center;
+}
+
+.sidebar-section-title::after {
+  content: "最近";
+  font-size: 12px;
 }
 
 .sidebar-history-row,
 .sidebar-legend-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 6px;
+  justify-content: center;
+  gap: 4px;
   font-size: 11px;
   line-height: 1.15;
 }
 
 .sidebar-history-number {
-  color: var(--muted);
-  font-weight: 700;
+  display: none;
+}
+
+.sidebar-legend {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px 6px;
 }
 
 .sidebar-history-mark,
@@ -305,29 +323,64 @@ main {
   justify-content: center;
   min-width: 24px;
   min-height: 24px;
+  padding: 0 6px;
   border-radius: 8px;
   background: #f6efe9;
+  border: 1px solid rgba(255, 255, 255, 0.92);
   font-weight: 800;
 }
 
 .sidebar-history-mark.is-correct,
 .sidebar-legend-mark.is-correct {
-  color: var(--good);
+  color: #567e5d;
+  background: #e7f4e5;
 }
 
 .sidebar-history-mark.is-wrong,
 .sidebar-legend-mark.is-wrong {
-  color: var(--bad);
+  color: #ba6d74;
+  background: #f8e4e7;
 }
 
 .sidebar-history-mark.is-manual,
 .sidebar-legend-mark.is-manual {
-  color: var(--maybe);
+  color: #a77b1b;
+  background: #f8edc7;
 }
 
 .sidebar-history-mark.is-empty,
 .sidebar-legend-mark.is-empty {
-  color: var(--muted);
+  color: #8f8a85;
+  background: #efebe7;
+}
+
+.sidebar-legend-row {
+  justify-content: flex-start;
+}
+
+.sidebar-legend-row span:last-child {
+  font-size: 0;
+  line-height: 1;
+}
+
+.sidebar-legend-row:nth-child(1) span:last-child::after {
+  content: "正";
+  font-size: 11px;
+}
+
+.sidebar-legend-row:nth-child(2) span:last-child::after {
+  content: "誤";
+  font-size: 11px;
+}
+
+.sidebar-legend-row:nth-child(3) span:last-child::after {
+  content: "見";
+  font-size: 11px;
+}
+
+.sidebar-legend-row:nth-child(4) span:last-child::after {
+  content: "未";
+  font-size: 11px;
 }
 
 .study-top,
