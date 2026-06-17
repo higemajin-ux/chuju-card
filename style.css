@@ -614,7 +614,7 @@ main {
   margin-top: 12px;
 }
 
-.choice-manual-button {
+.study-sidebar .choice-manual-button {
   width: 100%;
   margin-top: 2px;
   padding: 8px 2px;
@@ -634,11 +634,15 @@ main {
   letter-spacing: 0.04em;
 }
 
-.choice-manual-button:hover:not(:disabled) {
+.study-sidebar .choice-manual-button:hover:not(:disabled) {
   background: linear-gradient(180deg, #f9e7a7 0%, #f1d26e 100%);
 }
 
-.choice-manual-button:disabled {
+.study-sidebar .choice-manual-button:active:not(:disabled) {
+  background: linear-gradient(180deg, #f2d77c 0%, #e7c155 100%);
+}
+
+.study-sidebar .choice-manual-button:disabled {
   opacity: 0.6;
   cursor: default;
 }
