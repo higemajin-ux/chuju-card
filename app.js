@@ -448,6 +448,22 @@ function getCardMaterialName(card) {
     || materialNameFromSource(card?.source || '');
 }
 
+function getStudyCardLabel(card) {
+  if (!card) return '';
+  return [card.subject, getCardMaterialName(card)]
+    .map((value) => (value || '').trim())
+    .filter(Boolean)
+    .join('\u3000');
+}
+
+function scrollStudyCardIntoView() {
+  const target = el.questionText || el.cardBox;
+  if (!target) return;
+  requestAnimationFrame(() => {
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+}
+
 function setStatus(message) {
   el.saveStatus.textContent = message;
 }
@@ -827,7 +843,7 @@ function startStudyForMaterial(materialName) {
 
   currentCard = null;
   pickNextCard();
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  scrollStudyCardIntoView();
 }
 
 function startTodayStudy() {
@@ -853,7 +869,7 @@ function startTodayStudy() {
   renderList();
   currentCard = null;
   pickNextCard();
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  scrollStudyCardIntoView();
 }
 
 async function deleteCardsByMaterial(materialName) {
@@ -985,6 +1001,10 @@ function renderStudyCard() {
   setTag(el.subjectTag, '科目', currentCard.subject);
   setTag(el.unitTag, '単元', currentCard.unit);
   setTag(el.difficultyTag, '難しさ', currentCard.difficulty);
+  el.cardMeta.textContent = getStudyCardLabel(currentCard) || modeLabel;
+  setTag(el.subjectTag, '', '');
+  setTag(el.unitTag, '', '');
+  setTag(el.difficultyTag, '', '');
   setCheckBadge(el.checkBadge, currentCard.check);
   setElementVisible(el.problemBadge, isProblemFlagged(currentCard));
   setCheckReason(currentCard.checkReason);
@@ -1001,6 +1021,8 @@ function renderStudyCard() {
     el.sourceText.classList.add('hidden');
   }
 
+  el.sourceText.textContent = '';
+  el.sourceText.classList.add('hidden');
   el.answerText.textContent = currentCard.answer;
   el.explanationText.textContent = currentCard.explanation || '';
   renderChoiceButtons(parseChoices(currentCard), currentCard.answer);
