@@ -520,6 +520,31 @@ main {
   margin: 4px auto 12px;
 }
 
+.study-complete {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  padding: 10px 0 6px;
+  text-align: center;
+}
+
+.study-complete-icon {
+  width: min(150px, 52vw);
+  height: auto;
+}
+
+.study-complete-title {
+  color: var(--ink);
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.study-complete-text {
+  color: var(--muted);
+  font-size: 14px;
+}
+
 .list-summary {
   margin-bottom: 6px;
   color: var(--ink);
@@ -1177,6 +1202,10 @@ button:disabled {
 
   .question-text {
     font-size: 20px;
+  }
+
+  .study-complete-title {
+    font-size: 24px;
   }
 
   .answer-text {
