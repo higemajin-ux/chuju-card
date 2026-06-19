@@ -56,6 +56,7 @@ const el = {
   studyBody: document.getElementById('studyBody'),
   studyMain: document.getElementById('studyMain'),
   studySidebar: document.getElementById('studySidebar'),
+  sidebarActions: document.getElementById('sidebarActions'),
   sidebarHistory: document.getElementById('sidebarHistory'),
   sidebarLegend: document.getElementById('sidebarLegend'),
   answerArea: document.getElementById('answerArea'),
@@ -227,11 +228,16 @@ function ensureStudySidebarElements() {
   sidebarHistory.id = 'sidebarHistory';
   sidebarHistory.className = 'sidebar-history';
 
+  const sidebarActions = document.createElement('div');
+  sidebarActions.id = 'sidebarActions';
+  sidebarActions.className = 'sidebar-actions';
+
   const sidebarLegend = document.createElement('div');
   sidebarLegend.id = 'sidebarLegend';
   sidebarLegend.className = 'sidebar-legend';
 
   studySidebar.appendChild(sidebarHistory);
+  studySidebar.appendChild(sidebarActions);
   studySidebar.appendChild(sidebarLegend);
   studyBody.appendChild(studyMain);
   studyBody.appendChild(studySidebar);
@@ -240,6 +246,7 @@ function ensureStudySidebarElements() {
   el.studyBody = studyBody;
   el.studyMain = studyMain;
   el.studySidebar = studySidebar;
+  el.sidebarActions = sidebarActions;
   el.sidebarHistory = sidebarHistory;
   el.sidebarLegend = sidebarLegend;
 }
@@ -835,8 +842,17 @@ function renderStudySidebar() {
   if (!el.studySidebar) return;
 
   setElementVisible(el.studySidebar, Boolean(currentCard));
-  if (el.choiceManualBtn?.parentElement !== el.studySidebar) {
-    el.studySidebar.insertBefore(el.choiceManualBtn, el.sidebarLegend || null);
+  if (el.nextCardBtn) {
+    el.nextCardBtn.textContent = '\u6B21\u3078';
+    el.nextCardBtn.classList.add('sidebar-next-button');
+  }
+  if (el.sidebarActions) {
+    if (el.choiceManualBtn?.parentElement !== el.sidebarActions) {
+      el.sidebarActions.appendChild(el.choiceManualBtn);
+    }
+    if (el.nextCardBtn?.parentElement !== el.sidebarActions) {
+      el.sidebarActions.appendChild(el.nextCardBtn);
+    }
   }
   renderSidebarHistory();
   renderSidebarLegend();
@@ -850,7 +866,7 @@ function updateStudyButtons() {
   const hasCard = Boolean(currentCard);
   const choiceCard = isChoiceCard(currentCard);
   el.showAnswerBtn.disabled = !hasCard || answerVisible || choiceCard;
-  el.nextCardBtn.disabled = cards.length === 0;
+  el.nextCardBtn.disabled = cards.length === 0 || (choiceCard && !choiceFeedback);
   el.markGoodBtn.disabled = !hasCard || !answerVisible || choiceCard;
   el.markMaybeBtn.disabled = !hasCard || !answerVisible || choiceCard;
   el.markBadBtn.disabled = !hasCard || !answerVisible || choiceCard;
@@ -1307,7 +1323,7 @@ function renderStudyCard() {
   el.explanationText.textContent = currentCard.explanation || '';
   renderChoiceButtons(shuffledChoices, currentCard.answer);
   setElementVisible(el.answerArea, answerVisible);
-  setElementVisible(el.choiceNextBtn, isChoiceCard(currentCard) && Boolean(choiceFeedback));
+  setElementVisible(el.choiceNextBtn, false);
   setElementVisible(el.choiceManualBtn, canMarkChoiceAnswerManual(currentCard));
   setElementVisible(el.problemFlagBtn, true);
   el.problemFlagBtn.classList.toggle('is-active', isProblemFlagged(currentCard));
