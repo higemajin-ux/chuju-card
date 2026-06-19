@@ -1127,11 +1127,20 @@ function studyQueueCards() {
 }
 
 function pickNextCard() {
+  if (isStudySessionComplete && studySessionTargetIds.length > 0) {
+    currentCard = null;
+    answerVisible = false;
+    choiceFeedback = null;
+    resetChoiceCover(null);
+    setDisplayedChoices(null);
+    setStatus('');
+    renderStudyCard();
+    return;
+  }
+
   const queue = studyQueueCards();
   if (!queue.length) {
-    currentCard = isStudySessionComplete
-      ? null
-      : (activeMaterialName || isTodayWrongMode ? null : (cards[0] || null));
+    currentCard = activeMaterialName || isTodayWrongMode ? null : (cards[0] || null);
   } else if (!currentCard || !queue.some((card) => card.id === currentCard.id)) {
     currentCard = queue[0];
   } else {
