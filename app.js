@@ -42,6 +42,7 @@ const el = {
   cardMeta: document.getElementById('cardMeta'),
   cardBox: document.getElementById('cardBox'),
   studyCompleteState: document.getElementById('studyCompleteState'),
+  studyCompleteNextBtn: document.getElementById('studyCompleteNextBtn'),
   studyEmptyImage: document.getElementById('studyEmptyImage'),
   questionText: document.getElementById('questionText'),
   sourceText: document.getElementById('sourceText'),
@@ -399,9 +400,14 @@ function ensureStudyCompleteStateElement() {
   const completeState = document.createElement('div');
   completeState.id = 'studyCompleteState';
   completeState.className = 'study-complete hidden';
-  completeState.innerHTML = '<img class="study-complete-icon" src="./img/success-star.png" alt="\u5168\u554f\u6b63\u89e3"><p class="study-complete-title">\u5168\u554f\u6b63\u89e3\uff01</p><p class="study-complete-text">\u5168\u554f\u6b63\u89e3\u304a\u3081\u3067\u3068\u3046\uff01\u7d9a\u304d\u3082\u9811\u5f35\u3063\u3066\uff01</p>';
+  completeState.innerHTML = '<img class="study-complete-icon" src="./img/success-star.png" alt="\u5168\u554f\u6b63\u89e3"><p class="study-complete-title">\u5168\u554f\u6b63\u89e3\uff01</p><p class="study-complete-text">\u5168\u554f\u6b63\u89e3\u304a\u3081\u3067\u3068\u3046\uff01\u7d9a\u304d\u3082\u9811\u5f35\u3063\u3066\uff01</p><button id="studyCompleteNextBtn" class="big-button primary answer-button study-complete-next" type="button">\u6b21\u306e\u554f\u984c</button>';
   el.cardBox.insertBefore(completeState, el.questionText);
   el.studyCompleteState = completeState;
+  el.studyCompleteNextBtn = completeState.querySelector('#studyCompleteNextBtn');
+  el.studyCompleteNextBtn?.addEventListener('click', () => {
+    resetStudySession();
+    pickNextCard();
+  });
 }
 
 function ensureStudyBackButton() {
