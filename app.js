@@ -76,6 +76,7 @@ const el = {
   materialButtons: document.getElementById('materialButtons'),
   studyBackBtn: document.getElementById('studyBackBtn'),
   listFilterSelect: document.getElementById('listFilterSelect'),
+  listSummary: document.getElementById('listSummary'),
   listScopeHint: document.getElementById('listScopeHint'),
   editModal: document.getElementById('editModal'),
   editQuestionInput: document.getElementById('editQuestionInput'),
@@ -330,6 +331,31 @@ function ensureListScopeHintElement() {
   scopeHint.className = 'hint hidden';
   headingWrap.appendChild(scopeHint);
   el.listScopeHint = scopeHint;
+}
+
+function ensureListSummaryElement() {
+  if (el.listSummary) return;
+
+  const listTop = document.querySelector('.list-top');
+  const headingWrap = listTop?.querySelector('div');
+  if (!headingWrap) return;
+
+  const summary = document.createElement('p');
+  summary.id = 'listSummary';
+  summary.className = 'list-summary hidden';
+  const hint = headingWrap.querySelector('.hint');
+  if (hint) {
+    headingWrap.insertBefore(summary, hint);
+  } else {
+    headingWrap.appendChild(summary);
+  }
+  el.listSummary = summary;
+}
+
+function getCurrentListScopeLabel() {
+  if (activeMaterialName) return activeMaterialName;
+  if (isTodayWrongMode) return WRONG_LABEL;
+  return '';
 }
 
 function ensureStudyBackButton() {
@@ -1321,13 +1347,27 @@ function renderList() {
     if (listFilter === 'graduated') return card?.graduated === true;
     return true;
   });
+  const scopeLabel = getCurrentListScopeLabel();
   if (el.listScopeHint) {
-    if (activeMaterialName) {
-      el.listScopeHint.textContent = `表示中: ${activeMaterialName}`;
+    if (scopeLabel) {
+      el.listScopeHint.textContent = `\u8868\u793a\u4E2D: ${scopeLabel}`;
       el.listScopeHint.classList.remove('hidden');
     } else {
       el.listScopeHint.textContent = '';
       el.listScopeHint.classList.add('hidden');
+    }
+  }
+  if (el.listSummary) {
+    if (cards.length) {
+      const total = filteredCards.length;
+      const notGraduated = filteredCards.filter((card) => card?.graduated !== true).length;
+      const graduated = filteredCards.filter((card) => card?.graduated === true).length;
+      const summaryLabel = scopeLabel || '\u3059\u3079\u3066';
+      el.listSummary.textContent = `${summaryLabel}\u3000\u5168${total}\uFF5C\u672A\u5408\u683C${notGraduated}\uFF5C\u5408\u683C${graduated}`;
+      el.listSummary.classList.remove('hidden');
+    } else {
+      el.listSummary.textContent = '';
+      el.listSummary.classList.add('hidden');
     }
   }
   if (!cards.length) {
@@ -1633,6 +1673,7 @@ async function init() {
   ensureChoiceElements();
   ensureProblemFlagElements();
   ensureListFilterElements();
+  ensureListSummaryElement();
   ensureListScopeHintElement();
   ensureStudyBackButton();
   ensureEditModalElements();
