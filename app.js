@@ -25,6 +25,9 @@ let editingCardId = null;
 let activeMaterialName = '';
 let isStudyVisible = false;
 let isTodayWrongMode = false;
+let studySessionTargetIds = [];
+let studySessionCorrectIds = new Set();
+let isStudySessionComplete = false;
 
 const el = {
   saveStatus: document.getElementById('saveStatus'),
@@ -38,6 +41,7 @@ const el = {
   graduatedCount: document.getElementById('graduatedCount'),
   cardMeta: document.getElementById('cardMeta'),
   cardBox: document.getElementById('cardBox'),
+  studyCompleteState: document.getElementById('studyCompleteState'),
   studyEmptyImage: document.getElementById('studyEmptyImage'),
   questionText: document.getElementById('questionText'),
   sourceText: document.getElementById('sourceText'),
@@ -370,6 +374,36 @@ function buildEmptyStateMarkup(message) {
   return `<div class="empty-state"><img class="empty-state-image" src="./img/empty-state-card.png" alt="\u30ab\u30fc\u30c9\u306a\u3057"><p class="hint">${message}</p></div>`;
 }
 
+function resetStudySession() {
+  studySessionTargetIds = [];
+  studySessionCorrectIds = new Set();
+  isStudySessionComplete = false;
+}
+
+function startStudySession(targetCards) {
+  studySessionTargetIds = targetCards.map((card) => card.id).filter(Boolean);
+  studySessionCorrectIds = new Set();
+  isStudySessionComplete = false;
+}
+
+function markStudySessionCorrect(cardId) {
+  if (!cardId || !studySessionTargetIds.includes(cardId)) return;
+  studySessionCorrectIds.add(cardId);
+  isStudySessionComplete = studySessionTargetIds.length > 0
+    && studySessionCorrectIds.size >= studySessionTargetIds.length;
+}
+
+function ensureStudyCompleteStateElement() {
+  if (el.studyCompleteState || !el.cardBox || !el.questionText) return;
+
+  const completeState = document.createElement('div');
+  completeState.id = 'studyCompleteState';
+  completeState.className = 'study-complete hidden';
+  completeState.innerHTML = '<img class="study-complete-icon" src="./img/success-star.png" alt="\u5168\u554f\u6b63\u89e3"><p class="study-complete-title">\u5168\u554f\u6b63\u89e3\uff01</p><p class="study-complete-text">\u4eca\u65e5\u306e\u5fa9\u7fd2\u306f\u3072\u3068\u307e\u305a\u5b8c\u4e86\u3067\u3059\u3002</p>';
+  el.cardBox.insertBefore(completeState, el.questionText);
+  el.studyCompleteState = completeState;
+}
+
 function ensureStudyBackButton() {
   if (el.studyBackBtn || !el.studyPanel) return;
 
@@ -385,6 +419,7 @@ function ensureStudyBackButton() {
     isStudyVisible = false;
     isTodayWrongMode = false;
     activeMaterialName = '';
+    resetStudySession();
     currentCard = null;
     answerVisible = false;
     choiceFeedback = null;
@@ -1094,7 +1129,9 @@ function studyQueueCards() {
 function pickNextCard() {
   const queue = studyQueueCards();
   if (!queue.length) {
-    currentCard = activeMaterialName || isTodayWrongMode ? null : (cards[0] || null);
+    currentCard = isStudySessionComplete
+      ? null
+      : (activeMaterialName || isTodayWrongMode ? null : (cards[0] || null));
   } else if (!currentCard || !queue.some((card) => card.id === currentCard.id)) {
     currentCard = queue[0];
   } else {
@@ -1119,10 +1156,12 @@ function startStudyForMaterial(materialName) {
   renderList();
   const queue = studyQueueCards();
   if (!queue.length) {
+    resetStudySession();
     setStatus(activeMaterialName ? 'この教材の出題対象カードはありません' : '出題できるカードがありません');
     return;
   }
 
+  startStudySession(queue);
   currentCard = null;
   pickNextCard();
   scrollStudyCardIntoView();
@@ -1133,6 +1172,7 @@ function startTodayStudy() {
   isTodayWrongMode = true;
   const queue = studyQueueCards();
   if (!queue.length) {
+    resetStudySession();
     isStudyVisible = false;
     currentCard = null;
     answerVisible = false;
@@ -1149,6 +1189,7 @@ function startTodayStudy() {
   updateStudyVisibility();
   renderMaterialButtons();
   renderList();
+  startStudySession(queue);
   currentCard = null;
   pickNextCard();
   scrollStudyCardIntoView();
@@ -1264,9 +1305,14 @@ function renderStudyCard() {
   if (!currentCard) {
     el.cardBox.classList.add('empty');
     resetChoiceCover(null);
-    setElementVisible(el.studyEmptyImage, true);
+    const isCompleteStateVisible = isStudySessionComplete && studySessionTargetIds.length > 0;
+    setElementVisible(el.studyCompleteState, isCompleteStateVisible);
+    setElementVisible(el.studyEmptyImage, !isCompleteStateVisible);
+    setElementVisible(el.questionText, !isCompleteStateVisible);
     const modeLabel = activeMaterialName ? `教材: ${activeMaterialName}` : WRONG_LABEL;
-    el.cardMeta.textContent = cards.length ? `${modeLabel} / 出題できるカードがありません` : 'CSVを読み込んでください';
+    el.cardMeta.textContent = isCompleteStateVisible
+      ? (getCurrentListScopeLabel() || modeLabel)
+      : (cards.length ? `${modeLabel} / 出題できるカードがありません` : 'CSVを読み込んでください');
     el.questionText.textContent = cards.length ? '復習待ちのカードはありません。' : 'まだカードがありません。';
     setTag(el.subjectTag, '', '');
     setTag(el.unitTag, '', '');
@@ -1296,7 +1342,9 @@ function renderStudyCard() {
   }
 
   el.cardBox.classList.remove('empty');
+  setElementVisible(el.studyCompleteState, false);
   setElementVisible(el.studyEmptyImage, false);
+  setElementVisible(el.questionText, true);
   const modeLabel = activeMaterialName ? `教材: ${activeMaterialName}` : WRONG_LABEL;
   el.cardMeta.textContent = `${modeLabel} / 次回 ${currentCard.nextReviewDate || todayString()}`;
   setTag(el.subjectTag, '科目', currentCard.subject);
@@ -1523,6 +1571,9 @@ async function markCard(result, options = {}) {
 
   await putCards([updated]);
   setStatus('');
+  if (result === 'good') {
+    markStudySessionCorrect(currentCardId);
+  }
   await reloadCards();
   currentCard = cards.find((card) => card.id === currentCardId) || updated;
   if (advance) {
@@ -1713,6 +1764,7 @@ async function init() {
   ensureStudyStartElements();
   ensureStudySidebarElements();
   ensureChoiceElements();
+  ensureStudyCompleteStateElement();
   ensureProblemFlagElements();
   ensureListFilterElements();
   ensureListSummaryElement();
