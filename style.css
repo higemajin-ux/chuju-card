@@ -116,6 +116,7 @@ main {
   margin-bottom: 10px;
   color: var(--muted);
   font-size: 14px;
+  display: none;
 }
 
 .status-item {
@@ -135,6 +136,7 @@ main {
 }
 
 .rule-panel {
+  display: none;
   max-width: 860px;
   margin: 0 auto 10px;
 }
