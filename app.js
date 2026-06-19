@@ -587,6 +587,14 @@ function getCardMaterialName(card) {
     || materialNameFromSource(card?.source || '');
 }
 
+function getMaterialCardCounts(materialName) {
+  const materialCards = cards.filter((card) => getCardMaterialName(card) === materialName);
+  const total = materialCards.length;
+  const notGraduated = materialCards.filter((card) => card?.graduated !== true).length;
+  const graduated = materialCards.filter((card) => card?.graduated === true).length;
+  return { total, notGraduated, graduated };
+}
+
 function getStudyCardLabel(card) {
   if (!card) return '';
   const subject = (card.subject || '').trim();
@@ -1177,17 +1185,28 @@ function renderMaterialButtons() {
   }
 
   materialNames.forEach((materialName) => {
+    const counts = getMaterialCardCounts(materialName);
     const item = document.createElement('div');
     item.className = 'material-button-item';
 
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'big-button secondary-button material-button';
-    button.textContent = materialName;
     button.classList.toggle('is-active', activeMaterialName === materialName);
     button.addEventListener('click', () => {
       startStudyForMaterial(materialName);
     });
+
+    const label = document.createElement('span');
+    label.className = 'material-button-label';
+    label.textContent = materialName;
+
+    const summary = document.createElement('span');
+    summary.className = 'material-button-summary';
+    summary.textContent = `\u5168${counts.total}\uFF5C\u672A\u5408\u683C${counts.notGraduated}\uFF5C\u5408\u683C${counts.graduated}`;
+
+    button.appendChild(label);
+    button.appendChild(summary);
 
     const deleteButton = document.createElement('button');
     deleteButton.type = 'button';

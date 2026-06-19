@@ -215,6 +215,34 @@ main {
 .material-button-item .material-button {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  text-align: center;
+  white-space: normal;
+  line-height: 1.35;
+}
+
+.material-button-label {
+  display: block;
+  width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.material-button-summary {
+  display: block;
+  width: 100%;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.material-button.is-active .material-button-summary {
+  color: rgba(255, 255, 255, 0.88);
 }
 
 .material-delete-button {
