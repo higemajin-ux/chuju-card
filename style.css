@@ -1,16 +1,16 @@
 :root {
-  --bg: #fff6f6;
-  --panel: #fffdf9;
-  --panel-strong: #fffaf4;
-  --ink: #4f3a34;
-  --muted: #7c6866;
-  --line: #e4cfcf;
-  --primary: #e78fae;
+  --bg: #fff8ef;
+  --panel: #fffef8;
+  --panel-strong: #fffaf1;
+  --ink: #48342d;
+  --muted: #6e5a54;
+  --line: #d8b7b1;
+  --primary: #d97798;
   --primary-ink: #ffffff;
-  --good: #59a886;
-  --maybe: #b69559;
-  --bad: #cf7d88;
-  --shadow: 0 10px 24px rgba(127, 96, 102, 0.08);
+  --good: #4e9d74;
+  --maybe: #c29a43;
+  --bad: #d56f82;
+  --shadow: 0 12px 28px rgba(120, 88, 76, 0.12);
 }
 
 * {
@@ -21,8 +21,8 @@ body {
   margin: 0;
   min-height: 100vh;
   background:
-    radial-gradient(circle at top, rgba(255, 255, 255, 0.78), transparent 32%),
-    linear-gradient(180deg, #fff9f7 0%, #fdf2ee 52%, #f9efe8 100%);
+    radial-gradient(circle at top, rgba(255, 255, 255, 0.9), transparent 30%),
+    linear-gradient(180deg, #fffdf6 0%, #fbf2e7 50%, #f5e8da 100%);
   color: var(--ink);
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", sans-serif;
   line-height: 1.55;
@@ -49,8 +49,8 @@ label {
   align-items: center;
   gap: 12px;
   padding: 12px max(16px, env(safe-area-inset-left)) 10px max(16px, env(safe-area-inset-right));
-  background: rgba(255, 246, 246, 0.96);
-  border-bottom: 1px solid rgba(228, 207, 207, 0.95);
+  background: rgba(255, 249, 240, 0.97);
+  border-bottom: 1px solid rgba(216, 183, 177, 0.95);
   backdrop-filter: blur(10px);
 }
 
@@ -85,7 +85,7 @@ h1 {
 .save-status {
   padding: 6px 10px;
   border-radius: 999px;
-  background: #f6e5ea;
+  background: #f4dce4;
   color: var(--muted);
   font-size: 13px;
   white-space: nowrap;
@@ -255,17 +255,17 @@ main {
   flex: 0 0 auto;
   padding: 6px 10px;
   border-radius: 999px;
-  border-color: #e2b6bc;
-  background: #fff7f6;
-  color: #b4606d;
+  border-color: #d89ea9;
+  background: #fff7f3;
+  color: #a34f61;
   font-size: 12px;
   line-height: 1.2;
   white-space: nowrap;
 }
 
 .material-delete-button:hover {
-  background: #fff0ef;
-  border-color: #d9919d;
+  background: #fde8e6;
+  border-color: #ca7f8d;
 }
 
 .material-delete-button:focus-visible {
@@ -275,7 +275,7 @@ main {
 
 .material-button.is-active,
 .start-button.is-active {
-  background: linear-gradient(180deg, #eb96b3 0%, #df82a1 100%);
+  background: linear-gradient(180deg, #e58dab 0%, #cf6f93 100%);
   color: var(--primary-ink);
   box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.78);
 }
@@ -290,7 +290,7 @@ main {
   max-width: 860px;
   margin: 0 auto 14px;
   padding: 12px 14px 16px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.99), rgba(255, 246, 244, 0.99));
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.99), rgba(255, 248, 240, 0.99));
 }
 
 .study-body {
@@ -323,9 +323,9 @@ main {
   grid-template-columns: 1fr;
   gap: 5px;
   padding: 8px 6px;
-  border: 1px solid rgba(228, 207, 207, 0.95);
+  border: 1px solid rgba(216, 183, 177, 0.95);
   border-radius: 18px;
-  background: linear-gradient(180deg, rgba(255, 251, 247, 0.98), rgba(255, 245, 241, 0.98));
+  background: linear-gradient(180deg, rgba(255, 252, 246, 0.98), rgba(250, 242, 233, 0.98));
 }
 
 .sidebar-actions {
@@ -379,7 +379,7 @@ main {
   min-height: 18px;
   padding: 0 4px;
   border-radius: 8px;
-  background: #f6efe9;
+  background: #f3e9df;
   border: 1px solid rgba(255, 255, 255, 0.92);
   font-weight: 800;
   font-size: 10px;
@@ -388,20 +388,20 @@ main {
 
 .sidebar-history-mark.is-correct,
 .sidebar-legend-mark.is-correct {
-  color: #567e5d;
-  background: #e7f4e5;
+  color: #3f7352;
+  background: #dbefdf;
 }
 
 .sidebar-history-mark.is-wrong,
 .sidebar-legend-mark.is-wrong {
-  color: #ba6d74;
-  background: #f8e4e7;
+  color: #a55966;
+  background: #f4d8de;
 }
 
 .sidebar-history-mark.is-manual,
 .sidebar-legend-mark.is-manual {
-  color: #a77b1b;
-  background: #f8edc7;
+  color: #8f6913;
+  background: #f5e5ad;
 }
 
 .sidebar-history-mark.is-empty,
@@ -508,11 +508,13 @@ main {
   gap: 10px;
   padding: 8px 0;
   text-align: center;
+  color: var(--muted);
 }
 
 .empty-state-image {
   width: min(140px, 100%);
   height: auto;
+  filter: drop-shadow(0 8px 16px rgba(146, 112, 90, 0.12));
 }
 
 .study-empty-image {
@@ -531,6 +533,7 @@ main {
 .study-complete-icon {
   width: min(150px, 52vw);
   height: auto;
+  filter: drop-shadow(0 8px 18px rgba(183, 126, 103, 0.16));
 }
 
 .study-complete-title {
@@ -559,7 +562,7 @@ main {
   padding: 18px 20px;
   min-height: 230px;
   border-radius: 24px;
-  border: 2px solid #e5cdcf;
+  border: 2px solid #dbb8b1;
   background: var(--panel-strong);
   scroll-margin-top: 140px;
 }
@@ -585,8 +588,8 @@ main {
   min-height: 26px;
   padding: 4px 10px;
   border-radius: 999px;
-  background: #f7e9ef;
-  color: #775d67;
+  background: #f4e4e8;
+  color: #6d5159;
   font-size: 12px;
   font-weight: 700;
 }
@@ -597,15 +600,15 @@ main {
   min-height: 24px;
   padding: 3px 9px;
   border-radius: 999px;
-  background: #f4ece7;
-  color: #7d6760;
+  background: #efe4dc;
+  color: #6f5a52;
   font-size: 11px;
   font-weight: 700;
 }
 
 .check-badge.is-dual {
-  background: #ece5f4;
-  color: #6d5f80;
+  background: #e7deef;
+  color: #615674;
 }
 
 .problem-badge {
@@ -614,8 +617,8 @@ main {
   min-height: 24px;
   padding: 3px 9px;
   border-radius: 999px;
-  background: #f6e6a8;
-  color: #6f5a1d;
+  background: #f2dd8e;
+  color: #664f12;
   font-size: 11px;
   font-weight: 700;
 }
@@ -659,8 +662,8 @@ main {
   padding: 18px;
   border-radius: 22px;
   background:
-    linear-gradient(180deg, rgba(255, 226, 120, 0.52) 0%, rgba(255, 208, 82, 0.42) 100%);
-  box-shadow: inset 0 0 0 1px rgba(191, 146, 36, 0.14);
+    linear-gradient(180deg, rgba(255, 224, 111, 0.62) 0%, rgba(247, 201, 70, 0.48) 100%);
+  box-shadow: inset 0 0 0 1px rgba(176, 132, 30, 0.18);
   backdrop-filter: blur(10px) saturate(1.03);
   cursor: pointer;
 }
@@ -671,7 +674,7 @@ main {
   border: 0;
   padding: 0;
   background: transparent;
-  color: #6a4c08;
+  color: #65470b;
   box-shadow: none;
   pointer-events: none;
 }
@@ -680,16 +683,19 @@ main {
   width: 100%;
   min-height: 56px;
   text-align: left;
-  border: 1px solid #dbbcc6;
+  border: 1px solid #cfaab3;
   border-radius: 16px;
-  background: linear-gradient(180deg, #fff7f4 0%, #f6e4ea 100%);
+  background: linear-gradient(180deg, #fffdf9 0%, #f5e3e5 100%);
   color: var(--ink);
   font-size: 17px;
   font-weight: 800;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.85),
+    0 2px 0 rgba(184, 148, 136, 0.14);
 }
 
 .choice-button.is-selected-wrong {
-  background: #d65079;
+  background: #cf5778;
   border: 1px solid transparent;
   box-shadow:
     inset 0 0 0 2px rgba(255, 255, 255, 0.85),
@@ -698,7 +704,7 @@ main {
 }
 
 .choice-button.is-correct {
-  background: #2f9462;
+  background: #3d9768;
   border: 1px solid transparent;
   box-shadow:
     inset 0 0 0 2px rgba(255, 255, 255, 0.85),
@@ -740,9 +746,9 @@ main {
   align-items: center;
   justify-content: center;
   border-radius: 12px;
-  border: 1px solid #c79a3c;
-  color: #684c0f;
-  background: linear-gradient(180deg, #f8e394 0%, #efcd63 100%);
+  border: 1px solid #bb9033;
+  color: #61470f;
+  background: linear-gradient(180deg, #f4df8a 0%, #e8c45b 100%);
   box-shadow:
     inset 0 0 0 1px rgba(255, 255, 255, 0.56),
     0 1px 0 rgba(199, 154, 60, 0.16);
@@ -755,11 +761,11 @@ main {
 }
 
 .study-sidebar .choice-manual-button:hover:not(:disabled) {
-  background: linear-gradient(180deg, #f9e7a7 0%, #f1d26e 100%);
+  background: linear-gradient(180deg, #f7e49a 0%, #edcb63 100%);
 }
 
 .study-sidebar .choice-manual-button:active:not(:disabled) {
-  background: linear-gradient(180deg, #f2d77c 0%, #e7c155 100%);
+  background: linear-gradient(180deg, #efd379 0%, #dfb94e 100%);
 }
 
 .study-sidebar .choice-manual-button:disabled {
@@ -777,7 +783,7 @@ main {
   justify-content: center;
   border-radius: 12px;
   color: var(--primary-ink);
-  background: linear-gradient(180deg, #eb96b3 0%, #df82a1 100%);
+  background: linear-gradient(180deg, #e58cab 0%, #ca6b8f 100%);
   box-shadow:
     inset 0 0 0 1px rgba(255, 255, 255, 0.46),
     0 1px 0 rgba(178, 102, 128, 0.16);
@@ -820,12 +826,12 @@ main {
 
 .problem-flag-button {
   margin-top: 12px;
-  color: #6f5a1d;
-  background: #f7ebbb;
+  color: #674f13;
+  background: #f3e0a2;
 }
 
 .problem-flag-button.is-active {
-  background: #f3df8f;
+  background: #eed27d;
 }
 
 .check-reason {
@@ -873,7 +879,7 @@ main {
 .small-button,
 .quiet-button {
   color: var(--ink);
-  background: #f3e4de;
+  background: #f2e4d9;
 }
 
 .choice-cover .choice-reveal-button {
@@ -895,13 +901,13 @@ main {
 }
 
 .primary {
-  background: linear-gradient(180deg, #eb96b3 0%, #df82a1 100%);
+  background: linear-gradient(180deg, #e58cab 0%, #ca6b8f 100%);
   color: var(--primary-ink);
 }
 
 .secondary-button {
-  background: #efe7fb;
-  color: #665b7e;
+  background: #f6efe4;
+  color: #6a584c;
 }
 
 .answer-button {
@@ -974,10 +980,11 @@ main {
   text-align: left;
   border: 1px solid var(--line);
   border-radius: 18px;
-  background: #fffaf7;
+  background: #fffbf7;
   padding: 0 14px 12px;
   cursor: pointer;
   overflow: hidden;
+  box-shadow: 0 4px 12px rgba(146, 112, 90, 0.06);
 }
 
 .list-history {
@@ -991,19 +998,19 @@ main {
 
 .history-segment {
   border-radius: 999px;
-  background: #ded2ca;
+  background: #d9c9bd;
 }
 
 .history-segment.is-correct {
-  background: #90cdb1;
+  background: #78c095;
 }
 
 .history-segment.is-wrong {
-  background: #dc91a4;
+  background: #d97b93;
 }
 
 .history-segment.is-manual {
-  background: #e2c878;
+  background: #dbb95f;
 }
 
 .history-segment.is-empty {
@@ -1045,8 +1052,8 @@ main {
 .reset-card-button {
   min-height: 36px;
   padding: 8px 14px;
-  color: #8a4a54;
-  background: #f6d9df;
+  color: #834450;
+  background: #f1cfd7;
 }
 
 .edit-modal {
@@ -1066,7 +1073,7 @@ main {
   padding: 18px;
   border: 1px solid var(--line);
   border-radius: 20px;
-  background: #fffaf7;
+  background: #fffdf9;
   box-shadow: var(--shadow);
 }
 
@@ -1089,7 +1096,7 @@ main {
   padding: 10px 12px;
   border: 1px solid var(--line);
   border-radius: 14px;
-  background: #fff;
+  background: #fffdfa;
   color: var(--ink);
   font: inherit;
 }
