@@ -843,7 +843,7 @@ function renderStudySidebar() {
 
   setElementVisible(el.studySidebar, Boolean(currentCard));
   if (el.nextCardBtn) {
-    el.nextCardBtn.textContent = '\u6B21\u3078';
+    el.nextCardBtn.textContent = '\u6B21\u306E\u554F\u984C';
     el.nextCardBtn.classList.add('sidebar-next-button');
   }
   if (el.sidebarActions) {
