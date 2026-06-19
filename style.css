@@ -1,16 +1,16 @@
 :root {
-  --bg: #fff8ef;
-  --panel: #fffef8;
-  --panel-strong: #fffaf1;
-  --ink: #48342d;
-  --muted: #6e5a54;
-  --line: #d8b7b1;
-  --primary: #d97798;
+  --bg: #fff7f3;
+  --panel: #fffdf8;
+  --panel-strong: #fffaf4;
+  --ink: #4a2727;
+  --muted: #7a5a5a;
+  --line: #efb8c6;
+  --primary: #d85b86;
   --primary-ink: #ffffff;
-  --good: #4e9d74;
-  --maybe: #c29a43;
-  --bad: #d56f82;
-  --shadow: 0 12px 28px rgba(120, 88, 76, 0.12);
+  --good: #2f9b68;
+  --maybe: #d5a23d;
+  --bad: #e97b8f;
+  --shadow: 0 12px 26px rgba(166, 112, 126, 0.14);
 }
 
 * {
@@ -21,8 +21,8 @@ body {
   margin: 0;
   min-height: 100vh;
   background:
-    radial-gradient(circle at top, rgba(255, 255, 255, 0.9), transparent 30%),
-    linear-gradient(180deg, #fffdf6 0%, #fbf2e7 50%, #f5e8da 100%);
+    radial-gradient(circle at top, rgba(255, 255, 255, 0.92), transparent 30%),
+    linear-gradient(180deg, #fffaf7 0%, #fff3f6 46%, #fffaf2 100%);
   color: var(--ink);
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", sans-serif;
   line-height: 1.55;
@@ -49,8 +49,9 @@ label {
   align-items: center;
   gap: 12px;
   padding: 12px max(16px, env(safe-area-inset-left)) 10px max(16px, env(safe-area-inset-right));
-  background: rgba(255, 249, 240, 0.97);
-  border-bottom: 1px solid rgba(216, 183, 177, 0.95);
+  background: rgba(255, 244, 248, 0.98);
+  border-bottom: 2px solid rgba(239, 184, 198, 0.96);
+  box-shadow: 0 6px 18px rgba(216, 91, 134, 0.08);
   backdrop-filter: blur(10px);
 }
 
@@ -85,7 +86,7 @@ h1 {
 .save-status {
   padding: 6px 10px;
   border-radius: 999px;
-  background: #f4dce4;
+  background: #f8dce6;
   color: var(--muted);
   font-size: 13px;
   white-space: nowrap;
@@ -109,8 +110,8 @@ main {
 
 .panel {
   background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: 20px;
+  border: 2px solid var(--line);
+  border-radius: 24px;
   box-shadow: var(--shadow);
 }
 
@@ -229,6 +230,9 @@ main {
   text-align: center;
   white-space: normal;
   line-height: 1.35;
+  border: 2px solid #efb8c6;
+  background: linear-gradient(180deg, #fffefd 0%, #fff3f6 100%);
+  box-shadow: 0 6px 14px rgba(216, 91, 134, 0.08);
 }
 
 .material-button-label {
@@ -245,6 +249,10 @@ main {
   font-weight: 700;
   line-height: 1.4;
   overflow-wrap: anywhere;
+}
+
+.material-button-label {
+  color: var(--ink);
 }
 
 .material-button.is-active .material-button-summary {
@@ -275,7 +283,7 @@ main {
 
 .material-button.is-active,
 .start-button.is-active {
-  background: linear-gradient(180deg, #e58dab 0%, #cf6f93 100%);
+  background: linear-gradient(180deg, #e4769b 0%, #d85b86 100%);
   color: var(--primary-ink);
   box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.78);
 }
@@ -290,7 +298,7 @@ main {
   max-width: 860px;
   margin: 0 auto 14px;
   padding: 12px 14px 16px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.99), rgba(255, 248, 240, 0.99));
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.99), rgba(255, 245, 248, 0.99));
 }
 
 .study-body {
@@ -323,9 +331,10 @@ main {
   grid-template-columns: 1fr;
   gap: 5px;
   padding: 8px 6px;
-  border: 1px solid rgba(216, 183, 177, 0.95);
-  border-radius: 18px;
-  background: linear-gradient(180deg, rgba(255, 252, 246, 0.98), rgba(250, 242, 233, 0.98));
+  border: 2px solid rgba(239, 184, 198, 0.98);
+  border-radius: 20px;
+  background: linear-gradient(180deg, rgba(255, 255, 252, 0.99), rgba(255, 246, 249, 0.98));
+  box-shadow: 0 6px 16px rgba(216, 91, 134, 0.07);
 }
 
 .sidebar-actions {
@@ -379,8 +388,8 @@ main {
   min-height: 18px;
   padding: 0 4px;
   border-radius: 8px;
-  background: #f3e9df;
-  border: 1px solid rgba(255, 255, 255, 0.92);
+  background: #fff6f0;
+  border: 1px solid rgba(239, 184, 198, 0.9);
   font-weight: 800;
   font-size: 10px;
   flex-shrink: 0;
@@ -509,6 +518,9 @@ main {
   padding: 8px 0;
   text-align: center;
   color: var(--muted);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(255, 243, 246, 0.52));
+  border: 2px dashed rgba(239, 184, 198, 0.8);
+  border-radius: 24px;
 }
 
 .empty-state-image {
@@ -528,6 +540,9 @@ main {
   gap: 10px;
   padding: 10px 0 6px;
   text-align: center;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(255, 242, 246, 0.68));
+  border: 2px dashed rgba(239, 184, 198, 0.88);
+  border-radius: 24px;
 }
 
 .study-complete-icon {
@@ -561,9 +576,10 @@ main {
   margin-top: 8px;
   padding: 18px 20px;
   min-height: 230px;
-  border-radius: 24px;
-  border: 2px solid #dbb8b1;
+  border-radius: 28px;
+  border: 3px solid #efb8c6;
   background: var(--panel-strong);
+  box-shadow: 0 14px 28px rgba(216, 91, 134, 0.09);
   scroll-margin-top: 140px;
 }
 
@@ -628,13 +644,14 @@ main {
   font-weight: 800;
   line-height: 1.45;
   letter-spacing: 0.01em;
+  color: var(--ink);
   scroll-margin-top: 140px;
 }
 
 .answer-area {
   margin-top: 16px;
   padding-top: 14px;
-  border-top: 1px dashed var(--line);
+  border-top: 2px dashed var(--line);
 }
 
 .choice-area {
@@ -681,34 +698,34 @@ main {
 
 .choice-button {
   width: 100%;
-  min-height: 56px;
+  min-height: 60px;
   text-align: left;
-  border: 1px solid #cfaab3;
-  border-radius: 16px;
-  background: linear-gradient(180deg, #fffdf9 0%, #f5e3e5 100%);
-  color: var(--ink);
+  border: 2px solid #e6b2c0;
+  border-radius: 20px;
+  background: linear-gradient(180deg, #fffefc 0%, #fff1f5 100%);
+  color: #6a4040;
   font-size: 17px;
   font-weight: 800;
   box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.85),
-    0 2px 0 rgba(184, 148, 136, 0.14);
+    inset 0 0 0 1px rgba(255, 255, 255, 0.92),
+    0 3px 0 rgba(216, 91, 134, 0.12);
 }
 
 .choice-button.is-selected-wrong {
-  background: #cf5778;
+  background: #e97b8f;
   border: 1px solid transparent;
   box-shadow:
     inset 0 0 0 2px rgba(255, 255, 255, 0.85),
-    inset 0 0 0 4px rgba(214, 80, 121, 0.96);
+    inset 0 0 0 4px rgba(233, 123, 143, 0.98);
   color: #ffffff;
 }
 
 .choice-button.is-correct {
-  background: #3d9768;
+  background: #2f9b68;
   border: 1px solid transparent;
   box-shadow:
     inset 0 0 0 2px rgba(255, 255, 255, 0.85),
-    inset 0 0 0 4px rgba(47, 148, 98, 0.96);
+    inset 0 0 0 4px rgba(47, 155, 104, 0.98);
   color: #ffffff;
 }
 
@@ -746,9 +763,9 @@ main {
   align-items: center;
   justify-content: center;
   border-radius: 12px;
-  border: 1px solid #bb9033;
+  border: 2px solid #d4aa43;
   color: #61470f;
-  background: linear-gradient(180deg, #f4df8a 0%, #e8c45b 100%);
+  background: linear-gradient(180deg, #ffe18a 0%, #ffd766 100%);
   box-shadow:
     inset 0 0 0 1px rgba(255, 255, 255, 0.56),
     0 1px 0 rgba(199, 154, 60, 0.16);
@@ -783,7 +800,8 @@ main {
   justify-content: center;
   border-radius: 12px;
   color: var(--primary-ink);
-  background: linear-gradient(180deg, #e58cab 0%, #ca6b8f 100%);
+  background: linear-gradient(180deg, #e4769b 0%, #d85b86 100%);
+  border: 2px solid #cf6f93;
   box-shadow:
     inset 0 0 0 1px rgba(255, 255, 255, 0.46),
     0 1px 0 rgba(178, 102, 128, 0.16);
@@ -879,7 +897,7 @@ main {
 .small-button,
 .quiet-button {
   color: var(--ink);
-  background: #f2e4d9;
+  background: #fff1f0;
 }
 
 .choice-cover .choice-reveal-button {
@@ -901,13 +919,14 @@ main {
 }
 
 .primary {
-  background: linear-gradient(180deg, #e58cab 0%, #ca6b8f 100%);
+  background: linear-gradient(180deg, #e4769b 0%, #d85b86 100%);
   color: var(--primary-ink);
 }
 
 .secondary-button {
-  background: #f6efe4;
-  color: #6a584c;
+  background: linear-gradient(180deg, #fffdfb 0%, #fff0f4 100%);
+  color: #714949;
+  border: 2px solid #efb8c6;
 }
 
 .answer-button {
@@ -978,9 +997,9 @@ main {
 .list-item {
   width: 100%;
   text-align: left;
-  border: 1px solid var(--line);
-  border-radius: 18px;
-  background: #fffbf7;
+  border: 2px solid var(--line);
+  border-radius: 22px;
+  background: linear-gradient(180deg, #fffefb 0%, #fff5f7 100%);
   padding: 0 14px 12px;
   cursor: pointer;
   overflow: hidden;
@@ -998,7 +1017,7 @@ main {
 
 .history-segment {
   border-radius: 999px;
-  background: #d9c9bd;
+  background: #e3d0c9;
 }
 
 .history-segment.is-correct {
@@ -1071,8 +1090,8 @@ main {
   max-height: min(90vh, 900px);
   overflow: auto;
   padding: 18px;
-  border: 1px solid var(--line);
-  border-radius: 20px;
+  border: 2px solid var(--line);
+  border-radius: 24px;
   background: #fffdf9;
   box-shadow: var(--shadow);
 }
