@@ -679,9 +679,13 @@ main {
 
 .study-sidebar .choice-manual-button {
   width: 100%;
+  height: 124px;
   margin-top: 0;
   padding: 8px 2px;
   min-height: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 12px;
   border: 1px solid #c79a3c;
   color: #684c0f;
@@ -712,8 +716,12 @@ main {
 
 .study-sidebar .sidebar-next-button {
   width: 100%;
+  height: 124px;
   min-height: 0;
   padding: 8px 2px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 12px;
   color: var(--primary-ink);
   background: linear-gradient(180deg, #eb96b3 0%, #df82a1 100%);
