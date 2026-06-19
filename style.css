@@ -66,6 +66,7 @@ h1 {
 }
 
 .today-line {
+  display: none;
   color: var(--muted);
   font-size: 14px;
 }
