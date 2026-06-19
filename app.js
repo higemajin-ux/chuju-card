@@ -38,6 +38,7 @@ const el = {
   graduatedCount: document.getElementById('graduatedCount'),
   cardMeta: document.getElementById('cardMeta'),
   cardBox: document.getElementById('cardBox'),
+  studyEmptyImage: document.getElementById('studyEmptyImage'),
   questionText: document.getElementById('questionText'),
   sourceText: document.getElementById('sourceText'),
   subjectTag: document.getElementById('subjectTag'),
@@ -363,6 +364,10 @@ function getCurrentListScopeLabel() {
   if (activeMaterialName) return activeMaterialName;
   if (isTodayWrongMode) return WRONG_LABEL;
   return '';
+}
+
+function buildEmptyStateMarkup(message) {
+  return `<div class="empty-state"><img class="empty-state-image" src="./img/empty-state-card.png" alt="\u30ab\u30fc\u30c9\u306a\u3057"><p class="hint">${message}</p></div>`;
 }
 
 function ensureStudyBackButton() {
@@ -1259,6 +1264,7 @@ function renderStudyCard() {
   if (!currentCard) {
     el.cardBox.classList.add('empty');
     resetChoiceCover(null);
+    setElementVisible(el.studyEmptyImage, true);
     const modeLabel = activeMaterialName ? `教材: ${activeMaterialName}` : WRONG_LABEL;
     el.cardMeta.textContent = cards.length ? `${modeLabel} / 出題できるカードがありません` : 'CSVを読み込んでください';
     el.questionText.textContent = cards.length ? '復習待ちのカードはありません。' : 'まだカードがありません。';
@@ -1290,6 +1296,7 @@ function renderStudyCard() {
   }
 
   el.cardBox.classList.remove('empty');
+  setElementVisible(el.studyEmptyImage, false);
   const modeLabel = activeMaterialName ? `教材: ${activeMaterialName}` : WRONG_LABEL;
   el.cardMeta.textContent = `${modeLabel} / 次回 ${currentCard.nextReviewDate || todayString()}`;
   setTag(el.subjectTag, '科目', currentCard.subject);
@@ -1406,17 +1413,17 @@ function renderList() {
     }
   }
   if (!cards.length) {
-    el.cardList.innerHTML = '<p class="hint">カード一覧はまだ空です。</p>';
+    el.cardList.innerHTML = buildEmptyStateMarkup('\u30ab\u30fc\u30c9\u4e00\u89a7\u306f\u307e\u3060\u7a7a\u3067\u3059\u3002');
     return;
   }
 
   if (!filteredCards.length && activeMaterialName) {
-    el.cardList.innerHTML = '<p class="hint">この教材の条件に合うカードはありません</p>';
+    el.cardList.innerHTML = buildEmptyStateMarkup('\u3053\u306e\u6559\u6750\u306e\u6761\u4ef6\u306b\u5408\u3046\u30ab\u30fc\u30c9\u306f\u3042\u308a\u307e\u305b\u3093');
     return;
   }
 
   if (!filteredCards.length) {
-    el.cardList.innerHTML = '<p class="hint">問題確認中のカードはありません</p>';
+    el.cardList.innerHTML = buildEmptyStateMarkup('\u554f\u984c\u78ba\u8a8d\u4e2d\u306e\u30ab\u30fc\u30c9\u306f\u3042\u308a\u307e\u305b\u3093');
     return;
   }
 

@@ -56,8 +56,14 @@ label {
 
 .header-main {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 12px;
+}
+
+.header-title-mark {
+  width: clamp(28px, 6vw, 38px);
+  height: auto;
+  flex: 0 0 auto;
 }
 
 h1 {
@@ -496,6 +502,24 @@ main {
   font-size: 13px;
 }
 
+.empty-state {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  text-align: center;
+}
+
+.empty-state-image {
+  width: min(140px, 100%);
+  height: auto;
+}
+
+.study-empty-image {
+  width: min(120px, 42vw);
+  margin: 4px auto 12px;
+}
+
 .list-summary {
   margin-bottom: 6px;
   color: var(--ink);
@@ -517,6 +541,10 @@ main {
 
 .card-box.empty {
   color: var(--muted);
+}
+
+.card-box.empty .question-text {
+  text-align: center;
 }
 
 .card-tags {
@@ -1089,6 +1117,10 @@ button:disabled {
   .header-main {
     gap: 8px;
     min-width: 0;
+  }
+
+  .header-title-mark {
+    width: 30px;
   }
 
   h1 {
