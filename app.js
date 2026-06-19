@@ -399,7 +399,7 @@ function ensureStudyCompleteStateElement() {
   const completeState = document.createElement('div');
   completeState.id = 'studyCompleteState';
   completeState.className = 'study-complete hidden';
-  completeState.innerHTML = '<img class="study-complete-icon" src="./img/success-star.png" alt="\u5168\u554f\u6b63\u89e3"><p class="study-complete-title">\u5168\u554f\u6b63\u89e3\uff01</p><p class="study-complete-text">\u4eca\u65e5\u306e\u5fa9\u7fd2\u306f\u3072\u3068\u307e\u305a\u5b8c\u4e86\u3067\u3059\u3002</p>';
+  completeState.innerHTML = '<img class="study-complete-icon" src="./img/success-star.png" alt="\u5168\u554f\u6b63\u89e3"><p class="study-complete-title">\u5168\u554f\u6b63\u89e3\uff01</p><p class="study-complete-text">\u3053\u306e\u5358\u5143\u306f\u3072\u3068\u307e\u305a\u5b8c\u4e86\u3067\u3059\u3002</p>';
   el.cardBox.insertBefore(completeState, el.questionText);
   el.studyCompleteState = completeState;
 }
