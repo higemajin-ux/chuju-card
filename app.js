@@ -1,6 +1,7 @@
 const DB_NAME = 'chuju-card-db';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 const STORE_NAME = 'cards';
+const IMAGE_STORE_NAME = 'questionImages';
 const RECENT_RESULTS_LIMIT = 5;
 const REQUIRED_COLUMNS = [
   'cardId', 'subject', 'unit', 'type', 'question', 'choices', 'answer', 'explanation',
@@ -28,10 +29,14 @@ let isTodayWrongMode = false;
 let studySessionTargetIds = [];
 let studySessionCorrectIds = new Set();
 let isStudySessionComplete = false;
+let questionImageRenderToken = 0;
+const questionImageUrlCache = new Map();
 
 const el = {
   saveStatus: document.getElementById('saveStatus'),
   csvInput: document.getElementById('csvInput'),
+  imageInput: document.getElementById('imageInput'),
+  imageImportStatus: document.getElementById('imageImportStatus'),
   jsonInput: document.getElementById('jsonInput'),
   exportJsonBtn: document.getElementById('exportJsonBtn'),
   clearAllBtn: document.getElementById('clearAllBtn'),
@@ -47,6 +52,9 @@ const el = {
   studyReplayBtn: document.getElementById('studyReplayBtn'),
   studyEmptyImage: document.getElementById('studyEmptyImage'),
   questionText: document.getElementById('questionText'),
+  questionImageWrap: document.getElementById('questionImageWrap'),
+  questionImageEl: document.getElementById('questionImageEl'),
+  questionImageMissingText: document.getElementById('questionImageMissingText'),
   sourceText: document.getElementById('sourceText'),
   subjectTag: document.getElementById('subjectTag'),
   unitTag: document.getElementById('unitTag'),
@@ -737,6 +745,13 @@ function setStatus(message) {
   el.saveStatus.textContent = message;
 }
 
+function setImageImportStatus(message) {
+  if (!el.imageImportStatus) return;
+  const text = (message || '').trim();
+  el.imageImportStatus.textContent = text;
+  setElementVisible(el.imageImportStatus, Boolean(text));
+}
+
 function setElementVisible(element, visible) {
   if (!element) return;
   element.hidden = !visible;
@@ -765,6 +780,20 @@ function setCheckReason(value) {
   const text = (value || '').trim();
   el.checkReasonText.classList.toggle('hidden', !text);
   el.checkReasonText.textContent = text ? `理由：${text}` : '';
+}
+
+function resetQuestionImageDisplay() {
+  questionImageRenderToken += 1;
+  if (el.questionImageEl) {
+    el.questionImageEl.removeAttribute('src');
+    el.questionImageEl.alt = '';
+  }
+  if (el.questionImageMissingText) {
+    el.questionImageMissingText.textContent = '';
+  }
+  setElementVisible(el.questionImageEl, false);
+  setElementVisible(el.questionImageMissingText, false);
+  setElementVisible(el.questionImageWrap, false);
 }
 
 function normalizeRecentResults(card) {
@@ -990,6 +1019,9 @@ function openDb() {
       if (!database.objectStoreNames.contains(STORE_NAME)) {
         database.createObjectStore(STORE_NAME, { keyPath: 'id' });
       }
+      if (!database.objectStoreNames.contains(IMAGE_STORE_NAME)) {
+        database.createObjectStore(IMAGE_STORE_NAME, { keyPath: 'name' });
+      }
     };
     request.onsuccess = () => resolve(request.result);
     request.onerror = () => reject(request.error);
@@ -998,6 +1030,10 @@ function openDb() {
 
 function txStore(mode = 'readonly') {
   return db.transaction(STORE_NAME, mode).objectStore(STORE_NAME);
+}
+
+function txImageStore(mode = 'readonly') {
+  return db.transaction(IMAGE_STORE_NAME, mode).objectStore(IMAGE_STORE_NAME);
 }
 
 function getAllCards() {
@@ -1015,6 +1051,24 @@ function putCards(items) {
     items.forEach((item) => store.put(item));
     tx.oncomplete = () => resolve();
     tx.onerror = () => reject(tx.error);
+  });
+}
+
+function putQuestionImages(items) {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(IMAGE_STORE_NAME, 'readwrite');
+    const store = tx.objectStore(IMAGE_STORE_NAME);
+    items.forEach((item) => store.put(item));
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+}
+
+function getQuestionImageRecord(name) {
+  return new Promise((resolve, reject) => {
+    const request = txImageStore().get(name);
+    request.onsuccess = () => resolve(request.result || null);
+    request.onerror = () => reject(request.error);
   });
 }
 
@@ -1037,6 +1091,85 @@ function clearCards() {
     request.onsuccess = () => resolve();
     request.onerror = () => reject(request.error);
   });
+}
+
+function isSupportedQuestionImageFile(file) {
+  if (!file?.name) return false;
+  return ['.jpg', '.jpeg', '.png', '.webp']
+    .some((ext) => file.name.toLowerCase().endsWith(ext));
+}
+
+function revokeQuestionImageUrl(fileName) {
+  const cachedUrl = questionImageUrlCache.get(fileName);
+  if (!cachedUrl) return;
+  URL.revokeObjectURL(cachedUrl);
+  questionImageUrlCache.delete(fileName);
+}
+
+async function getQuestionImageUrl(fileName) {
+  if (!fileName) return '';
+  if (questionImageUrlCache.has(fileName)) {
+    return questionImageUrlCache.get(fileName);
+  }
+
+  const record = await getQuestionImageRecord(fileName);
+  if (!record?.blob) return '';
+
+  const objectUrl = URL.createObjectURL(record.blob);
+  questionImageUrlCache.set(fileName, objectUrl);
+  return objectUrl;
+}
+
+async function saveQuestionImages(files) {
+  const supportedFiles = Array.from(files || []).filter((file) => isSupportedQuestionImageFile(file));
+  if (!supportedFiles.length) {
+    setImageImportStatus('保存できる画像が選択されていません。');
+    return;
+  }
+
+  supportedFiles.forEach((file) => revokeQuestionImageUrl(file.name));
+  await putQuestionImages(supportedFiles.map((file) => ({
+    name: file.name,
+    blob: file,
+    type: file.type || '',
+    updatedAt: new Date().toISOString(),
+  })));
+
+  const message = `画像を${supportedFiles.length}枚保存しました。`;
+  setStatus(message);
+  setImageImportStatus(message);
+}
+
+async function renderQuestionImage(card) {
+  const fileName = (card?.questionImage || '').trim();
+  if (!fileName) {
+    resetQuestionImageDisplay();
+    return;
+  }
+
+  const renderToken = ++questionImageRenderToken;
+  el.questionImageEl?.removeAttribute('src');
+  if (el.questionImageEl) {
+    el.questionImageEl.alt = `問題画像: ${fileName}`;
+  }
+  if (el.questionImageMissingText) {
+    el.questionImageMissingText.textContent = '';
+  }
+  setElementVisible(el.questionImageWrap, true);
+  setElementVisible(el.questionImageEl, false);
+  setElementVisible(el.questionImageMissingText, false);
+
+  const imageUrl = await getQuestionImageUrl(fileName);
+  if (renderToken !== questionImageRenderToken || currentCard?.id !== card?.id) return;
+
+  if (imageUrl) {
+    el.questionImageEl.src = imageUrl;
+    setElementVisible(el.questionImageEl, true);
+    return;
+  }
+
+  el.questionImageMissingText.textContent = `画像未読込：${fileName}`;
+  setElementVisible(el.questionImageMissingText, true);
 }
 
 function parseCsv(text) {
@@ -1390,6 +1523,7 @@ function renderStudyCard() {
   if (!currentCard) {
     el.cardBox.classList.add('empty');
     resetChoiceCover(null);
+    resetQuestionImageDisplay();
     const isCompleteStateVisible = isStudySessionComplete && studySessionTargetIds.length > 0;
     const canReplayCurrentStudy = Boolean(activeMaterialName) && getCurrentStudyResetTargets().length > 0;
     setElementVisible(el.studyCompleteState, isCompleteStateVisible);
@@ -1448,6 +1582,7 @@ function renderStudyCard() {
   setElementVisible(el.problemBadge, isProblemFlagged(currentCard));
   setCheckReason(currentCard.checkReason);
   el.questionText.textContent = currentCard.question;
+  renderQuestionImage(currentCard);
   setElementVisible(el.choiceArea, isChoiceCard(currentCard));
   setElementVisible(el.studyActions, !isChoiceCard(currentCard));
   setElementVisible(el.judgeActions, !isChoiceCard(currentCard));
@@ -1886,6 +2021,25 @@ el.csvInput.addEventListener('change', async (event) => {
   } catch (error) {
     const message = error?.message || 'CSV読み込みに失敗しました';
     setStatus(`CSV読み込みエラー: ${message}`);
+    alert(message);
+  } finally {
+    event.target.value = '';
+  }
+});
+
+el.imageInput?.addEventListener('change', async (event) => {
+  const files = event.target.files;
+  if (!files?.length) return;
+
+  try {
+    await saveQuestionImages(files);
+    if (currentCard?.questionImage) {
+      renderQuestionImage(currentCard);
+    }
+  } catch (error) {
+    const message = error?.message || '画像の保存に失敗しました';
+    setStatus(`画像保存エラー: ${message}`);
+    setImageImportStatus(`画像保存エラー: ${message}`);
     alert(message);
   } finally {
     event.target.value = '';

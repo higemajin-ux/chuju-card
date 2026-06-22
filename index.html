@@ -55,6 +55,10 @@
         </div>
         <img id="studyEmptyImage" class="empty-state-image study-empty-image hidden" src="./img/empty-state-card.png" alt="カードなし">
         <p id="questionText" class="question-text">まだカードがありません。</p>
+        <div id="questionImageWrap" class="question-image-wrap hidden">
+          <img id="questionImageEl" class="question-image hidden" alt="">
+          <p id="questionImageMissingText" class="question-image-missing hidden"></p>
+        </div>
         <div id="answerArea" class="answer-area hidden">
           <p class="answer-label">答え</p>
           <p id="answerText" class="answer-text"></p>
@@ -93,12 +97,18 @@
           CSVを読み込む
           <input id="csvInput" type="file" accept=".csv,text/csv">
         </label>
+        <label class="big-button secondary-button file-label">
+          <span>教材画像を追加</span>
+          <span class="file-label-subtext">図・表・地図の画像を読み込みます</span>
+          <input id="imageInput" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" multiple>
+        </label>
         <button id="exportJsonBtn" class="big-button secondary-button" type="button">JSONバックアップ</button>
         <label class="big-button file-label">
           JSON復元
           <input id="jsonInput" type="file" accept="application/json,.json">
         </label>
       </div>
+      <p id="imageImportStatus" class="hint data-upload-status hidden"></p>
       <div class="data-footer">
         <button id="clearAllBtn" class="quiet-button" type="button">この端末の学習記録を削除</button>
       </div>
