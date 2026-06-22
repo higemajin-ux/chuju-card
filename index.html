@@ -102,6 +102,11 @@
           <span class="file-label-subtext">図・表・地図の画像を読み込みます</span>
           <input id="imageInput" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" multiple>
         </label>
+        <label class="big-button secondary-button file-label">
+          <span>教材ZIPを追加</span>
+          <span class="file-label-subtext">CSVと図・表・地図画像をまとめて読み込みます</span>
+          <input id="zipInput" type="file" accept=".zip,application/zip">
+        </label>
         <button id="exportJsonBtn" class="big-button secondary-button" type="button">JSONバックアップ</button>
         <label class="big-button file-label">
           JSON復元
@@ -124,6 +129,7 @@
     </button>
   </template>
 
+  <script src="./lib/jszip.min.js" defer></script>
   <script src="./app.js" defer></script>
 </body>
 </html>

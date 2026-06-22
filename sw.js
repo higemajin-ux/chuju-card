@@ -1,9 +1,10 @@
-const CACHE_NAME = 'chuju-card-v0.9-edit-modal-fix';
+const CACHE_NAME = 'chuju-card-v1.0-zip-import';
 const APP_SHELL = [
   './',
   './index.html',
   './style.css',
   './app.js',
+  './lib/jszip.min.js',
   './manifest.webmanifest',
   './sample.csv'
 ];
