@@ -381,10 +381,23 @@ function resetStudySession() {
   isStudySessionComplete = false;
 }
 
+function hasCardBeenCorrectAtLeastOnce(card) {
+  const recentResults = normalizeRecentResults(card);
+  if (recentResults.includes('correct')) return true;
+
+  return ['correctCount', 'successCount', 'totalGood']
+    .some((key) => typeof card?.[key] === 'number' && card[key] > 0);
+}
+
 function startStudySession(targetCards) {
   studySessionTargetIds = targetCards.map((card) => card.id).filter(Boolean);
-  studySessionCorrectIds = new Set();
-  isStudySessionComplete = false;
+  studySessionCorrectIds = new Set(
+    targetCards
+      .filter((card) => card?.id && hasCardBeenCorrectAtLeastOnce(card))
+      .map((card) => card.id),
+  );
+  isStudySessionComplete = studySessionTargetIds.length > 0
+    && studySessionCorrectIds.size >= studySessionTargetIds.length;
 }
 
 function markStudySessionCorrect(cardId) {
