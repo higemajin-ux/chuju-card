@@ -568,6 +568,11 @@ main {
   margin-top: 6px;
 }
 
+.study-replay-button {
+  max-width: min(420px, 100%);
+  margin-top: 6px;
+}
+
 .list-summary {
   margin-bottom: 6px;
   color: var(--ink);

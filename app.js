@@ -43,6 +43,8 @@ const el = {
   cardBox: document.getElementById('cardBox'),
   studyCompleteState: document.getElementById('studyCompleteState'),
   studyCompleteNextBtn: document.getElementById('studyCompleteNextBtn'),
+  studyCompleteReplayBtn: document.getElementById('studyCompleteReplayBtn'),
+  studyReplayBtn: document.getElementById('studyReplayBtn'),
   studyEmptyImage: document.getElementById('studyEmptyImage'),
   questionText: document.getElementById('questionText'),
   sourceText: document.getElementById('sourceText'),
@@ -407,20 +409,68 @@ function markStudySessionCorrect(cardId) {
     && studySessionCorrectIds.size >= studySessionTargetIds.length;
 }
 
+function getCurrentStudyResetTargets() {
+  if (activeMaterialName) {
+    return cards.filter((card) => getCardMaterialName(card) === activeMaterialName);
+  }
+
+  const sessionTargets = studySessionTargetIds
+    .map((cardId) => cards.find((card) => card.id === cardId))
+    .filter(Boolean);
+
+  if (!sessionTargets.length) return [];
+
+  const materialNames = [...new Set(sessionTargets.map((card) => getCardMaterialName(card)).filter(Boolean))];
+  return materialNames.length === 1 ? sessionTargets : [];
+}
+
 function ensureStudyCompleteStateElement() {
   if (el.studyCompleteState || !el.cardBox || !el.questionText) return;
 
   const completeState = document.createElement('div');
   completeState.id = 'studyCompleteState';
   completeState.className = 'study-complete hidden';
-  completeState.innerHTML = '<img class="study-complete-icon" src="./img/success-star.png" alt="\u5168\u554f\u6b63\u89e3"><p class="study-complete-title">\u5168\u554f\u6b63\u89e3\uff01</p><p class="study-complete-text">\u5168\u554f\u6b63\u89e3\u304a\u3081\u3067\u3068\u3046\uff01\u7d9a\u304d\u3082\u9811\u5f35\u3063\u3066\uff01</p><button id="studyCompleteNextBtn" class="big-button primary answer-button study-complete-next" type="button">\u6b21\u306e\u554f\u984c</button>';
+  completeState.innerHTML = '<img class="study-complete-icon" src="./img/success-star.png" alt="\u5168\u554f\u6b63\u89e3"><p class="study-complete-title">\u5168\u554f\u6b63\u89e3\uff01</p><p class="study-complete-text">\u5168\u554f\u6b63\u89e3\u304a\u3081\u3067\u3068\u3046\uff01\u7d9a\u304d\u3082\u9811\u5f35\u3063\u3066\uff01</p><button id="studyCompleteNextBtn" class="big-button primary answer-button study-complete-next" type="button">\u6b21\u306e\u554f\u984c</button><button id="studyCompleteReplayBtn" class="big-button secondary-button answer-button study-replay-button hidden" type="button">\u3082\u3046\u4e00\u56de\u3084\u308b</button>';
   el.cardBox.insertBefore(completeState, el.questionText);
   el.studyCompleteState = completeState;
   el.studyCompleteNextBtn = completeState.querySelector('#studyCompleteNextBtn');
+  el.studyCompleteReplayBtn = completeState.querySelector('#studyCompleteReplayBtn');
   el.studyCompleteNextBtn?.addEventListener('click', () => {
     resetStudySession();
     pickNextCard();
   });
+  el.studyCompleteReplayBtn?.addEventListener('click', resetCurrentStudyTargetProgress);
+}
+
+function ensureStudyReplayButton() {
+  if (el.studyReplayBtn || !el.cardBox || !el.questionText) return;
+
+  const replayBtn = document.createElement('button');
+  replayBtn.id = 'studyReplayBtn';
+  replayBtn.type = 'button';
+  replayBtn.className = 'big-button secondary-button answer-button study-replay-button hidden';
+  replayBtn.textContent = 'もう一回やる';
+  el.cardBox.insertBefore(replayBtn, el.questionText);
+  el.studyReplayBtn = replayBtn;
+  replayBtn.addEventListener('click', resetCurrentStudyTargetProgress);
+}
+
+async function resetCurrentStudyTargetProgress() {
+  const targetCards = getCurrentStudyResetTargets();
+  if (!targetCards.length || !activeMaterialName) {
+    setStatus('リセットできる教材が特定できませんでした');
+    return;
+  }
+
+  const confirmed = window.confirm('この教材の正誤記録と合格状態をリセットして、もう一回やりますか？');
+  if (!confirmed) return;
+
+  const updatedCards = targetCards.map((card) => resetCardProgressState(card));
+  await putCards(updatedCards);
+  resetStudySession();
+  setStatus(`教材「${activeMaterialName}」の学習状態をリセットしました`);
+  await reloadCards();
+  startStudyForMaterial(activeMaterialName);
 }
 
 function ensureStudyBackButton() {
@@ -1185,6 +1235,12 @@ function startStudyForMaterial(materialName) {
   const queue = studyQueueCards();
   if (!queue.length) {
     resetStudySession();
+    currentCard = null;
+    answerVisible = false;
+    choiceFeedback = null;
+    resetChoiceCover(null);
+    setDisplayedChoices(null);
+    renderStudyCard();
     setStatus(activeMaterialName ? 'この教材の出題対象カードはありません' : '出題できるカードがありません');
     return;
   }
@@ -1334,7 +1390,10 @@ function renderStudyCard() {
     el.cardBox.classList.add('empty');
     resetChoiceCover(null);
     const isCompleteStateVisible = isStudySessionComplete && studySessionTargetIds.length > 0;
+    const canReplayCurrentStudy = Boolean(activeMaterialName) && getCurrentStudyResetTargets().length > 0;
     setElementVisible(el.studyCompleteState, isCompleteStateVisible);
+    setElementVisible(el.studyCompleteReplayBtn, isCompleteStateVisible && canReplayCurrentStudy);
+    setElementVisible(el.studyReplayBtn, !isCompleteStateVisible && canReplayCurrentStudy);
     setElementVisible(el.studyEmptyImage, !isCompleteStateVisible);
     setElementVisible(el.questionText, !isCompleteStateVisible);
     const modeLabel = activeMaterialName ? `教材: ${activeMaterialName}` : WRONG_LABEL;
@@ -1371,6 +1430,8 @@ function renderStudyCard() {
 
   el.cardBox.classList.remove('empty');
   setElementVisible(el.studyCompleteState, false);
+  setElementVisible(el.studyCompleteReplayBtn, false);
+  setElementVisible(el.studyReplayBtn, false);
   setElementVisible(el.studyEmptyImage, false);
   setElementVisible(el.questionText, true);
   const modeLabel = activeMaterialName ? `教材: ${activeMaterialName}` : WRONG_LABEL;
@@ -1793,6 +1854,7 @@ async function init() {
   ensureStudySidebarElements();
   ensureChoiceElements();
   ensureStudyCompleteStateElement();
+  ensureStudyReplayButton();
   ensureProblemFlagElements();
   ensureListFilterElements();
   ensureListSummaryElement();
