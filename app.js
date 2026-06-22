@@ -1,5 +1,5 @@
 const DB_NAME = 'chuju-card-db';
-const DB_VERSION = 2;
+const DB_VERSION = 3;
 const STORE_NAME = 'cards';
 const IMAGE_STORE_NAME = 'questionImages';
 const RECENT_RESULTS_LIMIT = 5;
@@ -760,6 +760,18 @@ function fileNameFromPath(filePath) {
     .pop() || '';
 }
 
+function buildQuestionImageKeys(fileName) {
+  const normalizedName = fileNameFromPath((fileName || '').trim());
+  if (!normalizedName) return [];
+
+  const keys = [normalizedName];
+  const alias = normalizedName.replace(/_diagram(?=\.[^.]+$)/i, '');
+  if (alias && alias !== normalizedName) {
+    keys.push(alias);
+  }
+  return [...new Set(keys)];
+}
+
 function setElementVisible(element, visible) {
   if (!element) return;
   element.hidden = !visible;
@@ -1141,13 +1153,15 @@ async function saveQuestionImageItems(items) {
     return;
   }
 
-  supportedItems.forEach((item) => revokeQuestionImageUrl(item.name));
-  await putQuestionImages(supportedItems.map((item) => ({
-    name: item.name,
+  const records = supportedItems.flatMap((item) => buildQuestionImageKeys(item.name).map((name) => ({
+    name,
     blob: item.blob,
     type: item.type || item.blob.type || '',
     updatedAt: new Date().toISOString(),
   })));
+
+  records.forEach((item) => revokeQuestionImageUrl(item.name));
+  await putQuestionImages(records);
 
   const message = `画像を${supportedItems.length}枚保存しました。`;
   setStatus(message);
