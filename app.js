@@ -306,6 +306,7 @@ function ensureListFilterElements() {
   [
     { value: 'all', label: 'すべて' },
     { value: 'problem', label: '問題確認あり' },
+    { value: 'manual', label: 'わからなかった' },
   ].forEach((optionData) => {
     const option = document.createElement('option');
     option.value = optionData.value;
@@ -1522,6 +1523,7 @@ function renderList() {
       : (!activeMaterialName || getCardMaterialName(card) === activeMaterialName);
     if (!matchesMaterial) return false;
     if (listFilter === 'problem') return isProblemFlagged(card);
+    if (listFilter === 'manual') return normalizeRecentResults(card).includes('manual');
     if (listFilter === 'notGraduated') return !isCardGraduated(card);
     if (listFilter === 'graduated') return isCardGraduated(card);
     return true;
