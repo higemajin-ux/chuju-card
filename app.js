@@ -656,8 +656,8 @@ function getCardMaterialName(card) {
 function getMaterialCardCounts(materialName) {
   const materialCards = cards.filter((card) => getCardMaterialName(card) === materialName);
   const total = materialCards.length;
-  const notGraduated = materialCards.filter((card) => card?.graduated !== true).length;
-  const graduated = materialCards.filter((card) => card?.graduated === true).length;
+  const notGraduated = materialCards.filter((card) => !isCardGraduated(card)).length;
+  const graduated = materialCards.filter((card) => isCardGraduated(card)).length;
   return { total, notGraduated, graduated };
 }
 
@@ -1461,8 +1461,8 @@ function renderList() {
       : (!activeMaterialName || getCardMaterialName(card) === activeMaterialName);
     if (!matchesMaterial) return false;
     if (listFilter === 'problem') return isProblemFlagged(card);
-    if (listFilter === 'notGraduated') return card?.graduated !== true;
-    if (listFilter === 'graduated') return card?.graduated === true;
+    if (listFilter === 'notGraduated') return !isCardGraduated(card);
+    if (listFilter === 'graduated') return isCardGraduated(card);
     return true;
   });
   const scopeLabel = getCurrentListScopeLabel();
@@ -1478,8 +1478,8 @@ function renderList() {
   if (el.listSummary) {
     if (cards.length) {
       const total = filteredCards.length;
-      const notGraduated = filteredCards.filter((card) => card?.graduated !== true).length;
-      const graduated = filteredCards.filter((card) => card?.graduated === true).length;
+      const notGraduated = filteredCards.filter((card) => !isCardGraduated(card)).length;
+      const graduated = filteredCards.filter((card) => isCardGraduated(card)).length;
       const summaryLabel = scopeLabel || '\u3059\u3079\u3066';
       el.listSummary.textContent = `${summaryLabel}\u3000\u5168${total}\uFF5C\u672A\u5408\u683C${notGraduated}\uFF5C\u5408\u683C${graduated}`;
       el.listSummary.classList.remove('hidden');
