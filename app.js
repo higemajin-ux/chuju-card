@@ -1666,8 +1666,6 @@ function renderStudyCard() {
   setTag(el.unitTag, '単元', currentCard.unit);
   setTag(el.difficultyTag, '難しさ', currentCard.difficulty);
   el.cardMeta.textContent = getStudyCardLabel(currentCard) || modeLabel;
-  setTag(el.subjectTag, '', '');
-  setTag(el.unitTag, '', '');
   setTag(el.difficultyTag, '', '');
   setCheckBadge(el.checkBadge, currentCard.check);
   setElementVisible(el.problemBadge, isProblemFlagged(currentCard));
