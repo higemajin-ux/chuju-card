@@ -56,6 +56,9 @@ const el = {
   questionImageWrap: document.getElementById('questionImageWrap'),
   questionImageEl: document.getElementById('questionImageEl'),
   questionImageMissingText: document.getElementById('questionImageMissingText'),
+  questionImageModal: document.getElementById('questionImageModal'),
+  questionImageModalImg: document.getElementById('questionImageModalImg'),
+  questionImageModalCloseBtn: document.getElementById('questionImageModalCloseBtn'),
   sourceText: document.getElementById('sourceText'),
   subjectTag: document.getElementById('subjectTag'),
   unitTag: document.getElementById('unitTag'),
@@ -648,6 +651,65 @@ function ensureEditModalElements() {
   closeEditModal();
 }
 
+function ensureQuestionImageModalElements() {
+  if (el.questionImageModal) return;
+
+  const modal = document.createElement('div');
+  modal.id = 'questionImageModal';
+  modal.className = 'image-modal hidden';
+
+  const dialog = document.createElement('div');
+  dialog.className = 'image-modal-dialog';
+  dialog.addEventListener('click', (event) => {
+    event.stopPropagation();
+  });
+
+  const closeBtn = document.createElement('button');
+  closeBtn.id = 'questionImageModalCloseBtn';
+  closeBtn.type = 'button';
+  closeBtn.className = 'quiet-button image-modal-close';
+  closeBtn.setAttribute('aria-label', '画像を閉じる');
+  closeBtn.textContent = '×';
+  closeBtn.addEventListener('click', () => {
+    closeQuestionImageModal();
+  });
+
+  const image = document.createElement('img');
+  image.id = 'questionImageModalImg';
+  image.className = 'image-modal-img';
+  image.alt = '';
+
+  dialog.appendChild(closeBtn);
+  dialog.appendChild(image);
+  modal.appendChild(dialog);
+  modal.addEventListener('click', () => {
+    closeQuestionImageModal();
+  });
+  document.body.appendChild(modal);
+
+  el.questionImageModal = modal;
+  el.questionImageModalImg = image;
+  el.questionImageModalCloseBtn = closeBtn;
+  closeQuestionImageModal();
+}
+
+function openQuestionImageModal() {
+  if (!el.questionImageEl?.src || !el.questionImageModal || !el.questionImageModalImg) return;
+  el.questionImageModalImg.src = el.questionImageEl.src;
+  el.questionImageModalImg.alt = el.questionImageEl.alt || '拡大画像';
+  setElementVisible(el.questionImageModal, true);
+  document.body.classList.add('image-modal-open');
+}
+
+function closeQuestionImageModal() {
+  if (el.questionImageModalImg) {
+    el.questionImageModalImg.removeAttribute('src');
+    el.questionImageModalImg.alt = '';
+  }
+  setElementVisible(el.questionImageModal, false);
+  document.body.classList.remove('image-modal-open');
+}
+
 function ensureEditModeButton() {
   if (el.editModeBtn) return;
 
@@ -808,6 +870,7 @@ function resetQuestionImageDisplay() {
     el.questionImageEl.removeAttribute('src');
     el.questionImageEl.alt = '';
   }
+  closeQuestionImageModal();
   if (el.questionImageMissingText) {
     el.questionImageMissingText.textContent = '';
   }
@@ -1201,6 +1264,7 @@ async function renderQuestionImage(card) {
 
   if (imageUrl) {
     el.questionImageEl.src = imageUrl;
+    el.questionImageEl.title = 'タップで拡大';
     setElementVisible(el.questionImageEl, true);
     return;
   }
@@ -2095,7 +2159,16 @@ async function init() {
   ensureListScopeHintElement();
   ensureStudyBackButton();
   ensureEditModalElements();
+  ensureQuestionImageModalElements();
   ensureEditModeButton();
+  el.questionImageEl?.addEventListener('click', () => {
+    openQuestionImageModal();
+  });
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      closeQuestionImageModal();
+    }
+  });
   db = await openDb();
   await reloadCards();
   currentCard = null;
