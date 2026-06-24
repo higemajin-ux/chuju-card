@@ -58,7 +58,6 @@ const el = {
   questionImageMissingText: document.getElementById('questionImageMissingText'),
   questionImageModal: document.getElementById('questionImageModal'),
   questionImageModalImg: document.getElementById('questionImageModalImg'),
-  questionImageModalCloseBtn: document.getElementById('questionImageModalCloseBtn'),
   sourceText: document.getElementById('sourceText'),
   subjectTag: document.getElementById('subjectTag'),
   unitTag: document.getElementById('unitTag'),
@@ -660,26 +659,12 @@ function ensureQuestionImageModalElements() {
 
   const dialog = document.createElement('div');
   dialog.className = 'image-modal-dialog';
-  dialog.addEventListener('click', (event) => {
-    event.stopPropagation();
-  });
-
-  const closeBtn = document.createElement('button');
-  closeBtn.id = 'questionImageModalCloseBtn';
-  closeBtn.type = 'button';
-  closeBtn.className = 'quiet-button image-modal-close';
-  closeBtn.setAttribute('aria-label', '画像を閉じる');
-  closeBtn.textContent = '×';
-  closeBtn.addEventListener('click', () => {
-    closeQuestionImageModal();
-  });
 
   const image = document.createElement('img');
   image.id = 'questionImageModalImg';
   image.className = 'image-modal-img';
   image.alt = '';
 
-  dialog.appendChild(closeBtn);
   dialog.appendChild(image);
   modal.appendChild(dialog);
   modal.addEventListener('click', () => {
@@ -689,7 +674,6 @@ function ensureQuestionImageModalElements() {
 
   el.questionImageModal = modal;
   el.questionImageModalImg = image;
-  el.questionImageModalCloseBtn = closeBtn;
   closeQuestionImageModal();
 }
 
