@@ -94,18 +94,9 @@
       <p class="hint">CSV読み込みやバックアップは保護者向けの操作です。</p>
       <div class="data-grid">
         <label class="big-button primary file-label">
-          CSVを読み込む
-          <input id="csvInput" type="file" accept=".csv,text/csv">
-        </label>
-        <label class="big-button secondary-button file-label">
-          <span>教材画像を追加</span>
-          <span class="file-label-subtext">図・表・地図の画像を読み込みます</span>
-          <input id="imageInput" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" multiple>
-        </label>
-        <label class="big-button secondary-button file-label">
-          <span>教材ZIPを追加</span>
-          <span class="file-label-subtext">CSVと図・表・地図画像をまとめて読み込みます</span>
-          <input id="zipInput" type="file" accept=".zip,application/zip">
+          <span>教材を追加</span>
+          <span class="file-label-subtext">CSV・ZIP・画像を読み込みます</span>
+          <input id="importInput" type="file" accept=".csv,.zip,.jpg,.jpeg,.png,.webp,text/csv,application/zip,image/jpeg,image/png,image/webp" multiple>
         </label>
         <button id="exportJsonBtn" class="big-button secondary-button" type="button">JSONバックアップ</button>
         <label class="big-button file-label">

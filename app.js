@@ -34,9 +34,7 @@ const questionImageUrlCache = new Map();
 
 const el = {
   saveStatus: document.getElementById('saveStatus'),
-  csvInput: document.getElementById('csvInput'),
-  imageInput: document.getElementById('imageInput'),
-  zipInput: document.getElementById('zipInput'),
+  importInput: document.getElementById('importInput'),
   imageImportStatus: document.getElementById('imageImportStatus'),
   jsonInput: document.getElementById('jsonInput'),
   exportJsonBtn: document.getElementById('exportJsonBtn'),
@@ -1172,6 +1170,14 @@ function isSupportedQuestionImageName(fileName) {
     .some((ext) => normalizedName.endsWith(ext));
 }
 
+function getImportFileKind(fileName) {
+  const normalizedName = (fileName || '').toLowerCase();
+  if (normalizedName.endsWith('.zip')) return 'zip';
+  if (normalizedName.endsWith('.csv')) return 'csv';
+  if (isSupportedQuestionImageName(normalizedName)) return 'image';
+  return 'unsupported';
+}
+
 function revokeQuestionImageUrl(fileName) {
   const cachedUrl = questionImageUrlCache.get(fileName);
   if (!cachedUrl) return;
@@ -2166,50 +2172,49 @@ async function init() {
   }
 }
 
-el.csvInput.addEventListener('change', async (event) => {
-  const file = event.target.files?.[0];
-  if (!file) return;
+el.importInput?.addEventListener('change', async (event) => {
+  const files = Array.from(event.target.files || []);
+  if (!files.length) return;
+
+  const fileKinds = [...new Set(files.map((file) => getImportFileKind(file.name)))];
+  const importKind = fileKinds[0];
 
   try {
-    await handleCsvFile(file);
-  } catch (error) {
-    const message = error?.message || 'CSV読み込みに失敗しました';
-    setStatus(`CSV読み込みエラー: ${message}`);
-    alert(message);
-  } finally {
-    event.target.value = '';
-  }
-});
-
-el.imageInput?.addEventListener('change', async (event) => {
-  const files = event.target.files;
-  if (!files?.length) return;
-
-  try {
-    await saveQuestionImages(files);
-    if (currentCard?.questionImage) {
-      renderQuestionImage(currentCard);
+    if (fileKinds.includes('unsupported')) {
+      throw new Error('対応していないファイル形式です。CSV、ZIP、画像ファイルを選択してください。');
     }
-  } catch (error) {
-    const message = error?.message || '画像の保存に失敗しました';
-    setStatus(`画像保存エラー: ${message}`);
-    setImageImportStatus(`画像保存エラー: ${message}`);
-    alert(message);
-  } finally {
-    event.target.value = '';
-  }
-});
 
-el.zipInput?.addEventListener('change', async (event) => {
-  const file = event.target.files?.[0];
-  if (!file) return;
+    if (fileKinds.length > 1) {
+      throw new Error('CSV・ZIP・画像を同時には読み込めません。同じ種類のファイルだけ選択してください。');
+    }
 
-  try {
-    await handleZipFile(file);
+    if (importKind === 'image') {
+      await saveQuestionImages(files);
+      if (currentCard?.questionImage) {
+        renderQuestionImage(currentCard);
+      }
+      return;
+    }
+
+    if (files.length > 1) {
+      throw new Error('CSVまたはZIPは1ファイルずつ読み込んでください。');
+    }
+
+    if (importKind === 'csv') {
+      await handleCsvFile(files[0]);
+      return;
+    }
+
+    if (importKind === 'zip') {
+      await handleZipFile(files[0]);
+      return;
+    }
+
+    throw new Error('対応していないファイル形式です。');
   } catch (error) {
-    const message = error?.message || 'ZIPの読み込みに失敗しました';
-    setStatus(`ZIP読み込みエラー: ${message}`);
-    setImageImportStatus(`ZIP読み込みエラー: ${message}`);
+    const message = error?.message || '教材の読み込みに失敗しました';
+    setStatus(`教材読み込みエラー: ${message}`);
+    setImageImportStatus(`教材読み込みエラー: ${message}`);
     alert(message);
   } finally {
     event.target.value = '';
