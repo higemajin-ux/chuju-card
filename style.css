@@ -1717,9 +1717,35 @@ button:disabled {
   }
 
   .study-top {
-    flex-direction: column;
-    align-items: stretch;
-    padding: 12px;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+  }
+
+  .study-top > div {
+    flex: 1 1 auto;
+    gap: 4px;
+    min-width: 0;
+  }
+
+  .study-top .meta {
+    font-size: clamp(14px, 4.8vw, 18px);
+    line-height: 1.28;
+  }
+
+  .study-top #nextCardBtn {
+    display: inline-flex;
+    flex: 0 0 auto;
+    min-width: 88px;
+    max-width: 96px;
+    min-height: 44px;
+    padding: 8px 10px;
+    font-size: 11px;
+    line-height: 1.2;
+    white-space: normal;
+    text-align: center;
+    justify-content: center;
   }
 
   .list-top {
@@ -1829,6 +1855,23 @@ button:disabled {
 
   .header-back-button {
     width: 100%;
+  }
+
+  .study-top {
+    gap: 7px;
+    padding: 9px 10px;
+  }
+
+  .study-top .meta {
+    font-size: clamp(13px, 4.7vw, 16px);
+  }
+
+  .study-top #nextCardBtn {
+    min-width: 84px;
+    max-width: 90px;
+    min-height: 42px;
+    padding: 7px 8px;
+    font-size: 10.5px;
   }
 }
 
