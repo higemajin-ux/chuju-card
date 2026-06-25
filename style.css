@@ -367,6 +367,21 @@ main {
   overflow-wrap: anywhere;
 }
 
+.material-select-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 2px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px dashed rgba(219, 145, 168, 0.88);
+  background: rgba(255, 244, 248, 0.95);
+  color: #a55c73;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
 .material-button-label {
   color: var(--ink);
 }
@@ -387,28 +402,6 @@ main {
   white-space: nowrap;
 }
 
-.material-priority-button {
-  flex: 0 0 auto;
-  padding: 6px 10px;
-  border-radius: 999px;
-  border-color: #e5aec0;
-  background: #fff8fb;
-  color: #9f5a70;
-  font-size: 12px;
-  line-height: 1.2;
-  white-space: nowrap;
-}
-
-.material-priority-button:hover {
-  background: #ffeef5;
-  border-color: #d78ea9;
-}
-
-.material-priority-button:focus-visible {
-  outline: 2px solid #e7a8bb;
-  outline-offset: 2px;
-}
-
 .material-admin-actions {
   display: flex;
   flex-wrap: wrap;
@@ -422,6 +415,14 @@ main {
   border: 1px solid rgba(239, 184, 198, 0.72);
   border-radius: 20px;
   background: rgba(255, 251, 247, 0.88);
+}
+
+.material-button.is-priority-select-mode {
+  border-style: dashed;
+  border-color: rgba(216, 91, 134, 0.96);
+  box-shadow:
+    0 10px 20px rgba(216, 91, 134, 0.1),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.74);
 }
 
 .material-delete-button:hover {
@@ -2077,7 +2078,7 @@ button:disabled {
     padding: 4px 8px;
   }
 
-  .material-priority-button,
+  .material-select-hint,
   .material-delete-button {
     font-size: 11px;
   }

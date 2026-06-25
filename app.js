@@ -28,7 +28,7 @@ let editingCardId = null;
 let activeMaterialName = '';
 let isStudyVisible = false;
 let isTodayWrongMode = false;
-let isPriorityOnlyMode = false;
+let isPrioritySelectMode = false;
 let studySessionTargetIds = [];
 let studySessionCorrectIds = new Set();
 let isStudySessionComplete = false;
@@ -389,10 +389,6 @@ function getCurrentListScopeLabel() {
   return '';
 }
 
-function getCurrentMaterialScopeLabel() {
-  return isPriorityOnlyMode ? '優先教材' : '教材一覧';
-}
-
 function buildEmptyStateMarkup(message) {
   return `<div class="empty-state"><img class="empty-state-image" src="./img/empty-state-card.png" alt="\u30ab\u30fc\u30c9\u306a\u3057"><p class="hint">${message}</p></div>`;
 }
@@ -564,9 +560,9 @@ function ensureStudyStartElements() {
   priorityBtn.id = 'priorityFilterBtn';
   priorityBtn.type = 'button';
   priorityBtn.className = 'big-button secondary-button start-button';
-  priorityBtn.textContent = '優先';
+  priorityBtn.textContent = '優先する教材を選ぶ';
   priorityBtn.addEventListener('click', () => {
-    isPriorityOnlyMode = !isPriorityOnlyMode;
+    isPrioritySelectMode = !isPrioritySelectMode;
     renderMaterialButtons();
   });
 
@@ -1563,6 +1559,7 @@ function pickNextCard() {
 }
 
 function startStudyForMaterial(materialName) {
+  isPrioritySelectMode = false;
   activeMaterialName = materialName || '';
   isTodayWrongMode = false;
   isStudyVisible = true;
@@ -1589,6 +1586,7 @@ function startStudyForMaterial(materialName) {
 }
 
 function startTodayStudy() {
+  isPrioritySelectMode = false;
   activeMaterialName = '';
   isTodayWrongMode = true;
   const queue = studyQueueCards();
@@ -1658,31 +1656,21 @@ async function deleteCardsByMaterial(materialName) {
 function renderMaterialButtons() {
   if (!el.materialButtons || !el.todayStudyBtn || !el.priorityFilterBtn) return;
 
-  const allMaterialNames = [...new Set(
+  const materialNames = [...new Set(
     cards.map((card) => getCardMaterialName(card)).filter(Boolean)
   )].sort((a, b) => a.localeCompare(b, 'ja'));
-  const materialNames = isPriorityOnlyMode
-    ? allMaterialNames.filter((materialName) => isPriorityMaterial(materialName))
-    : allMaterialNames;
 
-  el.todayStudyBtn.classList.toggle('is-active', !isPriorityOnlyMode && !activeMaterialName);
-  el.priorityFilterBtn.classList.toggle('is-active', isPriorityOnlyMode);
+  el.todayStudyBtn.classList.toggle('is-active', !isPrioritySelectMode && !activeMaterialName);
+  el.priorityFilterBtn.classList.toggle('is-active', isPrioritySelectMode);
+  el.priorityFilterBtn.textContent = isPrioritySelectMode ? '優先選択中' : '優先する教材を選ぶ';
   el.materialButtons.innerHTML = '';
   if (el.materialScopeHint) {
-    el.materialScopeHint.textContent = `表示中: ${getCurrentMaterialScopeLabel()}`;
-    el.materialScopeHint.classList.toggle('hidden', !isPriorityOnlyMode);
-  }
-
-  if (!allMaterialNames.length) {
-    el.materialButtons.innerHTML = '<p class="hint">教材ボタンはCSV読み込み後に表示されます。</p>';
-    return;
+    el.materialScopeHint.textContent = '教材をタップすると優先を切り替えます';
+    el.materialScopeHint.classList.toggle('hidden', !isPrioritySelectMode);
   }
 
   if (!materialNames.length) {
-    const emptyMessage = isPriorityOnlyMode
-      ? '優先教材はまだありません'
-      : '教材ボタンはCSV読み込み後に表示されます。';
-    el.materialButtons.innerHTML = `<div class="empty-state compact-empty-state"><p class="hint">${emptyMessage}</p></div>`;
+    el.materialButtons.innerHTML = '<p class="hint">教材ボタンはCSV読み込み後に表示されます。</p>';
     return;
   }
 
@@ -1701,7 +1689,12 @@ function renderMaterialButtons() {
     button.classList.toggle('is-priority', isPriority);
     button.classList.toggle('is-complete', isCompleted);
     button.classList.toggle('is-pending', !isCompleted);
-    button.addEventListener('click', () => {
+    button.classList.toggle('is-priority-select-mode', isPrioritySelectMode);
+    button.addEventListener('click', async () => {
+      if (isPrioritySelectMode) {
+        await togglePriorityMaterial(materialName);
+        return;
+      }
       startStudyForMaterial(materialName);
     });
 
@@ -1731,22 +1724,17 @@ function renderMaterialButtons() {
     button.appendChild(badges);
     button.appendChild(label);
     button.appendChild(summary);
+    if (isPrioritySelectMode) {
+      const selectHint = document.createElement('span');
+      selectHint.className = 'material-select-hint';
+      selectHint.textContent = 'タップで優先切替';
+      button.appendChild(selectHint);
+    }
 
     item.appendChild(button);
-    const actionRow = document.createElement('div');
-    actionRow.className = 'material-admin-actions';
-
-    const priorityButton = document.createElement('button');
-    priorityButton.type = 'button';
-    priorityButton.className = 'quiet-button material-priority-button';
-    priorityButton.textContent = isPriority ? '優先を外す' : '優先にする';
-    priorityButton.addEventListener('click', async (event) => {
-      event.stopPropagation();
-      await togglePriorityMaterial(materialName);
-    });
-    actionRow.appendChild(priorityButton);
-
     if (isEditMode) {
+      const actionRow = document.createElement('div');
+      actionRow.className = 'material-admin-actions';
       const deleteButton = document.createElement('button');
       deleteButton.type = 'button';
       deleteButton.className = 'quiet-button material-delete-button';
@@ -1758,8 +1746,8 @@ function renderMaterialButtons() {
       });
 
       actionRow.appendChild(deleteButton);
+      item.appendChild(actionRow);
     }
-    item.appendChild(actionRow);
     el.materialButtons.appendChild(item);
   });
 }
