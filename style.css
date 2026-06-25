@@ -438,6 +438,95 @@ main {
   justify-content: flex-start;
 }
 
+.sidebar-history,
+.sidebar-legend {
+  gap: 7px;
+}
+
+.sidebar-history {
+  gap: 7px;
+  padding: 12px 8px 10px;
+  border-radius: 22px;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.66),
+    0 8px 18px rgba(216, 91, 134, 0.09);
+}
+
+.sidebar-section-title {
+  color: #c86f8e;
+  text-align: left;
+  padding-left: 18px;
+  position: relative;
+}
+
+.sidebar-section-title::before {
+  content: "◷";
+  position: absolute;
+  left: 0;
+  top: 1px;
+  color: #dd8da9;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.sidebar-section-title::after {
+  font-size: 13px;
+}
+
+.sidebar-history-row,
+.sidebar-legend-row {
+  gap: 8px;
+  padding: 4px 4px;
+  border-radius: 12px;
+}
+
+.sidebar-history-row:last-child {
+  background: rgba(245, 223, 230, 0.45);
+}
+
+.sidebar-history-label {
+  color: #8a6e74;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.sidebar-history-mark,
+.sidebar-legend-mark {
+  min-width: 24px;
+  min-height: 24px;
+  border-radius: 999px;
+  font-size: 11px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.7);
+}
+
+.sidebar-history-mark.is-correct,
+.sidebar-legend-mark.is-correct {
+  color: #2f7651;
+  background: #d8efdf;
+  border-color: rgba(121, 188, 147, 0.72);
+}
+
+.sidebar-history-mark.is-wrong,
+.sidebar-legend-mark.is-wrong {
+  color: #aa5867;
+  background: #f4d6de;
+  border-color: rgba(223, 153, 172, 0.76);
+}
+
+.sidebar-history-mark.is-manual,
+.sidebar-legend-mark.is-manual {
+  color: #94681b;
+  background: #f6e1a2;
+  border-color: rgba(222, 187, 98, 0.76);
+}
+
+.sidebar-history-mark.is-empty,
+.sidebar-legend-mark.is-empty {
+  color: #938981;
+  background: #f0e8e3;
+  border-color: rgba(214, 201, 193, 0.78);
+}
+
 .sidebar-legend-row span:last-child {
   font-size: 0;
   line-height: 1;
