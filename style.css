@@ -311,14 +311,14 @@ main {
 .study-panel {
   max-width: 860px;
   margin: 0 auto 14px;
-  padding: 12px 14px 16px;
+  padding: 12px 18px 16px 14px;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.99), rgba(255, 245, 248, 0.99));
 }
 
 .study-body {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 72px;
-  gap: 8px;
+  grid-template-columns: minmax(0, 1fr) 76px;
+  gap: 12px;
   align-items: start;
 }
 
@@ -331,6 +331,7 @@ main {
   gap: 8px;
   min-width: 0;
   margin-top: 8px;
+  margin-right: 2px;
   align-self: flex-start;
   height: fit-content;
 }
@@ -1645,13 +1646,14 @@ button:disabled {
   }
 
   .study-body {
-    grid-template-columns: minmax(0, 1fr) 64px;
-    gap: 6px;
+    grid-template-columns: minmax(0, 1fr) 66px;
+    gap: 8px;
   }
 
   .study-sidebar {
     margin-top: 8px;
     padding: 7px 5px;
+    margin-right: 1px;
   }
 
   .card-box {
