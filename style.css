@@ -1791,33 +1791,31 @@ button:disabled {
   .sidebar-actions {
     position: fixed;
     left: 50%;
-    width: min(calc(100% - 32px), 360px);
+    width: min(calc(100% - 56px), 320px);
     transform: translateX(-50%);
     bottom: calc(12px + env(safe-area-inset-bottom, 0px));
     z-index: 40;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 8px;
+    gap: 10px;
     align-items: stretch;
-    padding: 6px;
-    border: 1px solid rgba(229, 204, 212, 0.92);
-    border-radius: 20px;
-    background: rgba(255, 251, 247, 0.82);
-    box-shadow:
-      0 8px 22px rgba(148, 101, 119, 0.14),
-      inset 0 0 0 1px rgba(255, 255, 255, 0.54);
-    backdrop-filter: blur(10px) saturate(1.04);
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    backdrop-filter: none;
   }
 
   .study-sidebar .choice-manual-button,
   .study-sidebar .sidebar-next-button {
     height: auto;
-    min-height: 56px;
+    min-height: 60px;
     writing-mode: horizontal-tb;
     text-orientation: mixed;
     white-space: normal;
     letter-spacing: 0;
     line-height: 1.2;
-    padding: 12px 10px;
+    padding: 12px 12px;
     justify-self: stretch;
   }
 
@@ -1833,13 +1831,13 @@ button:disabled {
 
   .study-sidebar .choice-manual-button {
     grid-column: 1;
-    border-radius: 18px;
+    border-radius: 20px;
     font-size: 14px;
   }
 
   .study-sidebar .sidebar-next-button {
     grid-column: 2;
-    border-radius: 18px;
+    border-radius: 20px;
     font-size: 16px;
   }
 
