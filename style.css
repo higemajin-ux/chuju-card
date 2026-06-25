@@ -1791,20 +1791,20 @@ button:disabled {
   .sidebar-actions {
     position: fixed;
     left: 50%;
-    width: min(calc(100% - 56px), 320px);
+    width: min(calc(100% - 28px), 420px);
     transform: translateX(-50%);
     bottom: calc(12px + env(safe-area-inset-bottom, 0px));
     z-index: 40;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 10px;
+    gap: 12px;
     align-items: stretch;
-    padding: 6px;
-    border: 1px solid rgba(231, 206, 214, 0.9);
-    border-radius: 18px;
-    background: rgba(255, 251, 247, 0.86);
+    padding: 8px 10px;
+    border: 1px solid rgba(231, 206, 214, 0.95);
+    border-radius: 22px;
+    background: rgba(255, 251, 247, 0.82);
     box-shadow:
-      0 6px 16px rgba(148, 101, 119, 0.12),
-      inset 0 0 0 1px rgba(255, 255, 255, 0.56);
+      0 8px 18px rgba(148, 101, 119, 0.12),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.62);
     backdrop-filter: blur(8px) saturate(1.03);
   }
 
