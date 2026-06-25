@@ -625,20 +625,22 @@ main {
 .list-filter {
   display: inline-flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 8px;
-  color: var(--muted);
+  color: #7d5f66;
   font-size: 13px;
   font-weight: 700;
 }
 
 .list-filter-select {
   min-height: 38px;
-  padding: 8px 12px;
-  border: 1px solid var(--line);
+  padding: 8px 14px;
+  border: 2px solid rgba(239, 184, 198, 0.82);
   border-radius: 999px;
-  background: #fff8f2;
+  background: linear-gradient(180deg, #fffdfa 0%, #fff2f5 100%);
   color: var(--ink);
   font: inherit;
+  box-shadow: 0 5px 12px rgba(216, 91, 134, 0.08);
 }
 
 .meta,
@@ -1414,78 +1416,158 @@ main {
   padding: 16px;
 }
 
+.list-panel {
+  border: 2px solid rgba(239, 184, 198, 0.78);
+  border-radius: 30px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(255, 247, 239, 0.94));
+  box-shadow:
+    0 12px 28px rgba(216, 91, 134, 0.07),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.72);
+}
+
+.list-top {
+  margin-bottom: 6px;
+  align-items: center;
+}
+
+.list-top > div {
+  min-width: 0;
+}
+
+.list-top h2 {
+  color: #5b3e46;
+  font-size: 21px;
+  font-weight: 850;
+}
+
+.list-top .hint,
+.list-top .meta {
+  color: #8c6d72;
+  line-height: 1.5;
+}
+
 .card-list {
   display: grid;
-  gap: 8px;
-  margin-top: 10px;
+  gap: 10px;
+  margin-top: 12px;
 }
 
 .list-row {
   display: grid;
-  gap: 6px;
+  gap: 8px;
 }
 
 .list-item {
   width: 100%;
   text-align: left;
-  border: 2px solid var(--line);
-  border-radius: 22px;
-  background: linear-gradient(180deg, #fffefb 0%, #fff5f7 100%);
-  padding: 0 14px 12px;
+  border: 2px solid rgba(239, 184, 198, 0.76);
+  border-radius: 24px;
+  background: linear-gradient(180deg, #fffefc 0%, #fff6f4 58%, #fff3f7 100%);
+  padding: 0 16px 14px;
   cursor: pointer;
   overflow: hidden;
-  box-shadow: 0 4px 12px rgba(146, 112, 90, 0.06);
+  box-shadow:
+    0 8px 18px rgba(216, 91, 134, 0.06),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.7);
+  transition:
+    transform 0.16s ease,
+    box-shadow 0.16s ease,
+    border-color 0.16s ease;
+}
+
+.list-item:hover {
+  transform: translateY(-1px);
+  border-color: rgba(230, 151, 174, 0.92);
+  box-shadow:
+    0 12px 22px rgba(216, 91, 134, 0.1),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.78);
+}
+
+.list-item:focus-visible {
+  outline: 3px solid rgba(233, 135, 166, 0.34);
+  outline-offset: 2px;
 }
 
 .list-history {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 4px;
-  height: 8px;
-  margin: 0 -14px 10px;
-  padding: 0 14px;
+  height: 10px;
+  margin: 0 -16px 12px;
+  padding: 0 16px;
 }
 
 .history-segment {
   border-radius: 999px;
-  background: #e3d0c9;
+  background: #e6d8d0;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.44);
 }
 
 .history-segment.is-correct {
-  background: #78c095;
+  background: linear-gradient(180deg, #93d2aa 0%, #6fb78a 100%);
 }
 
 .history-segment.is-wrong {
-  background: #d97b93;
+  background: linear-gradient(180deg, #e5a2b5 0%, #d67892 100%);
 }
 
 .history-segment.is-manual {
-  background: #dbb95f;
+  background: linear-gradient(180deg, #e7cb86 0%, #d7b160 100%);
 }
 
 .history-segment.is-empty {
-  background: #ded2ca;
+  background: linear-gradient(180deg, #e7ddd6 0%, #d9cdc5 100%);
 }
 
 .list-title {
   display: block;
-  font-weight: 800;
+  color: #5b3e46;
+  font-weight: 850;
   font-size: 15px;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
 }
 
 .list-sub {
   display: block;
-  margin-top: 4px;
-  color: var(--muted);
+  margin-top: 6px;
+  color: #8f7277;
   font-size: 12px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
 }
 
 .list-check {
-  margin-top: 6px;
+  margin-top: 8px;
 }
 
 .list-problem {
-  margin-top: 6px;
+  margin-top: 8px;
+}
+
+.list-item .check-badge,
+.list-item .problem-badge {
+  min-height: 26px;
+  padding: 4px 11px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.42);
+}
+
+.list-item .check-badge {
+  background: linear-gradient(180deg, #f7ece4 0%, #efe0d6 100%);
+  color: #745f58;
+}
+
+.list-item .check-badge.is-dual {
+  background: linear-gradient(180deg, #efe5f6 0%, #e4d9ef 100%);
+  color: #6a5b7b;
+}
+
+.list-item .problem-badge {
+  background: linear-gradient(180deg, #f8e2a7 0%, #f0d185 100%);
+  color: #725515;
 }
 
 .list-admin-actions {
@@ -1643,6 +1725,14 @@ button:disabled {
   .list-top {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .list-filter {
+    width: 100%;
+  }
+
+  .list-filter-select {
+    max-width: 100%;
   }
 
   .choice-buttons {
