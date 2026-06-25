@@ -1702,6 +1702,10 @@ function renderStudyCard() {
 
 function renderChoiceButtons(choices, answer) {
   el.choiceButtons.innerHTML = '';
+  const choiceNumberLabels = [
+    '\u2776', '\u2777', '\u2778', '\u2779',
+    '\u277a', '\u277b', '\u277c', '\u277d',
+  ];
 
   if (!choices.length) {
     el.choiceResultText.textContent = '';
@@ -1717,12 +1721,22 @@ function renderChoiceButtons(choices, answer) {
     el.choiceResultText.className = 'choice-result hidden';
   }
 
-  choices.forEach((choice) => {
+  choices.forEach((choice, index) => {
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'big-button choice-button';
-    button.textContent = choice;
     button.disabled = Boolean(choiceFeedback);
+
+    const number = document.createElement('span');
+    number.className = 'choice-number';
+    number.textContent = choiceNumberLabels[index] || String(index + 1);
+
+    const label = document.createElement('span');
+    label.className = 'choice-label';
+    label.textContent = choice;
+
+    button.appendChild(number);
+    button.appendChild(label);
 
     if (choiceFeedback) {
       if (choice === answer) {
