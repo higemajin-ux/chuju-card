@@ -79,6 +79,7 @@ label {
 h1 {
   font-size: clamp(22px, 3vw, 28px);
   line-height: 1.1;
+  white-space: nowrap;
 }
 
 .today-line {
@@ -1596,15 +1597,16 @@ button:disabled {
 
 @media (max-width: 620px) {
   .app-header {
-    align-items: stretch;
-    flex-direction: column;
+    align-items: center;
+    flex-direction: row;
     padding: 10px 12px 10px;
   }
 
   .header-main {
     gap: 8px;
     min-width: 0;
-    width: 100%;
+    flex: 1 1 auto;
+    width: auto;
     padding: 8px 10px;
   }
 
@@ -1621,7 +1623,8 @@ button:disabled {
   }
 
   .header-back-button {
-    width: 100%;
+    width: auto;
+    min-width: 92px;
     justify-content: center;
     padding: 10px 12px;
     font-size: 12px;
@@ -1721,6 +1724,21 @@ button:disabled {
 
   .data-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 460px) {
+  .app-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .header-main {
+    width: 100%;
+  }
+
+  .header-back-button {
+    width: 100%;
   }
 }
 
