@@ -610,12 +610,14 @@ main {
 
 .card-box {
   margin-top: 8px;
-  padding: 18px 20px;
-  min-height: 230px;
-  border-radius: 28px;
-  border: 3px solid #efb8c6;
-  background: var(--panel-strong);
-  box-shadow: 0 14px 28px rgba(216, 91, 134, 0.09);
+  padding: 22px 24px 20px;
+  min-height: 244px;
+  border-radius: 32px;
+  border: 4px solid #efc0cc;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.99), rgba(255, 250, 244, 0.98));
+  box-shadow:
+    0 18px 34px rgba(216, 91, 134, 0.08),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.72);
   scroll-margin-top: 140px;
 }
 
@@ -680,26 +682,46 @@ main {
 }
 
 .question-text {
-  font-size: 24px;
-  font-weight: 800;
-  line-height: 1.45;
+  font-size: 26px;
+  font-weight: 850;
+  line-height: 1.58;
   letter-spacing: 0.01em;
   color: var(--ink);
   scroll-margin-top: 140px;
+  overflow-wrap: anywhere;
+}
+
+.card-box:not(.empty) .question-text::before {
+  content: "問題";
+  display: inline-flex;
+  align-items: center;
+  margin: 0 0 14px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #f9d8e3 0%, #f3bccd 100%);
+  color: #8e4f63;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
 }
 
 .question-image-wrap {
   display: grid;
   gap: 8px;
-  margin-top: 14px;
+  margin-top: 16px;
   justify-items: center;
+  padding: 12px;
+  border-radius: 24px;
+  background: linear-gradient(180deg, rgba(255, 251, 248, 0.98), rgba(255, 246, 240, 0.92));
+  border: 1px solid rgba(239, 184, 198, 0.55);
 }
 
 .question-image {
   display: block;
   width: min(100%, 520px);
   max-height: min(42vh, 360px);
-  border-radius: 18px;
+  max-width: 100%;
+  border-radius: 20px;
   border: 2px solid rgba(239, 184, 198, 0.92);
   background: #fffdf9;
   object-fit: contain;
@@ -756,8 +778,8 @@ main {
 }
 
 .answer-area {
-  margin-top: 16px;
-  padding-top: 14px;
+  margin-top: 18px;
+  padding-top: 16px;
   border-top: 2px dashed var(--line);
 }
 
@@ -997,27 +1019,34 @@ main {
 }
 
 .answer-label {
-  color: var(--muted);
-  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 11px;
+  border-radius: 999px;
+  color: #8e4f63;
+  background: linear-gradient(180deg, #f9d8e3 0%, #f3bccd 100%);
+  font-size: 12px;
   font-weight: 800;
 }
 
 .answer-text {
-  margin-top: 6px;
+  margin-top: 10px;
   font-size: 24px;
   font-weight: 800;
 }
 
 .explanation-text {
-  margin-top: 8px;
+  margin-top: 10px;
   color: var(--muted);
   font-size: 16px;
+  line-height: 1.7;
 }
 
 .source-text {
-  margin-top: 12px;
+  margin-top: 14px;
   color: var(--muted);
   font-size: 12px;
+  line-height: 1.6;
 }
 
 .problem-flag-button {
