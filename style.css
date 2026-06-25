@@ -322,10 +322,14 @@ main {
   grid-template-columns: minmax(0, 1fr) minmax(68px, 76px);
   gap: 12px;
   align-items: start;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .study-main {
   min-width: 0;
+  max-width: 100%;
 }
 
 .study-sidebar {
@@ -334,17 +338,26 @@ main {
   min-width: 68px;
   max-width: 76px;
   width: 100%;
+  box-sizing: border-box;
   margin-top: 8px;
   margin-right: 2px;
   justify-self: end;
   align-self: flex-start;
   height: fit-content;
+  overflow: hidden;
 }
 
 .sidebar-history,
 .sidebar-legend {
   display: grid;
   gap: 6px;
+}
+
+.sidebar-history,
+.sidebar-actions {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .sidebar-history {
