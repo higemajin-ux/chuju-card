@@ -1768,7 +1768,7 @@ button:disabled {
 
 @media (max-width: 620px) {
   .study-panel {
-    padding: 12px 12px 16px;
+    padding: 12px 12px calc(108px + env(safe-area-inset-bottom, 0px));
   }
 
   .study-body {
@@ -1789,15 +1789,28 @@ button:disabled {
   }
 
   .sidebar-actions {
+    position: fixed;
+    left: 12px;
+    right: 12px;
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    z-index: 40;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 10px;
     align-items: stretch;
+    padding: 10px;
+    border: 1px solid rgba(229, 204, 212, 0.92);
+    border-radius: 24px;
+    background: rgba(255, 251, 247, 0.9);
+    box-shadow:
+      0 10px 28px rgba(148, 101, 119, 0.16),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.58);
+    backdrop-filter: blur(10px) saturate(1.04);
   }
 
   .study-sidebar .choice-manual-button,
   .study-sidebar .sidebar-next-button {
     height: auto;
-    min-height: 72px;
+    min-height: 58px;
     writing-mode: horizontal-tb;
     text-orientation: mixed;
     white-space: normal;
@@ -1814,6 +1827,16 @@ button:disabled {
   .study-sidebar .choice-manual-button::after,
   .study-sidebar .sidebar-next-button::after {
     inset: 6px;
+  }
+
+  .study-sidebar .choice-manual-button {
+    border-radius: 18px;
+    font-size: 14px;
+  }
+
+  .study-sidebar .sidebar-next-button {
+    border-radius: 18px;
+    font-size: 16px;
   }
 
   .card-tags {
