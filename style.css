@@ -1594,7 +1594,7 @@ button:disabled {
   }
 }
 
-@media (max-width: 720px) {
+@media (max-width: 620px) {
   .app-header {
     align-items: stretch;
     flex-direction: column;
