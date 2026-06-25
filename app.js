@@ -1,7 +1,9 @@
 const DB_NAME = 'chuju-card-db';
-const DB_VERSION = 3;
+const DB_VERSION = 4;
 const STORE_NAME = 'cards';
 const IMAGE_STORE_NAME = 'questionImages';
+const SETTINGS_STORE_NAME = 'appSettings';
+const PRIORITY_MATERIALS_KEY = 'priorityMaterials';
 const RECENT_RESULTS_LIMIT = 5;
 const REQUIRED_COLUMNS = [
   'cardId', 'subject', 'unit', 'type', 'question', 'choices', 'answer', 'explanation',
@@ -31,6 +33,7 @@ let studySessionCorrectIds = new Set();
 let isStudySessionComplete = false;
 let questionImageRenderToken = 0;
 const questionImageUrlCache = new Map();
+let priorityMaterials = new Set();
 
 const el = {
   saveStatus: document.getElementById('saveStatus'),
@@ -765,6 +768,53 @@ function getMaterialCardCounts(materialName) {
   return { total, notGraduated, graduated };
 }
 
+function normalizePriorityMaterialNames(names) {
+  return [...new Set(
+    (Array.isArray(names) ? names : [])
+      .map((name) => (name || '').trim())
+      .filter(Boolean)
+  )].sort((a, b) => a.localeCompare(b, 'ja'));
+}
+
+function isPriorityMaterial(materialName) {
+  const normalizedMaterialName = (materialName || '').trim();
+  return normalizedMaterialName ? priorityMaterials.has(normalizedMaterialName) : false;
+}
+
+async function savePriorityMaterials() {
+  await putSetting(PRIORITY_MATERIALS_KEY, normalizePriorityMaterialNames([...priorityMaterials]));
+}
+
+async function loadPriorityMaterials() {
+  const saved = await getSetting(PRIORITY_MATERIALS_KEY);
+  priorityMaterials = new Set(normalizePriorityMaterialNames(saved));
+}
+
+async function setPriorityMaterial(materialName, enabled) {
+  const normalizedMaterialName = (materialName || '').trim();
+  if (!normalizedMaterialName) return;
+
+  if (enabled) {
+    priorityMaterials.add(normalizedMaterialName);
+  } else {
+    priorityMaterials.delete(normalizedMaterialName);
+  }
+
+  await savePriorityMaterials();
+}
+
+async function togglePriorityMaterial(materialName) {
+  const normalizedMaterialName = (materialName || '').trim();
+  if (!normalizedMaterialName) return;
+
+  const nextEnabled = !isPriorityMaterial(normalizedMaterialName);
+  await setPriorityMaterial(normalizedMaterialName, nextEnabled);
+  renderMaterialButtons();
+  setStatus(nextEnabled
+    ? `教材「${normalizedMaterialName}」を優先にしました`
+    : `教材「${normalizedMaterialName}」の優先を外しました`);
+}
+
 function getStudyCardLabel(card) {
   if (!card) return '';
   const subject = (card.subject || '').trim();
@@ -1087,6 +1137,9 @@ function openDb() {
       if (!database.objectStoreNames.contains(IMAGE_STORE_NAME)) {
         database.createObjectStore(IMAGE_STORE_NAME, { keyPath: 'name' });
       }
+      if (!database.objectStoreNames.contains(SETTINGS_STORE_NAME)) {
+        database.createObjectStore(SETTINGS_STORE_NAME, { keyPath: 'key' });
+      }
     };
     request.onsuccess = () => resolve(request.result);
     request.onerror = () => reject(request.error);
@@ -1101,10 +1154,22 @@ function txImageStore(mode = 'readonly') {
   return db.transaction(IMAGE_STORE_NAME, mode).objectStore(IMAGE_STORE_NAME);
 }
 
+function txSettingsStore(mode = 'readonly') {
+  return db.transaction(SETTINGS_STORE_NAME, mode).objectStore(SETTINGS_STORE_NAME);
+}
+
 function getAllCards() {
   return new Promise((resolve, reject) => {
     const request = txStore().getAll();
     request.onsuccess = () => resolve(request.result || []);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+function getSetting(key) {
+  return new Promise((resolve, reject) => {
+    const request = txSettingsStore().get(key);
+    request.onsuccess = () => resolve(request.result?.value);
     request.onerror = () => reject(request.error);
   });
 }
@@ -1114,6 +1179,16 @@ function putCards(items) {
     const tx = db.transaction(STORE_NAME, 'readwrite');
     const store = tx.objectStore(STORE_NAME);
     items.forEach((item) => store.put(item));
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+}
+
+function putSetting(key, value) {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(SETTINGS_STORE_NAME, 'readwrite');
+    const store = tx.objectStore(SETTINGS_STORE_NAME);
+    store.put({ key, value, updatedAt: new Date().toISOString() });
     tx.oncomplete = () => resolve();
     tx.onerror = () => reject(tx.error);
   });
@@ -1153,6 +1228,14 @@ function replaceCards(upserts, deleteKeys) {
 function clearCards() {
   return new Promise((resolve, reject) => {
     const request = txStore('readwrite').clear();
+    request.onsuccess = () => resolve();
+    request.onerror = () => reject(request.error);
+  });
+}
+
+function clearSettings() {
+  return new Promise((resolve, reject) => {
+    const request = txSettingsStore('readwrite').clear();
     request.onsuccess = () => resolve();
     request.onerror = () => reject(request.error);
   });
@@ -1523,6 +1606,9 @@ async function deleteCardsByMaterial(materialName) {
   const shouldCloseEdit = deleteKeys.includes(editingCardId);
 
   await replaceCards([], deleteKeys);
+  if (isPriorityMaterial(normalizedMaterialName)) {
+    await setPriorityMaterial(normalizedMaterialName, false);
+  }
 
   if (shouldResetActiveMaterial) {
     activeMaterialName = '';
@@ -1557,6 +1643,9 @@ function renderMaterialButtons() {
 
   materialNames.forEach((materialName) => {
     const counts = getMaterialCardCounts(materialName);
+    const isPriority = isPriorityMaterial(materialName);
+    const isCompleted = counts.total > 0 && counts.notGraduated === 0;
+    const progressLabel = isCompleted ? '合格済み' : `未合格${counts.notGraduated}問`;
     const item = document.createElement('div');
     item.className = 'material-button-item';
 
@@ -1564,9 +1653,27 @@ function renderMaterialButtons() {
     button.type = 'button';
     button.className = 'big-button secondary-button material-button';
     button.classList.toggle('is-active', activeMaterialName === materialName);
+    button.classList.toggle('is-priority', isPriority);
+    button.classList.toggle('is-complete', isCompleted);
+    button.classList.toggle('is-pending', !isCompleted);
     button.addEventListener('click', () => {
       startStudyForMaterial(materialName);
     });
+
+    const badges = document.createElement('span');
+    badges.className = 'material-button-badges';
+
+    if (isPriority) {
+      const priorityBadge = document.createElement('span');
+      priorityBadge.className = 'material-badge material-badge-priority';
+      priorityBadge.textContent = '優先';
+      badges.appendChild(priorityBadge);
+    }
+
+    const progressBadge = document.createElement('span');
+    progressBadge.className = `material-badge ${isCompleted ? 'material-badge-complete' : 'material-badge-pending'}`;
+    progressBadge.textContent = progressLabel;
+    badges.appendChild(progressBadge);
 
     const label = document.createElement('span');
     label.className = 'material-button-label';
@@ -1576,22 +1683,37 @@ function renderMaterialButtons() {
     summary.className = 'material-button-summary';
     summary.textContent = `\u5168${counts.total}\uFF5C\u672A\u5408\u683C${counts.notGraduated}\uFF5C\u5408\u683C${counts.graduated}`;
 
+    button.appendChild(badges);
     button.appendChild(label);
     button.appendChild(summary);
 
-    const deleteButton = document.createElement('button');
-    deleteButton.type = 'button';
-    deleteButton.className = 'quiet-button material-delete-button';
-    deleteButton.textContent = '削除';
-    deleteButton.setAttribute('aria-label', `教材「${materialName}」を削除`);
-    deleteButton.addEventListener('click', async (event) => {
-      event.stopPropagation();
-      await deleteCardsByMaterial(materialName);
-    });
-
     item.appendChild(button);
     if (isEditMode) {
-      item.appendChild(deleteButton);
+      const actionRow = document.createElement('div');
+      actionRow.className = 'material-admin-actions';
+
+      const priorityButton = document.createElement('button');
+      priorityButton.type = 'button';
+      priorityButton.className = 'quiet-button material-priority-button';
+      priorityButton.textContent = isPriority ? '優先を外す' : '優先にする';
+      priorityButton.addEventListener('click', async (event) => {
+        event.stopPropagation();
+        await togglePriorityMaterial(materialName);
+      });
+
+      const deleteButton = document.createElement('button');
+      deleteButton.type = 'button';
+      deleteButton.className = 'quiet-button material-delete-button';
+      deleteButton.textContent = '削除';
+      deleteButton.setAttribute('aria-label', `教材「${materialName}」を削除`);
+      deleteButton.addEventListener('click', async (event) => {
+        event.stopPropagation();
+        await deleteCardsByMaterial(materialName);
+      });
+
+      actionRow.appendChild(priorityButton);
+      actionRow.appendChild(deleteButton);
+      item.appendChild(actionRow);
     }
     el.materialButtons.appendChild(item);
   });
@@ -2114,6 +2236,7 @@ function exportJson() {
     version: '0.4-history-bar',
     exportedAt: new Date().toISOString(),
     cards,
+    priorityMaterials: normalizePriorityMaterialNames([...priorityMaterials]),
   };
   const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
@@ -2143,6 +2266,10 @@ async function importJson(file) {
     cardId: card.cardId || card.id,
     recentResults: normalizeRecentResults(card),
   })));
+  if (!Array.isArray(payload) && Object.prototype.hasOwnProperty.call(payload, 'priorityMaterials')) {
+    priorityMaterials = new Set(normalizePriorityMaterialNames(payload.priorityMaterials));
+    await savePriorityMaterials();
+  }
   setStatus(`${imported.length}件を復元しました`);
   await reloadCards();
   currentCard = null;
@@ -2172,6 +2299,7 @@ async function init() {
     }
   });
   db = await openDb();
+  await loadPriorityMaterials();
   await reloadCards();
   currentCard = null;
   pickNextCard();
@@ -2270,6 +2398,8 @@ el.clearAllBtn.addEventListener('click', async () => {
   if (!ok) return;
 
   await clearCards();
+  await clearSettings();
+  priorityMaterials = new Set();
   currentCard = null;
   setStatus('全データを削除しました');
   await reloadCards();

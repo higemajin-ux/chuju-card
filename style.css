@@ -228,37 +228,122 @@ main {
 }
 
 .material-button-item {
-  display: flex;
-  align-items: center;
+  display: grid;
   gap: 8px;
   min-width: 0;
 }
 
 .material-button-item .material-button {
-  flex: 1;
   min-width: 0;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  gap: 4px;
-  text-align: center;
+  gap: 7px;
+  text-align: left;
   white-space: normal;
   line-height: 1.35;
   border: 2px solid #efb8c6;
-  background: linear-gradient(180deg, #fffefd 0%, #fff3f6 100%);
+  background:
+    linear-gradient(90deg,
+      rgba(255, 193, 218, 0.2) 0%,
+      rgba(255, 248, 241, 0.93) 22%,
+      rgba(255, 247, 240, 0.97) 60%,
+      rgba(255, 214, 221, 0.32) 100%),
+    linear-gradient(180deg, #fffefd 0%, #fff3f6 100%);
   box-shadow: 0 6px 14px rgba(216, 91, 134, 0.08);
+  position: relative;
+  overflow: hidden;
+}
+
+.material-button.is-priority {
+  background:
+    linear-gradient(90deg,
+      rgba(232, 114, 161, 0.38) 0%,
+      rgba(255, 220, 232, 0.74) 18%,
+      rgba(255, 249, 242, 0.95) 38%,
+      rgba(255, 245, 238, 0.97) 64%,
+      rgba(255, 214, 221, 0.28) 100%),
+    linear-gradient(180deg, #fffefd 0%, #fff3f6 100%);
+}
+
+.material-button.is-complete {
+  background:
+    linear-gradient(90deg,
+      rgba(255, 193, 218, 0.18) 0%,
+      rgba(255, 248, 241, 0.93) 22%,
+      rgba(255, 248, 241, 0.97) 58%,
+      rgba(179, 233, 199, 0.72) 100%),
+    linear-gradient(180deg, #fffefd 0%, #fff3f6 100%);
+}
+
+.material-button.is-priority.is-complete {
+  background:
+    linear-gradient(90deg,
+      rgba(232, 114, 161, 0.38) 0%,
+      rgba(255, 221, 233, 0.76) 18%,
+      rgba(255, 249, 242, 0.95) 38%,
+      rgba(255, 248, 241, 0.97) 58%,
+      rgba(179, 233, 199, 0.72) 100%),
+    linear-gradient(180deg, #fffefd 0%, #fff3f6 100%);
+}
+
+.material-button-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  width: 100%;
+  min-width: 0;
+}
+
+.material-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 100%;
+  min-height: 24px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  border: 1px solid rgba(230, 178, 190, 0.9);
+  background: rgba(255, 250, 246, 0.92);
+  color: #925565;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.2;
+  white-space: normal;
+  text-align: center;
+}
+
+.material-badge-priority {
+  border-color: rgba(210, 101, 145, 0.88);
+  background: rgba(255, 218, 231, 0.98);
+  color: #a63f67;
+}
+
+.material-badge-complete {
+  border-color: rgba(109, 183, 133, 0.88);
+  background: rgba(224, 248, 232, 0.98);
+  color: #2b774f;
+}
+
+.material-badge-pending {
+  border-color: rgba(219, 163, 149, 0.88);
+  background: rgba(255, 236, 226, 0.98);
+  color: #94594f;
 }
 
 .material-button-label {
   display: block;
   width: 100%;
+  min-width: 0;
+  font-weight: 800;
   overflow-wrap: anywhere;
 }
 
 .material-button-summary {
   display: block;
   width: 100%;
+  min-width: 0;
   color: var(--muted);
   font-size: 12px;
   font-weight: 700;
@@ -284,6 +369,36 @@ main {
   font-size: 12px;
   line-height: 1.2;
   white-space: nowrap;
+}
+
+.material-priority-button {
+  flex: 0 0 auto;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border-color: #e5aec0;
+  background: #fff8fb;
+  color: #9f5a70;
+  font-size: 12px;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.material-priority-button:hover {
+  background: #ffeef5;
+  border-color: #d78ea9;
+}
+
+.material-priority-button:focus-visible {
+  outline: 2px solid #e7a8bb;
+  outline-offset: 2px;
+}
+
+.material-admin-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+  min-width: 0;
 }
 
 .material-delete-button:hover {
@@ -1761,6 +1876,26 @@ button:disabled {
     max-width: 100%;
   }
 
+  .material-buttons {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .material-button-item .material-button {
+    padding-inline: 14px;
+  }
+
+  .material-button-badges {
+    gap: 5px;
+  }
+
+  .material-badge {
+    font-size: 10.5px;
+  }
+
+  .material-admin-actions {
+    justify-content: flex-start;
+  }
+
   .choice-buttons {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -1886,6 +2021,30 @@ button:disabled {
 
   .study-top .meta {
     font-size: clamp(13px, 4.7vw, 16px);
+  }
+
+  .material-button-item .material-button {
+    gap: 6px;
+    padding: 12px 12px;
+  }
+
+  .material-button-label {
+    font-size: 14px;
+    line-height: 1.35;
+  }
+
+  .material-button-summary {
+    font-size: 11.5px;
+  }
+
+  .material-badge {
+    min-height: 22px;
+    padding: 4px 8px;
+  }
+
+  .material-priority-button,
+  .material-delete-button {
+    font-size: 11px;
   }
 
   .study-top #nextCardBtn {
