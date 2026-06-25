@@ -1766,7 +1766,7 @@ button:disabled {
   box-sizing: border-box;
 }
 
-@media (max-width: 700px) {
+@media (max-width: 620px) {
   .study-panel {
     padding: 12px 12px 16px;
   }
@@ -1822,5 +1822,22 @@ button:disabled {
 
   .choice-buttons {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 621px) and (max-width: 720px) {
+  .study-top {
+    flex-direction: row;
+    align-items: stretch;
+  }
+
+  .study-body {
+    grid-template-columns: minmax(0, 1fr) minmax(120px, 136px);
+    gap: 10px;
+  }
+
+  .study-sidebar {
+    min-width: 120px;
+    max-width: 136px;
   }
 }
