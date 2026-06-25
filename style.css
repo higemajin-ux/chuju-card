@@ -1721,3 +1721,104 @@ button:disabled {
     grid-template-columns: 1fr;
   }
 }
+
+/* Stable study layout overrides */
+.study-panel {
+  overflow-x: clip;
+}
+
+.study-body {
+  grid-template-columns: minmax(0, 1fr) 72px;
+  gap: 10px;
+  align-items: start;
+}
+
+.study-main {
+  min-width: 0;
+}
+
+.study-sidebar {
+  width: 72px;
+  min-width: 72px;
+  max-width: 72px;
+  margin-right: 0;
+  padding: 0;
+  justify-self: stretch;
+  overflow: visible;
+}
+
+.sidebar-history,
+.sidebar-actions {
+  width: 100%;
+  min-width: 0;
+}
+
+.sidebar-history {
+  padding: 10px 6px;
+}
+
+.study-sidebar .choice-manual-button,
+.study-sidebar .sidebar-next-button {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+@media (max-width: 700px) {
+  .study-panel {
+    padding: 12px 12px 16px;
+  }
+
+  .study-body {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .study-sidebar {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    justify-self: stretch;
+    gap: 10px;
+  }
+
+  .sidebar-history {
+    padding: 12px 10px;
+  }
+
+  .sidebar-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    align-items: stretch;
+  }
+
+  .study-sidebar .choice-manual-button,
+  .study-sidebar .sidebar-next-button {
+    height: auto;
+    min-height: 72px;
+    writing-mode: horizontal-tb;
+    text-orientation: mixed;
+    white-space: normal;
+    letter-spacing: 0;
+    line-height: 1.2;
+    padding: 12px 10px;
+  }
+
+  .study-sidebar .choice-manual-button::before,
+  .study-sidebar .sidebar-next-button::before {
+    display: none;
+  }
+
+  .study-sidebar .choice-manual-button::after,
+  .study-sidebar .sidebar-next-button::after {
+    inset: 6px;
+  }
+
+  .card-tags {
+    display: none;
+  }
+
+  .choice-buttons {
+    grid-template-columns: 1fr;
+  }
+}
