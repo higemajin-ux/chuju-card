@@ -309,6 +309,8 @@ main {
 }
 
 .study-panel {
+  box-sizing: border-box;
+  width: 100%;
   max-width: 860px;
   margin: 0 auto 14px;
   padding: 12px 18px 16px 14px;
@@ -317,7 +319,7 @@ main {
 
 .study-body {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 76px;
+  grid-template-columns: minmax(0, 1fr) minmax(68px, 76px);
   gap: 12px;
   align-items: start;
 }
@@ -329,9 +331,12 @@ main {
 .study-sidebar {
   display: grid;
   gap: 8px;
-  min-width: 0;
+  min-width: 68px;
+  max-width: 76px;
+  width: 100%;
   margin-top: 8px;
   margin-right: 2px;
+  justify-self: end;
   align-self: flex-start;
   height: fit-content;
 }
@@ -1646,11 +1651,13 @@ button:disabled {
   }
 
   .study-body {
-    grid-template-columns: minmax(0, 1fr) 66px;
+    grid-template-columns: minmax(0, 1fr) minmax(60px, 66px);
     gap: 8px;
   }
 
   .study-sidebar {
+    min-width: 60px;
+    max-width: 66px;
     margin-top: 8px;
     padding: 7px 5px;
     margin-right: 1px;
