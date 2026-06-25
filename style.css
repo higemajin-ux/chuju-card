@@ -220,6 +220,22 @@ main {
   margin-top: 12px;
 }
 
+.start-action-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.start-action-row .start-button {
+  flex: 1 1 180px;
+  margin-top: 0;
+}
+
+.start-scope-hint {
+  margin-top: 8px;
+}
+
 .material-buttons {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -397,8 +413,15 @@ main {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  justify-content: flex-end;
+  justify-content: flex-start;
   min-width: 0;
+}
+
+.compact-empty-state {
+  padding: 18px 14px;
+  border: 1px solid rgba(239, 184, 198, 0.72);
+  border-radius: 20px;
+  background: rgba(255, 251, 247, 0.88);
 }
 
 .material-delete-button:hover {
@@ -1880,6 +1903,14 @@ button:disabled {
     grid-template-columns: minmax(0, 1fr);
   }
 
+  .start-action-row {
+    gap: 8px;
+  }
+
+  .start-action-row .start-button {
+    flex: 1 1 calc(50% - 4px);
+  }
+
   .material-button-item .material-button {
     padding-inline: 14px;
   }
@@ -2026,6 +2057,10 @@ button:disabled {
   .material-button-item .material-button {
     gap: 6px;
     padding: 12px 12px;
+  }
+
+  .start-action-row .start-button {
+    flex: 1 1 100%;
   }
 
   .material-button-label {
