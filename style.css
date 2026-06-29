@@ -1005,6 +1005,8 @@ main {
 }
 
 .question-text {
+  display: grid;
+  gap: 4px;
   font-size: 26px;
   font-weight: 850;
   line-height: 1.58;
@@ -1018,13 +1020,17 @@ main {
   content: "問題";
   display: inline-flex;
   align-items: center;
-  margin: 0 0 14px;
+  justify-self: start;
+  width: fit-content;
+  max-width: 100%;
+  margin: 0;
   padding: 5px 12px;
   border-radius: 999px;
   background: linear-gradient(180deg, #f9d8e3 0%, #f3bccd 100%);
   color: #8e4f63;
   font-size: 12px;
   font-weight: 800;
+  line-height: 1;
   letter-spacing: 0.08em;
 }
 
