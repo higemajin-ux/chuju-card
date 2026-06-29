@@ -168,6 +168,7 @@ function ensureChoiceElements() {
     choiceNextBtn.textContent = '次のカード';
     choiceNextBtn.addEventListener('click', () => {
       pickNextCard();
+      scrollStudyCardIntoView();
     });
 
     if (el.answerArea?.parentElement) {
@@ -549,6 +550,7 @@ function ensureStudyBackButton() {
     choiceFeedback = null;
     resetChoiceCover(null);
     render();
+    scrollMaterialListTopIntoView();
   });
 
   appHeader.appendChild(backBtn);
@@ -897,7 +899,15 @@ function scrollStudyCardIntoView() {
   const target = el.questionText || el.cardBox;
   if (!target) return;
   requestAnimationFrame(() => {
-    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    target.scrollIntoView({ behavior: 'auto', block: 'start' });
+  });
+}
+
+function scrollMaterialListTopIntoView() {
+  const target = document.querySelector('.list-top') || el.listPanel;
+  if (!target) return;
+  requestAnimationFrame(() => {
+    target.scrollIntoView({ behavior: 'auto', block: 'start' });
   });
 }
 
@@ -2487,6 +2497,7 @@ el.showAnswerBtn.addEventListener('click', () => {
 });
 el.nextCardBtn.addEventListener('click', () => {
   pickNextCard();
+  scrollStudyCardIntoView();
 });
 el.markGoodBtn.addEventListener('click', () => {
   markCard('good');
