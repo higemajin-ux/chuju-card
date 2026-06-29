@@ -538,7 +538,7 @@ function ensureStudyBackButton() {
   backBtn.id = 'studyBackBtn';
   backBtn.type = 'button';
   backBtn.className = 'quiet-button header-back-button hidden';
-  backBtn.textContent = '教材一覧へ戻る';
+  backBtn.textContent = '← 教材一覧へ戻る';
   backBtn.addEventListener('click', () => {
     isStudyVisible = false;
     isTodayWrongMode = false;
