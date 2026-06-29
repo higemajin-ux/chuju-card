@@ -1098,7 +1098,10 @@ function renderSidebarHistory() {
     ...Array(Math.max(RECENT_RESULTS_LIMIT - recentResults.length, 0)).fill('empty'),
     ...recentResults,
   ];
-  const historyLabels = ['5回前', '4回前', '3回前', '前回', '今回'];
+  const isTabletHistoryCompact = window.matchMedia('(min-width: 721px) and (max-width: 1180px)').matches;
+  const historyLabels = isTabletHistoryCompact
+    ? ['5前', '4前', '3前', '前', '今']
+    : ['5回前', '4回前', '3回前', '前回', '今回'];
 
   el.sidebarHistory.innerHTML = '';
 
