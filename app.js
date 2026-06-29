@@ -896,10 +896,16 @@ function getStudyCardLabel(card) {
 }
 
 function scrollStudyCardIntoView() {
-  const target = el.questionText || el.cardBox;
+  const target = el.studyPanel?.querySelector('.study-top') || el.cardBox || el.questionText;
   if (!target) return;
   requestAnimationFrame(() => {
-    target.scrollIntoView({ behavior: 'auto', block: 'start' });
+    const header = document.querySelector('.app-header');
+    const headerHeight = header ? header.getBoundingClientRect().height : 0;
+    const top = Math.max(
+      0,
+      target.getBoundingClientRect().top + window.scrollY - headerHeight - 16,
+    );
+    window.scrollTo({ top, behavior: 'auto' });
   });
 }
 
