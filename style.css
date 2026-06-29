@@ -2653,29 +2653,29 @@ button:disabled {
   }
 
   .study-body {
-    grid-template-columns: minmax(0, 1fr) minmax(176px, 220px);
-    gap: 12px;
+    grid-template-columns: minmax(0, 1fr) minmax(152px, 188px);
+    gap: 10px;
     align-items: start;
   }
 
   .study-sidebar {
-    min-width: 176px;
-    max-width: 220px;
-    gap: 8px;
-    margin-top: 4px;
+    min-width: 152px;
+    max-width: 188px;
+    gap: 6px;
+    margin-top: 2px;
     align-self: start;
   }
 
   .sidebar-history {
     grid-template-columns: 1fr;
-    gap: 6px;
-    padding: 10px 8px;
-    border-radius: 18px;
+    gap: 5px;
+    padding: 8px 6px;
+    border-radius: 16px;
   }
 
   .sidebar-section-title {
     grid-column: auto;
-    padding-left: 16px;
+    padding-left: 14px;
     font-size: 0;
     text-align: left;
   }
@@ -2686,15 +2686,15 @@ button:disabled {
 
   .sidebar-section-title::after {
     content: "最近";
-    font-size: 12px;
+    font-size: 11px;
   }
 
   .sidebar-history-row {
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    gap: 6px;
-    padding: 4px 4px;
+    gap: 4px;
+    padding: 3px 3px;
     background: transparent;
   }
 
@@ -2703,7 +2703,7 @@ button:disabled {
   }
 
   .sidebar-history-label {
-    font-size: 10px;
+    font-size: 9px;
     line-height: 1.1;
     text-align: left;
     white-space: nowrap;
@@ -2711,24 +2711,24 @@ button:disabled {
 
   .sidebar-history-mark {
     width: auto;
-    min-width: 26px;
-    min-height: 26px;
+    min-width: 22px;
+    min-height: 22px;
     border-radius: 999px;
-    font-size: 11px;
+    font-size: 10px;
   }
 
   .sidebar-material-summary {
     grid-column: auto;
-    gap: 6px;
-    margin-top: 4px;
-    padding-top: 8px;
+    gap: 4px;
+    margin-top: 2px;
+    padding-top: 6px;
   }
 
   .sidebar-material-summary-item {
-    min-height: 28px;
-    padding: 5px 4px;
-    border-radius: 10px;
-    font-size: 10px;
+    min-height: 24px;
+    padding: 4px 3px;
+    border-radius: 9px;
+    font-size: 9px;
   }
 
   .sidebar-actions {
@@ -2889,13 +2889,13 @@ button:disabled {
 
 @media (min-width: 901px) and (max-width: 1180px) {
   .study-body {
-    grid-template-columns: minmax(0, 1fr) minmax(188px, 232px);
-    gap: 14px;
+    grid-template-columns: minmax(0, 1fr) minmax(164px, 198px);
+    gap: 12px;
   }
 
   .study-sidebar {
-    min-width: 188px;
-    max-width: 232px;
+    min-width: 164px;
+    max-width: 198px;
   }
 
   .question-image {
