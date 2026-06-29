@@ -289,22 +289,22 @@ main {
   white-space: normal;
   line-height: 1.35;
   border: 2px solid #efb8c6;
-  background: #fff8f7;
+  background: #fff2f3;
   box-shadow: 0 6px 14px rgba(216, 91, 134, 0.08);
   position: relative;
   overflow: hidden;
 }
 
 .material-button.is-priority {
-  background: #fff5dd;
+  background: #fff0c8;
 }
 
 .material-button.is-complete {
-  background: #eef8f0;
+  background: #e3f3e7;
 }
 
 .material-button.is-priority.is-complete {
-  background: #f5f6df;
+  background: #eef0c8;
 }
 
 .material-button-badges {
