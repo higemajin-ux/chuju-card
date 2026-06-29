@@ -99,6 +99,7 @@ const el = {
   materialButtons: document.getElementById('materialButtons'),
   materialScopeHint: document.getElementById('materialScopeHint'),
   studyBackBtn: document.getElementById('studyBackBtn'),
+  studyModeChip: document.getElementById('studyModeChip'),
   listFilterSelect: document.getElementById('listFilterSelect'),
   listSummary: document.getElementById('listSummary'),
   listScopeHint: document.getElementById('listScopeHint'),
@@ -230,6 +231,14 @@ function ensureStudySidebarElements() {
 
   const studyTop = el.studyPanel.querySelector('.study-top');
   if (!studyTop) return;
+
+  if (!el.studyModeChip) {
+    const studyModeChip = document.createElement('span');
+    studyModeChip.id = 'studyModeChip';
+    studyModeChip.className = 'study-mode-chip hidden';
+    studyTop.appendChild(studyModeChip);
+    el.studyModeChip = studyModeChip;
+  }
 
   const studyBody = document.createElement('div');
   studyBody.id = 'studyBody';
@@ -389,6 +398,36 @@ function getCurrentListScopeLabel() {
   return '';
 }
 
+function getCurrentStudyMaterialName(card) {
+  return getCardMaterialName(card) || activeMaterialName || '';
+}
+
+function getCurrentStudyPositionText(card) {
+  if (!card) return '';
+  const materialName = getCurrentStudyMaterialName(card);
+  if (!materialName) return '';
+  const materialCards = cards.filter((item) => getCardMaterialName(item) === materialName);
+  if (!materialCards.length) return '';
+  const currentIndex = materialCards.findIndex((item) => item.id === card.id);
+  if (currentIndex < 0) return '';
+  return `${currentIndex + 1}/${materialCards.length}`;
+}
+
+function getCurrentStudyMetaText(card) {
+  if (!card) return getCurrentListScopeLabel() || '';
+  const subject = (card.subject || '').trim();
+  const materialName = getCurrentStudyMaterialName(card);
+  const progress = getCurrentStudyPositionText(card);
+  return [subject, materialName, progress].filter(Boolean).join(' ｜ ');
+}
+
+function getCurrentStudyModeLabel(card) {
+  if (isTodayWrongMode) return WRONG_LABEL;
+  if (card && isPriorityMaterial(getCurrentStudyMaterialName(card))) return '優先';
+  if (card && !isCardGraduated(card)) return '未合格';
+  return '';
+}
+
 function buildEmptyStateMarkup(message) {
   return `<div class="empty-state"><img class="empty-state-image" src="./img/empty-state-card.png" alt="\u30ab\u30fc\u30c9\u306a\u3057"><p class="hint">${message}</p></div>`;
 }
@@ -522,6 +561,7 @@ function updateStudyVisibility() {
   setElementVisible(el.listPanel, isStudyVisible);
   setElementVisible(el.studyBackBtn, isStudyVisible);
   setElementVisible(el.saveStatus, false);
+  document.body.classList.toggle('study-active', isStudyVisible);
 }
 
 function ensureStudyStartElements() {
@@ -1088,6 +1128,26 @@ function renderSidebarHistory() {
     row.appendChild(mark);
     el.sidebarHistory.appendChild(row);
   });
+
+  const materialName = getCurrentStudyMaterialName(currentCard);
+  if (!materialName) return;
+
+  const counts = getMaterialCardCounts(materialName);
+  const summary = document.createElement('div');
+  summary.className = 'sidebar-material-summary';
+
+  [
+    ['全', counts.total],
+    ['未合格', counts.notGraduated],
+    ['合格', counts.graduated],
+  ].forEach(([label, value]) => {
+    const item = document.createElement('span');
+    item.className = 'sidebar-material-summary-item';
+    item.textContent = `${label}${value}`;
+    summary.appendChild(item);
+  });
+
+  el.sidebarHistory.appendChild(summary);
 }
 
 function renderSidebarLegend() {
@@ -1804,6 +1864,10 @@ function renderStudyCard() {
     setElementVisible(el.problemFlagBtn, false);
     el.answerText.textContent = '';
     el.explanationText.textContent = '';
+    if (el.studyModeChip) {
+      el.studyModeChip.textContent = getCurrentStudyModeLabel(null);
+      el.studyModeChip.classList.toggle('hidden', !el.studyModeChip.textContent);
+    }
     updateStudyButtons();
     renderStudySidebar();
     return;
@@ -1815,12 +1879,16 @@ function renderStudyCard() {
   setElementVisible(el.studyReplayBtn, false);
   setElementVisible(el.studyEmptyImage, false);
   setElementVisible(el.questionText, true);
+  if (el.studyModeChip) {
+    el.studyModeChip.textContent = getCurrentStudyModeLabel(currentCard);
+    el.studyModeChip.classList.toggle('hidden', !el.studyModeChip.textContent);
+  }
   const modeLabel = activeMaterialName ? `教材: ${activeMaterialName}` : WRONG_LABEL;
   el.cardMeta.textContent = `${modeLabel} / 次回 ${currentCard.nextReviewDate || todayString()}`;
   setTag(el.subjectTag, '科目', currentCard.subject);
   setTag(el.unitTag, '単元', currentCard.unit);
   setTag(el.difficultyTag, '難しさ', currentCard.difficulty);
-  el.cardMeta.textContent = getStudyCardLabel(currentCard) || modeLabel;
+  el.cardMeta.textContent = getCurrentStudyMetaText(currentCard) || getCurrentListScopeLabel();
   setTag(el.difficultyTag, '', '');
   setCheckBadge(el.checkBadge, currentCard.check);
   setElementVisible(el.problemBadge, isProblemFlagged(currentCard));
