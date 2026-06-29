@@ -2668,8 +2668,8 @@ button:disabled {
 
   .sidebar-history {
     grid-template-columns: 1fr;
-    gap: 5px;
-    padding: 8px 6px;
+    gap: 4px;
+    padding: 7px 6px 6px;
     border-radius: 16px;
   }
 
@@ -2693,8 +2693,8 @@ button:disabled {
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    gap: 4px;
-    padding: 3px 3px;
+    gap: 3px;
+    padding: 2px 3px;
     background: transparent;
   }
 
@@ -2719,14 +2719,14 @@ button:disabled {
 
   .sidebar-material-summary {
     grid-column: auto;
-    gap: 4px;
-    margin-top: 2px;
-    padding-top: 6px;
+    gap: 3px;
+    margin-top: 1px;
+    padding-top: 5px;
   }
 
   .sidebar-material-summary-item {
-    min-height: 24px;
-    padding: 4px 3px;
+    min-height: 22px;
+    padding: 3px 3px;
     border-radius: 9px;
     font-size: 10px;
   }
